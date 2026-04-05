@@ -9,7 +9,7 @@ Nellie is a local AI companion project with multiple clients on top of the same 
 - STT server for speech-to-text
 - XTTS server for voice synthesis
 
-The project is built for local Windows use and uses Ollama for the language model.
+The project is built for local Windows use and uses Ollama for the language model, but the end product targets to become a mobile app.
 
 ## Project Structure
 
