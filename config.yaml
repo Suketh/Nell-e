@@ -1,0 +1,110 @@
+ollama:
+  host: http://localhost:11434
+  text_model: hermes3:8b
+  vision_model: llava:7b
+backend:
+  conversation:
+    enabled: true
+    url: http://127.0.0.1:8877
+    host: 127.0.0.1
+    port: 8877
+    autostart: true
+    start_timeout: 120
+    script_path: server/conversation_server.py
+ollama_runtime:
+  num_ctx: 2048
+  num_gpu: 1
+  temperature: 0.7
+stt:
+  engine: server_http
+  model: small
+  language: auto
+  device: cuda
+  compute_type: float16
+  vad: true
+  server:
+    provider: faster_whisper
+    url: http://127.0.0.1:8765/transcribe
+    health_url: http://127.0.0.1:8765/health
+    host: 127.0.0.1
+    port: 8765
+    timeout: 45
+    start_timeout: 180
+    language: auto
+    api_key: ""
+    autostart: true
+    preload_on_init: false
+    python_executable: .voxtral-venv/Scripts/python.exe
+    script_path: server/stt_server.py
+    model_path: models/Voxtral-Mini-4B-Realtime-2602
+    device: auto
+    dtype: auto
+    fallback_provider: none
+    fallback_model: small
+    fallback_device: cuda
+    fallback_compute_type: int8
+    log_path: data/voxtral_server.log
+tts:
+  engine: coqui_xtts_server
+  fallback_engine: vibevoice_realtime
+  stream_while_generating: false
+  voice_sample: assets/voices/Nellie1.wav
+  default_voice_profile: nellie1
+  voice_profiles:
+    - id: nellie1
+      label: Nellie I
+      description: Softer and more intimate.
+      sample: assets/voices/Nellie1.wav
+    - id: nellie2
+      label: Nellie II
+      description: Slightly clearer and steadier.
+      sample: assets/voices/Nellie2.wav
+    - id: nellie3
+      label: Nellie III
+      description: A little brighter and more forward.
+      sample: assets/voices/Nellie3.wav
+  language: en
+  fish_speech:
+    base_url: http://127.0.0.1:8890
+    health_url: http://127.0.0.1:8890/health
+    synth_path: /v1/tts
+    health_path: /health
+    api_key: ""
+    timeout: 90
+    output_samplerate: 24000
+    use_post: false
+  coqui_xtts_server:
+    base_url: http://127.0.0.1:8891
+    health_url: http://127.0.0.1:8891/health
+    synth_path: /v1/tts
+    health_path: /health
+    timeout: 120
+    output_samplerate: 24000
+    use_post: true
+  vibevoice:
+    repo_path: external/VibeVoice
+    model_path: microsoft/VibeVoice-Realtime-0.5B
+    speaker_name: en-Emma_woman
+    device: auto
+    cfg_scale: 1.6
+    inference_steps: 4
+    max_chars_per_chunk: 220
+    playback_rate: 0.98
+    chunk_join_silence_ms: 90
+    tail_silence_ms: 220
+    ssml_lite_enabled: false
+    server_port: 3000
+    server_start_timeout: 180
+    python_executable: C:/Python312/python.exe
+ui:
+  theme: dark
+  accent_color: '#FFD447'
+  enable_voice_input: true
+paths:
+  moods_dir: assets/moods
+  gallery_dir: data/gallery
+  db_path: data/memory.db
+  personality_path: data/personality.json
+policies:
+  romance_rating: pg18
+  safety_filters: false

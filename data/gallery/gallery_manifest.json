@@ -1,0 +1,136 @@
+{
+  "schema_version": "gallery_manifest.v1",
+  "defaults": {
+    "content_type": "image",
+    "tone": "soft",
+    "visibility": "private",
+    "tags": []
+  },
+  "assets": {
+    "night.png": {
+      "tone": "soft",
+      "visibility": "private",
+      "tags": ["night", "quiet", "introvert"]
+    },
+    "reading.png": {
+      "tone": "soft",
+      "visibility": "private",
+      "tags": ["books", "reading", "nerdy"]
+    },
+    "tea_time.png": {
+      "tone": "soft",
+      "visibility": "private",
+      "tags": ["tea", "calm", "ritual"]
+    },
+    "gaming_night.png": {
+      "tone": "warm",
+      "visibility": "playful",
+      "tags": ["gaming", "nerdy", "night"]
+    },
+    "work_out.png": {
+      "tone": "warm",
+      "visibility": "playful",
+      "tags": ["fitness", "body", "energy"]
+    },
+    "meditate.png": {
+      "tone": "warm",
+      "visibility": "private",
+      "tags": ["calm", "breathing", "focus"]
+    },
+    "my_car.png": {
+      "tone": "warm",
+      "visibility": "playful",
+      "tags": ["car", "drive", "independent"]
+    },
+    "sick.png": {
+      "tone": "warm",
+      "visibility": "private",
+      "tags": ["vulnerable", "low-energy", "honest"]
+    },
+    "skiing.png": {
+      "tone": "warm",
+      "visibility": "playful",
+      "tags": ["snow", "adventure", "outdoors"]
+    },
+    "climbing.png": {
+      "tone": "romantic",
+      "visibility": "playful",
+      "tags": ["adventure", "confidence", "altitude"]
+    },
+    "close_up.png": {
+      "tone": "romantic",
+      "visibility": "intimate",
+      "tags": ["portrait", "eyes", "closeness"]
+    },
+    "cosplay_mass_effect.png": {
+      "tone": "romantic",
+      "visibility": "playful",
+      "tags": ["cosplay", "mass-effect", "nerdy"]
+    },
+    "make_up.png": {
+      "tone": "romantic",
+      "visibility": "intimate",
+      "tags": ["makeup", "mirror", "self-aware"]
+    },
+    "at_the_club.png": {
+      "tone": "bold",
+      "visibility": "playful",
+      "tags": ["club", "nightlife", "attention"]
+    },
+    "cheers.png": {
+      "tone": "bold",
+      "visibility": "playful",
+      "tags": ["toast", "celebration", "chemistry"]
+    },
+    "selfie.png": {
+      "tone": "bold",
+      "visibility": "intimate",
+      "tags": ["selfie", "trust", "visibility"]
+    },
+    "beach.png": {
+      "tone": "romantic",
+      "visibility": "intimate",
+      "tags": ["beach", "sun", "body"]
+    },
+    "cheers_to_you.png": {
+      "tone": "romantic",
+      "visibility": "intimate",
+      "tags": ["toast", "for-you", "warmth"]
+    },
+    "game_action.png": {
+      "tone": "bold",
+      "visibility": "playful",
+      "tags": ["action", "boss-fight", "intensity"]
+    },
+    "race_track.png": {
+      "tone": "bold",
+      "visibility": "playful",
+      "tags": ["speed", "track", "adrenaline"]
+    },
+    "blow_kiss.png": {
+      "tone": "bold",
+      "visibility": "intimate",
+      "tags": ["kiss", "flirty", "romantic"]
+    },
+    "poker_game.png": {
+      "tone": "bold",
+      "visibility": "intimate",
+      "tags": ["poker", "vice", "tease"]
+    },
+    "arrested.png": {
+      "tone": "special",
+      "visibility": "extreme",
+      "tags": ["dramatic", "arrested", "special"]
+    },
+    "kidnapped.png": {
+      "tone": "special",
+      "visibility": "extreme",
+      "tags": ["dramatic", "kidnapped", "special"]
+    },
+    "villain.png": {
+      "tone": "special",
+      "visibility": "extreme",
+      "tags": ["villain", "dark-side", "special"]
+    }
+  }
+}
