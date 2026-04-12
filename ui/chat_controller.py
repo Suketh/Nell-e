@@ -236,6 +236,7 @@ class DesktopChatController:
                 plain = re.sub(r"\s+", " ", plain).strip()
             status_text = "Voice ready"
             try:
+                self.window.voice_status_update.emit("Nellie is speaking...")
                 self.window.tts.speak(text)
             except Exception as exc:
                 print(f"[tts] {exc}")

@@ -24,9 +24,9 @@ function Stop-ManagedProcess {
 
 function Stop-ListenerOnPort {
     param([int]$Port)
-    $matches = netstat -ano | Select-String ":$Port"
+    $portMatches = netstat -ano | Select-String ":$Port"
     $pids = @()
-    foreach ($line in $matches) {
+    foreach ($line in $portMatches) {
         $text = ($line.ToString() -replace "\s+", " ").Trim()
         $parts = $text.Split(" ")
         if ($parts.Length -ge 5) {

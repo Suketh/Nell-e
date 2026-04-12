@@ -91,11 +91,13 @@ class DesktopStartupController:
     def on_voice_status_update(self, text: str):
         if text and not any(marker in text.lower() for marker in ["thinking", "playing voice demo", "retrying"]):
             self.window._resting_voice_status = text
+        self.window.voice_status.setText(text or self.window._resting_voice_status)
         self.refresh_startup_progress(text or self.window._startup_status_text)
 
     def on_listening_status_update(self, text: str, ready: bool):
         if text and "warming" not in text.lower():
             self.window._resting_listening_status = text
+        self.window.listening_status.setText(text or self.window._resting_listening_status)
         self.refresh_startup_progress(text or self.window._startup_status_text)
         if self.window.recorder is not None:
             self.window.recorder.set_ready_state(ready and self.window._startup_complete, text)

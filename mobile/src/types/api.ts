@@ -35,6 +35,14 @@ export type VoiceProfile = {
   sample?: string;
 };
 
+export type PersonaProfile = {
+  id: string;
+  name: string;
+  label?: string;
+  description?: string;
+  voice_profile_id?: string;
+};
+
 export type ToolEvent = {
   tool?: string;
   status?: string;
@@ -97,6 +105,9 @@ export type ProfileSummary = {
   nellie_preferences?: NelliePreference[];
   voice_profiles?: VoiceProfile[];
   selected_voice_profile?: VoiceProfile | null;
+  persona_id?: string;
+  persona_profiles?: PersonaProfile[];
+  selected_persona?: PersonaProfile | null;
 };
 
 export type ReplyResponse = {
@@ -104,6 +115,17 @@ export type ReplyResponse = {
   session_id: string;
   reply: string;
   spoken_reply?: string;
+  tts_audio_base64?: string;
+  tts_audio_content_type?: string;
+  tts_sample_rate?: number;
+  tts_meta?: {
+    engine?: string;
+    cache_hit?: boolean;
+    tts_ms?: number;
+    profile_id?: string;
+    text_chars?: number;
+    language?: string;
+  };
   mood: string;
   context?: string;
   mode: string;
@@ -125,6 +147,9 @@ export type ReplyResponse = {
   nellie_preferences?: NelliePreference[];
   voice_profiles?: VoiceProfile[];
   selected_voice_profile?: VoiceProfile | null;
+  persona_id?: string;
+  persona_profiles?: PersonaProfile[];
+  selected_persona?: PersonaProfile | null;
 };
 
 export type ChatMessage = {

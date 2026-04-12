@@ -75,3 +75,4 @@ web/dist/
 
 # Keep tracked sample voice assets by exception if needed
 !assets/voices/*.wav
+!assets/voices/ralph.mp3

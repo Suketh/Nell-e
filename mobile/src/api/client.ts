@@ -1,9 +1,10 @@
 import { NELLIE_API_BASE, NELLIE_STT_BASE } from "@/src/config/env";
 import type { FeatureAccessState, GalleryItem, ProfileSummary, ReplyResponse, VoiceProfile } from "@/src/types/api";
 
-function withUser(path: string, userId: string): string {
+function withUser(path: string, userId: string, personaId = "nellie"): string {
   const url = new URL(`${NELLIE_API_BASE}${path}`);
   url.searchParams.set("user_id", userId);
+  url.searchParams.set("persona_id", personaId);
   return url.toString();
 }
 
@@ -27,28 +28,29 @@ async function postJson<T>(path: string, payload: Record<string, unknown>): Prom
   return (await response.json()) as T;
 }
 
-export async function fetchProfileSummary(userId: string): Promise<ProfileSummary> {
-  return getJson<ProfileSummary>(withUser("/profile-summary", userId));
+export async function fetchProfileSummary(userId: string, personaId = "nellie"): Promise<ProfileSummary> {
+  return getJson<ProfileSummary>(withUser("/profile-summary", userId, personaId));
 }
 
-export async function fetchGalleryCatalog(userId: string): Promise<GalleryItem[]> {
-  const payload = await getJson<{ items: GalleryItem[] }>(withUser("/gallery/catalog", userId));
+export async function fetchGalleryCatalog(userId: string, personaId = "nellie"): Promise<GalleryItem[]> {
+  const payload = await getJson<{ items: GalleryItem[] }>(withUser("/gallery/catalog", userId, personaId));
   return payload.items ?? [];
 }
 
-export async function fetchUnlockedGallery(userId: string): Promise<GalleryItem[]> {
-  const payload = await getJson<{ items: GalleryItem[] }>(withUser("/gallery/unlocked", userId));
+export async function fetchUnlockedGallery(userId: string, personaId = "nellie"): Promise<GalleryItem[]> {
+  const payload = await getJson<{ items: GalleryItem[] }>(withUser("/gallery/unlocked", userId, personaId));
   return payload.items ?? [];
 }
 
-export async function fetchFeatureAccess(userId: string): Promise<FeatureAccessState> {
-  const payload = await getJson<{ feature_access: FeatureAccessState }>(withUser("/features", userId));
+export async function fetchFeatureAccess(userId: string, personaId = "nellie"): Promise<FeatureAccessState> {
+  const payload = await getJson<{ feature_access: FeatureAccessState }>(withUser("/features", userId, personaId));
   return payload.feature_access;
 }
 
-export async function updateFeatureAccess(userId: string, featureId: string, enabled: boolean): Promise<FeatureAccessState> {
+export async function updateFeatureAccess(userId: string, personaId: string, featureId: string, enabled: boolean): Promise<FeatureAccessState> {
   const payload = await postJson<{ feature_access: FeatureAccessState }>("/features/update", {
     user_id: userId,
+    persona_id: personaId,
     feature_id: featureId,
     enabled,
   });
@@ -57,45 +59,52 @@ export async function updateFeatureAccess(userId: string, featureId: string, ena
 
 export async function postDiagnosticEvent(
   userId: string,
+  personaId: string,
   sessionId: string,
   event: Record<string, unknown>,
 ): Promise<void> {
   await postJson<{ ok: boolean }>("/diagnostics/event", {
     user_id: userId,
+    persona_id: personaId,
     session_id: sessionId,
     event,
   });
 }
 
-export async function adminSetLevel(userId: string, level: number): Promise<ProfileSummary> {
+export async function adminSetLevel(userId: string, personaId: string, level: number): Promise<ProfileSummary> {
   return postJson<ProfileSummary>("/admin/progression", {
     user_id: userId,
+    persona_id: personaId,
     action: "set_level",
     level,
   });
 }
 
-export async function adminResetProgress(userId: string): Promise<ProfileSummary> {
+export async function adminResetProgress(userId: string, personaId: string): Promise<ProfileSummary> {
   return postJson<ProfileSummary>("/admin/progression", {
     user_id: userId,
+    persona_id: personaId,
     action: "reset",
   });
 }
 
-export async function adminSetAllFeatures(userId: string, enabled: boolean): Promise<FeatureAccessState> {
+export async function adminSetAllFeatures(userId: string, personaId: string, enabled: boolean): Promise<FeatureAccessState> {
   const payload = await postJson<{ feature_access: FeatureAccessState }>("/admin/features/all", {
     user_id: userId,
+    persona_id: personaId,
     enabled,
   });
   return payload.feature_access;
 }
 
-export async function sendReply(input: { userId: string; sessionId: string; text: string }): Promise<ReplyResponse> {
+export async function sendReply(input: { userId: string; personaId: string; sessionId: string; text: string; includeTtsAudio?: boolean }): Promise<ReplyResponse> {
   return postJson<ReplyResponse>("/chat/reply", {
     user_id: input.userId,
+    persona_id: input.personaId,
     session_id: input.sessionId,
     text: input.text,
     user_text: input.text,
+    include_tts_audio: Boolean(input.includeTtsAudio),
   });
 }
 
@@ -117,16 +126,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return output;
 }
 
-export function buildTtsUrl(text: string, userId?: string): string {
-  const url = new URL(`${NELLIE_API_BASE}/tts`);
-  url.searchParams.set("text", text);
-  if (userId) {
-    url.searchParams.set("user_id", userId);
-  }
-  return url.toString();
-}
-
-export async function fetchTtsAudioDataUri(text: string, userId?: string): Promise<{ uri: string; fetchMs: number }> {
+export async function fetchTtsAudioDataUri(text: string, userId?: string, personaId = "nellie"): Promise<{ uri: string; fetchMs: number }> {
   const startedAt = Date.now();
   const response = await fetch(`${NELLIE_API_BASE}/tts`, {
     method: "POST",
@@ -134,6 +134,7 @@ export async function fetchTtsAudioDataUri(text: string, userId?: string): Promi
     body: JSON.stringify({
       text,
       user_id: userId,
+      persona_id: personaId,
     }),
   });
   if (!response.ok) {
@@ -147,9 +148,10 @@ export async function fetchTtsAudioDataUri(text: string, userId?: string): Promi
   };
 }
 
-export async function selectVoiceProfile(userId: string, voiceProfileId: string): Promise<ProfileSummary> {
+export async function selectVoiceProfile(userId: string, personaId: string, voiceProfileId: string): Promise<ProfileSummary> {
   return postJson<ProfileSummary>("/voice-profile/select", {
     user_id: userId,
+    persona_id: personaId,
     voice_profile_id: voiceProfileId,
   });
 }
@@ -170,9 +172,10 @@ function normalizeMood(mood?: string): string {
   return ["angry", "annoyed", "happy", "neutral", "sad", "thoughtful", "tired"].includes(normalized) ? normalized : "thoughtful";
 }
 
-export function buildMoodPortraitUrl(mood?: string): string {
+export function buildMoodPortraitUrl(mood?: string, personaId = "nellie"): string {
   const normalized = normalizeMood(mood);
-  return `${NELLIE_API_BASE}/assets/moods/${normalized}.png`;
+  const persona = String(personaId || "nellie").trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-") || "nellie";
+  return `${NELLIE_API_BASE}/assets/moods/${persona}/${normalized}.png`;
 }
 
 export function buildGalleryAssetUrl(item: { filename?: string; image_path?: string; path?: string }): string | null {

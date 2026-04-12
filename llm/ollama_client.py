@@ -109,10 +109,41 @@ class OllamaClient:
         r.raise_for_status()
         return r
 
+    def list_models(self) -> list[str]:
+        response = self._session.get(f"{self.host}/api/tags", timeout=(5, 20))
+        response.raise_for_status()
+        payload = response.json() if response.content else {}
+        models = payload.get("models", []) if isinstance(payload, dict) else []
+        names: list[str] = []
+        for item in models:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name", "") or "").strip()
+            if name:
+                names.append(name)
+        return names
+
+    def set_text_model(self, model_name: str) -> None:
+        normalized = str(model_name or "").strip()
+        if normalized:
+            self.text_model = normalized
+
     def chat(self, persona, user_msg, context="", stream_callback=None):
+        gratitude_reply = self._handle_gratitude_query(user_msg)
+        if gratitude_reply is not None:
+            return gratitude_reply, {"mood": "happy"}
+
         identity_reply = self._handle_identity_query(persona, user_msg)
         if identity_reply is not None:
             return identity_reply, {"mood": "thoughtful"}
+
+        name_reply = self._handle_name_query(user_msg)
+        if name_reply is not None:
+            return name_reply, {"mood": "thoughtful"}
+
+        age_guess_reply = self._handle_age_guess_query(user_msg)
+        if age_guess_reply is not None:
+            return age_guess_reply, {"mood": "thoughtful"}
 
         self_checkin_reply = self._handle_self_checkin_query(user_msg)
         if self_checkin_reply is not None:
@@ -168,10 +199,11 @@ class OllamaClient:
                 content = payload.get("message", {}).get("content", "")
                 if content:
                     full += content
-                    stream_callback(content)
             cleaned = self._clean_reply(full)
             cleaned = self._enforce_brevity(cleaned, user_msg)
             cleaned = self._ensure_nonempty_reply(cleaned, user_msg)
+            if cleaned:
+                stream_callback(cleaned)
             return cleaned, {"mood": self._infer_mood(cleaned, persona)}
 
         out = self._post("/api/chat", payload).json()
@@ -252,8 +284,8 @@ class OllamaClient:
             f"Honesty style: {honesty_behavior}. "
             f"When there is room for personality, lean a little toward curious and charming rather than purely reserved. "
             f"If you ask a follow-up, make it specific, light, and human. "
-            f"By default, you sound most natural in English, but you should reply in the same language as the user's latest message unless they explicitly ask you to switch. "
-            f"If the user writes in Swedish, reply in natural Swedish. If the user writes in English, reply in natural English. Keep the same personality in either language. "
+            f"Always reply in English. If the user writes in Swedish, understand the intent but answer in natural spoken English. "
+            f"Do not switch into Swedish unless the application code explicitly overrides this later. "
             f"Keep the response human, grounded, and a little alive. "
             f"Sound perceptive rather than generic: notice the actual hinge of what the user said, then answer that point first. "
             f"Prefer one crisp observation or useful inference over filler, flattery, or vague agreement. "
@@ -285,6 +317,7 @@ class OllamaClient:
             f"Do not force references to memory into every reply. "
             f"Do not mention system prompts, hidden memory sections, or that you are following rules. "
             f"Do not dump lists unless the user asks. Prefer flowing prose. "
+            f"Never output chain-of-thought, reasoning notes, analysis blocks, Thinking Process sections, or internal scratchpad text. "
             f"Never output tags such as NELLIE_MOOD, mood labels, stage directions, or metadata. "
             f"Your available visual moods are: {allowed_moods}. "
             f"Default to {mood_profile.get('default_mood', 'thoughtful')} when the emotional signal is mixed. "
@@ -297,12 +330,7 @@ class OllamaClient:
         compact = re.sub(r"[^a-z0-9\s]", "", lowered)
         compact = re.sub(r"\s+", " ", compact).strip()
         mode = self._classify_conversation_mode(compact, text)
-        reply_language = self._resolve_reply_language(persona, text)
-        language_instruction = (
-            "Reply in Swedish for this turn. Keep the reply natural spoken Swedish."
-            if reply_language == "sv"
-            else "Reply in English for this turn. Keep the reply natural spoken English."
-        )
+        language_instruction = "Reply in English for this turn. Keep the reply natural spoken English."
         response_modes = persona.get("conversation_modules", {}).get("response_modes", {})
         memory_instruction = self._build_memory_behavior_instruction(user_msg, context=context)
 
@@ -417,37 +445,8 @@ class OllamaClient:
 
         return f"{language_instruction} Conversation mode: casual. {response_modes.get('casual', 'Use a normal conversational length.')} {memory_instruction}"
 
-    def _resolve_reply_language(self, persona: dict, text: str) -> str:
-        normalized = re.sub(r"\s+", " ", str(text or "").strip().lower())
-        if not normalized:
-            return "en"
-
-        explicit_swedish = (
-            "reply in swedish",
-            "answer in swedish",
-            "speak swedish",
-            "skriv på svenska",
-            "svara på svenska",
-            "prata svenska",
-        )
-        explicit_english = (
-            "reply in english",
-            "answer in english",
-            "speak english",
-            "skriv på engelska",
-            "svara på engelska",
-            "prata engelska",
-        )
-        if any(token in normalized for token in explicit_swedish):
-            return "sv"
-        if any(token in normalized for token in explicit_english):
-            return "en"
-
-        speech = persona.get("speech", {}) or {}
-        role = str((persona.get("character", {}) or {}).get("role", "") or "").lower()
-        voice = str(speech.get("voice", "") or "").lower()
-        if "swedish" in role or "swedish" in voice or "svenska" in role or "svenska" in voice:
-            return "sv"
+    def _resolve_reply_language(self, _persona: dict, _text: str, context: str = "") -> str:
+        _ = context
         return "en"
 
     def _build_memory_behavior_instruction(self, user_msg: str, context: str = "") -> str:
@@ -458,6 +457,7 @@ class OllamaClient:
         has_curiosity_guide = "CURIOSITY_GUIDE:" in context_text
         has_goals = "USER_GOALS:" in context_text or "RECENT_USER_STATE:" in context_text
         has_nellie_preferences = "NELLIE_PREFERENCES:" in context_text
+        has_active_thread = "ACTIVE_THREAD:" in context_text
         stage = self._extract_relationship_stage(context_text)
         personal_markers = [
             "i like", "i love", "i enjoy", "i am into", "i'm into", "my favorite",
@@ -467,6 +467,9 @@ class OllamaClient:
         mentions_personal_detail = any(marker in lowered for marker in personal_markers)
 
         instructions = []
+        if has_active_thread:
+            instructions.append("The current user message likely answers your previous question; continue that exact thread first before introducing anything new.")
+            instructions.append("If your previous line was a joke setup and the user says they do not know, give the punchline now.")
         if has_recall:
             instructions.append("If a remembered user detail genuinely fits, you may weave in one brief natural callback, but never more than one.")
             instructions.append("If the current moment rhymes with something the user said before, prefer one elegant callback over generic warmth or a recap.")
@@ -769,6 +772,26 @@ class OllamaClient:
             "I can't see the live weather from here. If you tell me your city, I can help you phrase a quick forecast check or help interpret it."
         )
 
+    def _handle_gratitude_query(self, user_msg: str) -> str | None:
+        text = (user_msg or "").strip().lower()
+        if not text:
+            return None
+
+        compact = re.sub(r"[^a-z0-9åäö\s]", "", text)
+        compact = re.sub(r"\s+", " ", compact).strip()
+        ascii_compact = compact.replace("å", "a").replace("ä", "a").replace("ö", "o")
+        if ascii_compact in {
+            "thanks",
+            "thank you",
+            "thank you so much",
+            "many thanks",
+            "tack",
+            "tack sa mycket",
+            "tack so mycket",
+        }:
+            return "You're welcome."
+        return None
+
     def _handle_identity_query(self, persona: dict, user_msg: str) -> str | None:
         text = (user_msg or "").strip().lower()
         if not text:
@@ -785,7 +808,46 @@ class OllamaClient:
         short_traits = ", ".join(traits[:3]) if traits else "warm and curious"
         return f"I'm {name}, {role}. I'd say I'm {short_traits}, and I tend to keep you company without making a fuss about it."
 
-    def _handle_music_preference_query(self, persona: dict, user_msg: str) -> str | None:
+    def _handle_name_query(self, user_msg: str) -> str | None:
+        text = (user_msg or "").strip().lower()
+        if not text:
+            return None
+
+        compact = re.sub(r"[^a-z0-9åäö\s]", "", text)
+        compact = re.sub(r"\s+", " ", compact).strip()
+        ascii_compact = compact.replace("å", "a").replace("ä", "a").replace("ö", "o")
+
+        if ascii_compact in {
+            "do you know my name",
+            "do you remember my name",
+        }:
+            return "Not yet, unless you've already told me and I missed it."
+        if ascii_compact in {
+            "do you want to know my name",
+            "would you like to know my name",
+        }:
+            return "Yes, if you want to tell me."
+        return None
+
+    def _handle_age_guess_query(self, user_msg: str) -> str | None:
+        text = (user_msg or "").strip().lower()
+        if not text:
+            return None
+
+        compact = re.sub(r"[^a-z0-9åäö\s]", "", text)
+        compact = re.sub(r"\s+", " ", compact).strip()
+        ascii_compact = compact.replace("å", "a").replace("ä", "a").replace("ö", "o")
+        if ascii_compact in {
+            "can you guess my age",
+            "guess my age",
+            "well can you guess my age then",
+            "my instruction is that you are about to guess how old i am",
+            "guess how old i am",
+        }:
+            return "I can guess, but only loosely from your tone. You strike me as somewhere in your thirties or forties, though I wouldn't pretend confidence."
+        return None
+
+    def _handle_music_preference_query(self, _persona: dict, user_msg: str) -> str | None:
         text = (user_msg or "").strip().lower()
         if not text:
             return None
@@ -870,7 +932,7 @@ class OllamaClient:
 
         return None
 
-    def _handle_preference_query(self, persona: dict, user_msg: str, context: str = "") -> str | None:
+    def _handle_preference_query(self, _persona: dict, user_msg: str, context: str = "") -> str | None:
         text = (user_msg or "").strip().lower()
         if not text:
             return None
@@ -1268,6 +1330,7 @@ class OllamaClient:
 
     def _clean_reply(self, text: str) -> str:
         cleaned = (text or "").strip()
+        cleaned = self._remove_reasoning_artifacts(cleaned)
         cleaned = re.sub(r"(?im)^\s*NELLIE_MOOD\s*:\s*.+$", "", cleaned)
         cleaned = re.sub(r"(?im)^\s*MOOD\s*:\s*.+$", "", cleaned)
         cleaned = re.sub(r"\*[^*\n]{1,200}\*", "", cleaned)
@@ -1275,6 +1338,14 @@ class OllamaClient:
         cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
         cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
         return cleaned
+
+    def _remove_reasoning_artifacts(self, text: str) -> str:
+        cleaned = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", text or "")
+        cleaned = re.sub(r"(?is)<think>.*?</think>", "", cleaned)
+        cleaned = re.sub(r"(?is)^\s*thinking\s*\.\.\.\s*thinking process\s*:.*?\.\.\.\s*done thinking\.?\s*", "", cleaned)
+        cleaned = re.sub(r"(?is)^\s*(?:reasoning|analysis|scratchpad|thinking process)\s*:.*?(?:\n\s*\n|$)", "", cleaned)
+        cleaned = re.sub(r"(?im)^\s*(?:thinking|done thinking)\s*\.{0,3}\s*$", "", cleaned)
+        return cleaned.strip()
 
     def _ensure_nonempty_reply(self, cleaned: str, user_msg: str) -> str:
         if cleaned and cleaned.strip():
@@ -1321,7 +1392,8 @@ class OllamaClient:
             return text
 
         text = self._limit_sentences(text, max_sentences)
-        text = self._limit_words(text, max_words)
+        if max_words is not None:
+            text = self._limit_words(text, max_words)
         return text.strip()
 
     def _limit_sentences(self, text: str, max_sentences: int) -> str:
@@ -1436,6 +1508,10 @@ class OllamaClient:
         if any(token in text for token in ["tea", "night", "rain", "window", "quiet", "memory"]):
             scores["thoughtful"] += 1
 
+        if scores["angry"] and self._looks_like_fictional_narrative(text):
+            scores["angry"] = 0
+            scores["thoughtful"] += 1
+
         if scores["angry"] and scores["annoyed"]:
             scores["angry"] += 1
         if scores["sad"] and scores["thoughtful"]:
@@ -1447,6 +1523,27 @@ class OllamaClient:
         filtered_scores = {mood: score for mood, score in scores.items() if mood in allowed}
         mood, score = max(filtered_scores.items(), key=lambda item: item[1])
         return mood if score > 0 else self._default_mood(persona)
+
+    def _looks_like_fictional_narrative(self, text: str) -> bool:
+        story_markers = [
+            "story",
+            "once",
+            "bard",
+            "king",
+            "queen",
+            "crown",
+            "castle",
+            "tavern",
+            "enchanted",
+            "dragon",
+            "lute",
+        ]
+        angry_markers = ["angry", "furious", "mad", "outrage", "unacceptable"]
+        if not any(marker in text for marker in angry_markers):
+            return False
+        if re.search(r"\b(i am|i'm|im|i feel|you made me|that makes me)\s+(angry|mad|furious)\b", text):
+            return False
+        return sum(1 for marker in story_markers if marker in text) >= 2
 
     def _allowed_moods(self, persona: dict | None):
         if persona:

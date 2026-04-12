@@ -4,6 +4,7 @@ import { beginPcmRecording } from "./audio/recorder";
 import { ChatPanel } from "./components/ChatPanel";
 import { HeaderBar } from "./components/HeaderBar";
 import { MoodOrb } from "./components/MoodOrb";
+import { PhonePreview } from "./components/PhonePreview";
 import { ProfileSwitcher } from "./components/ProfileSwitcher";
 import type { ChatMessage, GalleryItem, ProfileSummary, WebProfile } from "./types/api";
 
@@ -412,27 +413,115 @@ export default function App() {
         : voiceShellEnabled
           ? "Voice shell is ready. Tap to record a short message."
           : "Voice shell is off for now. Text remains the active path.";
+  const presenceStateLabel =
+    voiceShellState === "listening"
+      ? "Nellie is listening"
+      : isSending
+        ? "Nellie is composing"
+        : isPlayingVoice
+          ? "Nellie is speaking"
+          : "Channel is open";
+  const presencePulseLabel =
+    voiceShellState === "listening"
+      ? "Live mic"
+      : isSending
+        ? "Thinking"
+        : isPlayingVoice
+          ? "Voice active"
+          : "Standby";
 
   return (
     <div className="app-shell mobile-app-shell">
       <HeaderBar profile={activeProfile} progress={progress} mood={currentMood} onOpenGallery={() => setActiveTab("gallery")} />
-      <main className="mobile-layout">
-        <aside className="mobile-sidebar">
+      <section className="presence-hero-grid">
+        <section className="panel presence-focus-card">
+          <div className="presence-focus-copy">
+            <div className="eyebrow">Living Presence</div>
+            <h2 className="presence-title">Nellie should feel present before she says a word.</h2>
+            <p className="presence-copy">
+              This shell centers mood, bond state, and live voice behavior so the UI reads more like an inhabited channel than a generic assistant panel.
+            </p>
+          </div>
+          <div className="presence-center">
+            <div className={`presence-pulse ${voiceShellState} ${isSending ? "busy" : ""} ${isPlayingVoice ? "speaking" : ""}`}>
+              <MoodOrb mood={currentMood} label={currentMood} size="hero" />
+            </div>
+            <div className="presence-status-stack">
+              <div className="presence-state-line">
+                <span className="presence-state-dot" />
+                <strong>{presenceStateLabel}</strong>
+                <small>{presencePulseLabel}</small>
+              </div>
+              <p>{bondSignal(progress?.stage)}</p>
+            </div>
+          </div>
+          <div className="presence-signal-grid">
+            <article className="presence-signal-card">
+              <span>Bond stage</span>
+              <strong>{progress?.stage || "Loading connection"}</strong>
+              <p>{stageMood(progress?.stage)}</p>
+            </article>
+            <article className="presence-signal-card">
+              <span>Voice channel</span>
+              <strong>{voiceShellEnabled ? "Armed" : "Text-first"}</strong>
+              <p>{voiceStatus}</p>
+            </article>
+            <article className="presence-signal-card">
+              <span>Current thread</span>
+              <strong>{messages.length ? `${messages.length} messages` : "Fresh room"}</strong>
+              <p>{latestUnlock ? latestUnlock.title || "New unlock available" : "No recent unlock event"}</p>
+            </article>
+          </div>
+        </section>
+
+        <aside className="presence-side-stack">
           <ProfileSwitcher
             profiles={profiles}
             activeUserId={activeUserId}
             onSelect={setActiveUserId}
             onCreate={handleCreateProfile}
           />
-          <section className="panel mobile-stage-card">
-            <div className="eyebrow">Bond State</div>
+          <section className="panel presence-stage-card">
+            <div className="eyebrow">Connection Arc</div>
             <h2>{progress?.stage || "Loading connection"}</h2>
             <p className="mobile-stage-copy">{stageCopy(progress?.stage)}</p>
-            <div className="mobile-stage-meta">
+            <div className="presence-stage-meta">
               <span>Level {progress?.level ?? 0}</span>
               <span>{summary?.gallery_unlock_count ?? 0} unlocks</span>
+              <span>{nextToolLabel(progress)}</span>
             </div>
           </section>
+        </aside>
+      </section>
+      <main className="mobile-layout">
+        <aside className="mobile-sidebar narrative-sidebar">
+          <section className="panel narrative-card">
+            <div className="eyebrow">Channel Notes</div>
+            <h2>What the room is doing</h2>
+            <p>{stageMeaning(progress?.stage)}</p>
+            <div className="narrative-stat-list">
+              <div className="narrative-stat">
+                <span>Current mood</span>
+                <strong>{currentMood}</strong>
+              </div>
+              <div className="narrative-stat">
+                <span>Latest signal</span>
+                <strong>{presencePulseLabel}</strong>
+              </div>
+              <div className="narrative-stat">
+                <span>Next reward</span>
+                <strong>{progress?.next_gallery_unlock || "More soon"}</strong>
+              </div>
+            </div>
+          </section>
+          <PhonePreview
+            profile={activeProfile}
+            summary={summary}
+            catalog={catalog}
+            unlocked={unlocked}
+            messages={messages}
+            isSending={isSending}
+          />
         </aside>
 
         <section className="mobile-main panel">
@@ -615,18 +704,6 @@ export default function App() {
           ) : null}
         </section>
       </main>
-
-      <nav className="bottom-nav">
-        <button className={`bottom-nav-item ${activeTab === "chat" ? "active" : ""}`} onClick={() => setActiveTab("chat")}>
-          Chat
-        </button>
-        <button className={`bottom-nav-item ${activeTab === "gallery" ? "active" : ""}`} onClick={() => setActiveTab("gallery")}>
-          Gallery
-        </button>
-        <button className={`bottom-nav-item ${activeTab === "bond" ? "active" : ""}`} onClick={() => setActiveTab("bond")}>
-          Bond
-        </button>
-      </nav>
     </div>
   );
 }

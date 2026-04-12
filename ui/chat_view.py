@@ -37,6 +37,12 @@ class ChatBubble(QFrame):
         self.speaker_label.setWordWrap(False)
         self.speaker_label.setContentsMargins(0, 0, 0, 0)
 
+        self.meta_label = QLabel(self._meta_text_for_role(bubble_role))
+        self.meta_label.setObjectName("bubbleMeta")
+        self.meta_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.meta_label.setWordWrap(False)
+        self.meta_label.setContentsMargins(0, 0, 0, 0)
+
         self.text_label = QLabel(text)
         self.text_label.setObjectName("bubbleText")
         self.text_label.setTextFormat(Qt.PlainText)
@@ -55,10 +61,26 @@ class ChatBubble(QFrame):
         self.image_label.setMaximumHeight(280)
 
         layout.addWidget(self.speaker_label)
+        layout.addWidget(self.meta_label)
         layout.addWidget(self.image_label)
         layout.addWidget(self.text_label)
         if self._image_path:
             self.set_image(self._image_path)
+
+    def _meta_text_for_role(self, bubble_role: str) -> str:
+        if bubble_role == "assistant":
+            return "Presence reply"
+        if bubble_role == "user":
+            return "User signal"
+        if bubble_role == "system-plan":
+            return "Plan trace"
+        if bubble_role == "system-ok":
+            return "System ok"
+        if bubble_role == "system-warning":
+            return "System warning"
+        if bubble_role == "system-danger":
+            return "System danger"
+        return "System note"
 
     def set_text(self, text: str):
         self.text_label.setText(text)

@@ -45,8 +45,8 @@ function chatIntro(stage?: string): { title: string; copy: string } {
     };
   }
   return {
-    title: "Open the thread.",
-    copy: "Nellie is ready when you are.",
+    title: "Open the channel.",
+    copy: "Give her something concrete to react to and the room starts to form around it.",
   };
 }
 
@@ -70,22 +70,22 @@ export function ChatPanel({
   return (
     <section className="panel chat-panel">
       <div className="chat-hero">
-        <div className="eyebrow">Thread</div>
+        <div className="eyebrow">Active Thread</div>
         <h2>{intro.title}</h2>
         <p>{intro.copy}</p>
         <div className="chat-hero-meta">
           <span>{stage || "Bond loading"}</span>
           <span>{mood || "thoughtful"}</span>
-          <span>{messages.length ? `${messages.length} messages` : "No messages yet"}</span>
+          <span>{messages.length ? `${messages.length} moments in thread` : "No messages yet"}</span>
           <button type="button" className={`chat-voice-toggle ${voicePlaybackEnabled ? "active" : ""}`} onClick={onVoicePlaybackToggle}>
-            {voicePlaybackEnabled ? "Nellie voice on" : "Nellie voice off"}
+            {voicePlaybackEnabled ? "Voice return on" : "Voice return off"}
           </button>
         </div>
       </div>
       <MessageList
         messages={messages}
         emptyTitle="Nellie is here."
-        emptyCopy="Open with something specific. A mood, a question, a late-night thought, or one detail you want her to notice."
+        emptyCopy="Start with a mood, a question, a place, or one detail you want her to notice. The channel gets better when the opening is specific."
         onPlayVoice={onPlayVoice}
         isPlayingVoice={isPlayingVoice}
       />

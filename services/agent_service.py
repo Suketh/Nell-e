@@ -16,6 +16,15 @@ class AgentResult:
     agent_trace: list[dict] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class TextSignals:
+    text: str
+    lowered: str
+    compact: str
+    ascii_compact: str
+    folded_compact: str
+
+
 class AgentService:
     """Thin orchestration layer for future tool-using Nellie behavior.
 
@@ -166,9 +175,38 @@ class AgentService:
             agent_trace=agent_trace or [],
         )
 
+    def _build_text_signals(self, user_text: str) -> TextSignals:
+        text = (user_text or "").strip()
+        lowered = text.lower()
+        compact = re.sub(r"\s+", " ", lowered).strip()
+        folded_compact = unicodedata.normalize("NFKD", compact).encode("ascii", "ignore").decode("ascii")
+        ascii_compact = folded_compact
+        return TextSignals(
+            text=text,
+            lowered=lowered,
+            compact=compact,
+            ascii_compact=ascii_compact,
+            folded_compact=folded_compact,
+        )
+
+    def _tool_plan(self, tool_name: str, **tool_input) -> dict:
+        return {
+            "mode": "tool_reply",
+            "tool_name": tool_name,
+            "tool_input": tool_input,
+        }
+
+    def _clarify_plan(self, reply: str, mood: str = "thoughtful") -> dict:
+        return {
+            "mode": "clarify_reply",
+            "reply": reply,
+            "mood": mood,
+        }
+
     def _render_direct_tool_reply(self, tool_name: str, tool_output, user_text: str) -> str | None:
-        compact = re.sub(r"\s+", " ", (user_text or "").strip().lower())
-        ascii_compact = compact.replace("å", "a").replace("ä", "a").replace("ö", "o")
+        signals = self._build_text_signals(user_text)
+        compact = signals.compact
+        ascii_compact = signals.ascii_compact
 
         if tool_name == "datetime_local" and isinstance(tool_output, dict):
             if "time" in compact:
@@ -179,9 +217,9 @@ class AgentService:
                 return f"It's {tool_output.get('day', '')} today."
             if "week" in compact or "vecka" in compact:
                 return f"We're in week {tool_output.get('week', '')}."
-            if "month" in compact or "manad" in ascii_compact or "månad" in compact:
+            if "month" in compact or "manad" in ascii_compact or "mÃƒÂ¥nad" in compact:
                 return f"It's {tool_output.get('month', '')}."
-            if "year" in compact or "ar" in ascii_compact or "år" in compact:
+            if "year" in compact or "ar" in ascii_compact or "ÃƒÂ¥r" in compact:
                 return f"It's {tool_output.get('year', '')}."
             return f"It's {tool_output.get('time', '')} on {tool_output.get('date', '')}."
 
@@ -189,49 +227,7 @@ class AgentService:
             return f"That comes to {tool_output}."
 
         if tool_name == "weather_lookup" and isinstance(tool_output, dict):
-            location = str(tool_output.get("location", "that place") or "that place")
-            condition = str(tool_output.get("condition", "mixed") or "mixed")
-            temp_c = float(tool_output.get("temperature_c", 0.0) or 0.0)
-            feels_like_c = float(tool_output.get("feels_like_c", temp_c) or temp_c)
-            wind_kmh = float(tool_output.get("wind_kmh", 0.0) or 0.0)
-            wind_note = ""
-            if wind_kmh >= 45:
-                wind_note = " It sounds pretty windy there."
-            elif wind_kmh >= 28:
-                wind_note = " There's a noticeable breeze too."
-            if abs(temp_c - feels_like_c) >= 4:
-                return (
-                    f"In {location} it's about {temp_c:.0f} degrees right now, but it feels more like {feels_like_c:.0f}, "
-                    f"with {condition} and wind around {wind_kmh:.0f} km/h.{wind_note}"
-                )
-            return (
-                f"In {location} it's about {temp_c:.0f} degrees right now with {condition} and wind around {wind_kmh:.0f} km/h."
-                f"{wind_note}"
-            )
-
-        if tool_name == "weather_lookup" and isinstance(tool_output, dict):
-            location = str(tool_output.get("location", "that place") or "that place")
-            condition = str(tool_output.get("condition", "mixed") or "mixed")
-            temp_c = float(tool_output.get("temperature_c", 0.0) or 0.0)
-            feels_like_c = float(tool_output.get("feels_like_c", temp_c) or temp_c)
-            wind_kmh = float(tool_output.get("wind_kmh", 0.0) or 0.0)
-            observed_at = str(tool_output.get("observed_at", "") or "").strip()
-            source = str(tool_output.get("source", "") or "").strip()
-            summary = (
-                f"In {location} it's {temp_c:.0f}°C right now, feels like {feels_like_c:.0f}°C, "
-                f"with {condition} and wind around {wind_kmh:.0f} km/h."
-            )
-            if observed_at:
-                observed_time = observed_at.replace("T", " ")
-                summary += f" That reading is from {observed_time}"
-                if source:
-                    summary += f" via {source}."
-                else:
-                    summary += "."
-                return summary
-            if source:
-                summary += f" Source: {source}."
-            return summary
+            return self._render_weather_reply(tool_output)
 
         if tool_name == "web_fetch" and isinstance(tool_output, dict):
             title = tool_output.get("title", "webpage")
@@ -255,7 +251,7 @@ class AgentService:
                     parts.append(f"{title}: {snippet[:120].rstrip()}")
                 else:
                     parts.append(title)
-            if any(token in ascii_compact for token in ["who is", "what is", "when did", "where is", "how does", "varfor", "varför", "vad ar", "vad är"]):
+            if any(token in ascii_compact for token in ["who is", "what is", "when did", "where is", "how does", "varfor", "varfÃƒÂ¶r", "vad ar", "vad ÃƒÂ¤r"]):
                 follow_up = " Want the quick answer, the deeper version, or the source?"
             else:
                 follow_up = " Want me to keep it brief, dig a little further, or give you the source?"
@@ -278,7 +274,7 @@ class AgentService:
                     "what is",
                     "what was",
                     "beratta om",
-                    "berätta om",
+                    "berÃƒÂ¤tta om",
                 ]
             )
             if knowledge_prompt and lead_snippet:
@@ -322,63 +318,111 @@ class AgentService:
 
         return None
 
-    def _plan(self, user_text: str) -> dict:
-        text = (user_text or "").strip()
-        lowered = text.lower()
-        compact = re.sub(r"\s+", " ", lowered).strip()
-        ascii_compact = (
-            compact.replace("å", "a")
-            .replace("ä", "a")
-            .replace("ö", "o")
+    def _render_weather_reply(self, tool_output: dict) -> str:
+        location = str(tool_output.get("location", "that place") or "that place")
+        condition = str(tool_output.get("condition", "mixed") or "mixed")
+        temp_c = float(tool_output.get("temperature_c", 0.0) or 0.0)
+        feels_like_c = float(tool_output.get("feels_like_c", temp_c) or temp_c)
+        wind_kmh = float(tool_output.get("wind_kmh", 0.0) or 0.0)
+        observed_at = str(tool_output.get("observed_at", "") or "").strip()
+        source = str(tool_output.get("source", "") or "").strip()
+
+        wind_note = ""
+        if wind_kmh >= 45:
+            wind_note = " It sounds pretty windy there."
+        elif wind_kmh >= 28:
+            wind_note = " There's a noticeable breeze too."
+
+        if observed_at or source:
+            summary = (
+                f"In {location} it's {temp_c:.0f} degrees C right now, feels like {feels_like_c:.0f} degrees C, "
+                f"with {condition} and wind around {wind_kmh:.0f} km/h.{wind_note}"
+            )
+            if observed_at:
+                observed_time = observed_at.replace("T", " ")
+                summary += f" That reading is from {observed_time}"
+                summary += f" via {source}." if source else "."
+                return summary
+            if source:
+                summary += f" Source: {source}."
+            return summary
+
+        if abs(temp_c - feels_like_c) >= 4:
+            return (
+                f"In {location} it's about {temp_c:.0f} degrees right now, but it feels more like {feels_like_c:.0f}, "
+                f"with {condition} and wind around {wind_kmh:.0f} km/h.{wind_note}"
+            )
+        return (
+            f"In {location} it's about {temp_c:.0f} degrees right now with {condition} and wind around {wind_kmh:.0f} km/h."
+            f"{wind_note}"
         )
 
-        follow_up_plan = self._plan_follow_up(text, compact, ascii_compact)
-        if follow_up_plan is not None:
-            return follow_up_plan
-        folded_compact = unicodedata.normalize("NFKD", compact).encode("ascii", "ignore").decode("ascii")
-        weather_tokens = {
+    def _extract_weather_location(self, text: str) -> str:
+        for pattern in (
+            r"(?i)\b(?:in|for|at|i)\s+([\w' .-]+)[.!?]*$",
+            r"(?i)^(?:weather|forecast|temperature|v\w*der(?:et)?|temperatur(?:en)?)\s+([\w' .-]+)[.!?]*$",
+        ):
+            match = re.search(pattern, (text or "").strip())
+            if match:
+                location = (match.group(1) or "").strip(" :,-")
+                if location:
+                    return location
+        return ""
+
+    def _weather_clarify_reply(self, _signals: TextSignals) -> str:
+        return "I can check the weather. Which place do you want?"
+
+    def _is_weather_request(self, signals: TextSignals) -> bool:
+        explicit_tokens = {
             "weather",
             "forecast",
             "temperature",
+            "vader",
+            "vadret",
+            "temperatur",
+        }
+        if any(
+            token in signals.compact or token in signals.ascii_compact or token in signals.folded_compact
+            for token in explicit_tokens
+        ):
+            return True
+
+        query_markers = {
+            "what is",
+            "whats",
+            "how is",
+            "hows",
+            "tell me",
+            "check",
+            "can you check",
+            "kan du kolla",
+            "hur ar",
+            "vad ar",
+        }
+        condition_markers = {
             "rain",
             "sun",
             "wind",
             "storm",
-            "vader",
-            "vadret",
-            "temperatur",
+            "snow",
             "regn",
             "sol",
             "vind",
-            "blasigt",
-            "blasit",
+            "sno",
         }
-        if any(token in compact or token in ascii_compact or token in folded_compact for token in weather_tokens):
-            location = ""
-            location_match = re.search(r"(?i)\b(?:in|for|at|i)\s+([A-Za-zÀ-ÖØ-öø-ÿ' .-]+)[.!?]*$", text)
-            if location_match:
-                location = (location_match.group(1) or "").strip(" :,-")
-            if not location:
-                bare_weather = re.search(
-                    r"(?i)^(?:weather|forecast|temperature|v[aä]der(?:et)?|temperatur(?:en)?)\s+([A-Za-zÀ-ÖØ-öø-ÿ' .-]+)[.!?]*$",
-                    text.strip(),
-                )
-                if bare_weather:
-                    location = (bare_weather.group(1) or "").strip(" :,-")
-            if location:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "weather_lookup",
-                    "tool_input": {"location": location},
-                }
-            return {
-                "mode": "clarify_reply",
-                "reply": "Vilken plats vill du att jag kollar vädret för?"
-                if any(token in lowered or token in folded_compact for token in ["väder", "vader", "vadret"])
-                else "I can check the weather. Which place do you want?",
-                "mood": "thoughtful",
-            }
+        return any(marker in signals.ascii_compact for marker in query_markers) and any(
+            marker in signals.ascii_compact for marker in condition_markers
+        )
 
+    def _plan_weather_request(self, signals: TextSignals) -> dict | None:
+        if not self._is_weather_request(signals):
+            return None
+        location = self._extract_weather_location(signals.text)
+        if location:
+            return self._tool_plan("weather_lookup", location=location)
+        return self._clarify_plan(self._weather_clarify_reply(signals))
+
+    def _is_time_query(self, signals: TextSignals) -> bool:
         time_query_patterns = [
             "what time is it",
             "whats the time",
@@ -394,98 +438,62 @@ class AgentService:
             "which month is it",
             "what year is it",
             "vad ar klockan",
-            "vad är klockan",
+            "vad ÃƒÂ¤r klockan",
             "vilken dag ar det",
-            "vilken dag är det",
+            "vilken dag ÃƒÂ¤r det",
             "vilket datum ar det",
-            "vilket datum är det",
+            "vilket datum ÃƒÂ¤r det",
             "vilken vecka ar det",
-            "vilken vecka är det",
+            "vilken vecka ÃƒÂ¤r det",
             "vilken manad ar det",
-            "vilken månad är det",
+            "vilken mÃƒÂ¥nad ÃƒÂ¤r det",
             "vilket ar ar det",
-            "vilket år är det",
+            "vilket ÃƒÂ¥r ÃƒÂ¤r det",
         ]
-        if any(pattern in compact or pattern in ascii_compact for pattern in time_query_patterns):
-            return {
-                "mode": "tool_reply",
-                "tool_name": "datetime_local",
-                "tool_input": {},
-            }
+        return any(pattern in signals.compact or pattern in signals.ascii_compact for pattern in time_query_patterns)
 
-        weather_match = re.search(
-            r"(?i)\b(?:weather|forecast|temperature|rain|sun|wind|storm|väder|vader|temperatur|regn|sol|blåsigt|blåsit|vind)\b(?:.*?\b(?:in|for|at|i)\s+(.+?))?[.!?]*$",
-            text,
-        )
-        if weather_match:
-            location = (weather_match.group(1) or "").strip(" :,-")
-            if not location:
-                place_tail = re.search(r"(?i)\b(?:in|for|at|i)\s+([A-Za-zÀ-ÖØ-öø-ÿ' .-]+)[.!?]*$", text)
-                if place_tail:
-                    location = (place_tail.group(1) or "").strip(" :,-")
-            if not location:
-                bare_place_weather = re.search(
-                    r"(?i)^(?:weather|forecast|temperature|väder|vader|temperatur)\s+([A-Za-zÀ-ÖØ-öø-ÿ' .-]+)[.!?]*$",
-                    text.strip(),
-                )
-                if bare_place_weather:
-                    location = (bare_place_weather.group(1) or "").strip(" :,-")
-            if not location:
-                return {
-                    "mode": "clarify_reply",
-                    "reply": "Vilken plats vill du att jag kollar vädret för?" if any(token in lowered for token in ["väder", "vader"]) else "I can check the weather. Which place do you want?",
-                    "mood": "thoughtful",
-                }
-            return {
-                "mode": "tool_reply",
-                "tool_name": "weather_lookup",
-                "tool_input": {"location": location},
-            }
+    def _maybe_clarify_plan(self, query: str) -> dict | None:
+        fuzzy_query = self._maybe_clarify_search_query(query)
+        if fuzzy_query.startswith("CLARIFY::"):
+            return self._clarify_plan(fuzzy_query.split("::", 1)[1])
+        return None
 
-        math_match = re.search(
-            r"(?i)(?:what is|what's|calculate|calc|solve|vad ar|vad är|rakna ut|räkna ut)?\s*([-+*/().\d\s]{3,})$",
-            text,
-        )
-        if math_match:
-            expression = math_match.group(1).strip()
-            if re.fullmatch(r"[-+*/().\d\s]+", expression) and any(ch.isdigit() for ch in expression):
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "calculator",
-                    "tool_input": {"expression": expression},
-                }
+    def _wikipedia_plan(self, query: str) -> dict | None:
+        if not query or len(query) < 3:
+            return None
+        clarify = self._maybe_clarify_plan(query)
+        if clarify is not None:
+            return clarify
+        fuzzy_query = self._maybe_clarify_search_query(query)
+        return self._tool_plan("wikipedia_search", query=fuzzy_query, limit=3)
 
+    def _web_search_plan(self, query: str) -> dict | None:
+        if not query:
+            return None
+        clarify = self._maybe_clarify_plan(query)
+        if clarify is not None:
+            return clarify
+        fuzzy_query = self._maybe_clarify_search_query(query)
+        return self._tool_plan("web_search", q=fuzzy_query, k=5)
+
+    def _plan_resource_request(self, text: str, lowered: str, ascii_compact: str) -> dict | None:
         url_match = re.search(r"(https?://[^\s]+)", text, re.IGNORECASE)
         if url_match and any(token in ascii_compact for token in ["open", "oppna", "launch", "go to"]):
-            return {
-                "mode": "tool_reply",
-                "tool_name": "browser_open",
-                "tool_input": {"url": url_match.group(1).rstrip(".,!?")},
-            }
-
+            return self._tool_plan("browser_open", url=url_match.group(1).rstrip(".,!?"))
         if url_match:
-            return {
-                "mode": "tool_reply",
-                "tool_name": "web_fetch",
-                "tool_input": {"url": url_match.group(1).rstrip(".,!?"), "max_chars": 4000},
-            }
+            return self._tool_plan("web_fetch", url=url_match.group(1).rstrip(".,!?"), max_chars=4000)
 
         pdf_match = re.search(r"([A-Za-z]:\\[^\\/:*?\"<>|\r\n]+(?:\\[^\\/:*?\"<>|\r\n]+)*\.pdf)\b", text)
         if pdf_match and any(token in lowered for token in ["pdf", "file", "read", "open", "extract", "summarize", "scan"]):
-            return {
-                "mode": "tool_reply",
-                "tool_name": "pdf_extract_text",
-                "tool_input": {"pdf_path": pdf_match.group(1), "max_pages": 30},
-            }
+            return self._tool_plan("pdf_extract_text", pdf_path=pdf_match.group(1), max_pages=30)
 
         image_match = re.search(r"([A-Za-z]:\\[^\\/:*?\"<>|\r\n]+(?:\\[^\\/:*?\"<>|\r\n]+)*\.(png|jpg|jpeg|webp))\b", text, re.IGNORECASE)
         if image_match and any(token in lowered for token in ["describe", "what is in", "what's in", "look at", "image", "picture", "photo", "see", "analyze"]):
-            return {
-                "mode": "tool_reply",
-                "tool_name": "vision_describe_image",
-                "tool_input": {"image_path": image_match.group(1)},
-            }
+            return self._tool_plan("vision_describe_image", image_path=image_match.group(1))
 
+        return None
+
+    def _plan_browser_or_media(self, text: str, ascii_compact: str) -> dict | None:
         browser_targets = {
             "spotify": ["open spotify", "oppna spotify", "start spotify", "launch spotify"],
             "youtube": ["open youtube", "oppna youtube", "start youtube", "launch youtube"],
@@ -497,71 +505,46 @@ class AgentService:
                 if target == "youtube":
                     query_match = re.search(r"(?i)\b(?:on youtube|youtube)\b\s*(?:for|about|om)?\s*(.+)$", text)
                     if query_match:
-                        candidate = query_match.group(1).strip(" :,-")
-                        query = candidate or None
+                        query = query_match.group(1).strip(" :,-") or None
                 elif target == "wikipedia":
                     query_match = re.search(r"(?i)\b(?:wikipedia)\b\s*(?:for|about|om)?\s*(.+)$", text)
                     if query_match:
-                        candidate = query_match.group(1).strip(" :,-")
-                        query = candidate or None
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "browser_open",
-                    "tool_input": {"target": target, "query": query},
-                }
+                        query = query_match.group(1).strip(" :,-") or None
+                return self._tool_plan("browser_open", target=target, query=query)
 
         spotify_play_match = re.search(
-            r"(?i)\b(?:play|put on|start|queue|spela|satt pa|sätt på)\b(?:\s+(?:me|us|mig|oss))?\s+(.+?)(?:\s+(?:on|in|via|pa|på)\s+spotify)?[.!?]*$",
+            r"(?i)\b(?:play|put on|start|queue|spela|satt pa|sÃƒÂ¤tt pÃƒÂ¥)\b(?:\s+(?:me|us|mig|oss))?\s+(.+?)(?:\s+(?:on|in|via|pa|pÃƒÂ¥)\s+spotify)?[.!?]*$",
             text,
         )
         if spotify_play_match:
             query = self._build_spotify_query(spotify_play_match.group(1))
             if query.startswith("CLARIFY::"):
-                return {
-                    "mode": "clarify_reply",
-                    "reply": query.split("::", 1)[1],
-                    "mood": "thoughtful",
-                }
+                return self._clarify_plan(query.split("::", 1)[1])
             lowered_query = query.lower()
             if query and lowered_query not in {"spotify", "youtube", "wikipedia"}:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "browser_open",
-                    "tool_input": {"target": "spotify", "query": query},
-                }
+                return self._tool_plan("browser_open", target="spotify", query=query)
 
         youtube_play_match = re.search(
-            r"(?i)\b(?:play|watch|show|spela|visa)\b(?:\s+(?:me|mig))?\s+(.+?)\s+(?:on|pa|på)\s+youtube[.!?]*$",
+            r"(?i)\b(?:play|watch|show|spela|visa)\b(?:\s+(?:me|mig))?\s+(.+?)\s+(?:on|pa|pÃƒÂ¥)\s+youtube[.!?]*$",
             text,
         )
         if youtube_play_match:
             query = self._clean_media_query(youtube_play_match.group(1))
             if query:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "browser_open",
-                    "tool_input": {"target": "youtube", "query": query},
-                }
+                return self._tool_plan("browser_open", target="youtube", query=query)
+
+        return None
+
+    def _plan_knowledge_or_search(self, text: str, ascii_compact: str) -> dict | None:
+        if self._looks_like_personal_followup(ascii_compact):
+            return {"mode": "direct_reply"}
 
         wikipedia_subject_match = re.search(
             r"(?i)\b(?:tell me about|can you tell me about|look up|check up|search for|find)\b\s+(.+?)\s+\b(?:on|in)\s+wikipedia\b[.!?]*$",
             text,
         )
         if wikipedia_subject_match:
-            query = self._resolve_recent_topic_query(wikipedia_subject_match.group(1))
-            if query and len(query) >= 3:
-                fuzzy_query = self._maybe_clarify_search_query(query)
-                if fuzzy_query.startswith("CLARIFY::"):
-                    return {
-                        "mode": "clarify_reply",
-                        "reply": fuzzy_query.split("::", 1)[1],
-                        "mood": "thoughtful",
-                    }
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": fuzzy_query, "limit": 3},
-                }
+            return self._wikipedia_plan(self._resolve_recent_topic_query(wikipedia_subject_match.group(1)))
 
         bare_wikipedia_patterns = [
             "can you look at wikipedia",
@@ -578,119 +561,118 @@ class AgentService:
         if any(pattern in ascii_compact for pattern in bare_wikipedia_patterns):
             topic = self._best_recent_topic_reference()
             if topic:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": topic, "limit": 3},
-                }
-            return {
-                "mode": "clarify_reply",
-                "reply": "I can. What do you want me to look up on Wikipedia?",
-                "mood": "thoughtful",
-            }
+                return self._tool_plan("wikipedia_search", query=topic, limit=3)
+            return self._clarify_plan("I can. What do you want me to look up on Wikipedia?")
 
         wikipedia_match = re.search(
-            r"(?i)\b(?:search wikipedia for|look up on wikipedia|wikipedia|sok pa wikipedia|sök på wikipedia|kolla wikipedia|slag upp pa wikipedia|slå upp på wikipedia)\b(?:\s*[:,-]?\s*(.+))?$",
+            r"(?i)\b(?:search wikipedia for|look up on wikipedia|wikipedia|sok pa wikipedia|sÃƒÂ¶k pÃƒÂ¥ wikipedia|kolla wikipedia|slag upp pa wikipedia|slÃƒÂ¥ upp pÃƒÂ¥ wikipedia)\b(?:\s*[:,-]?\s*(.+))?$",
             text,
         )
         if wikipedia_match:
             query = self._resolve_recent_topic_query((wikipedia_match.group(1) or "").strip(" :,-?!"))
             if query:
-                fuzzy_query = self._maybe_clarify_search_query(query)
-                if fuzzy_query.startswith("CLARIFY::"):
-                    return {
-                        "mode": "clarify_reply",
-                        "reply": fuzzy_query.split("::", 1)[1],
-                        "mood": "thoughtful",
-                    }
-                query = fuzzy_query
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": query, "limit": 3},
-                }
+                return self._wikipedia_plan(query)
             topic = self._best_recent_topic_reference()
             if topic:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": topic, "limit": 3},
-                }
-            return {
-                "mode": "clarify_reply",
-                "reply": "Sure. What should I look up on Wikipedia?",
-                "mood": "thoughtful",
-            }
+                return self._tool_plan("wikipedia_search", query=topic, limit=3)
+            return self._clarify_plan("Sure. What should I look up on Wikipedia?")
 
         knowledge_match = re.search(
-            r"(?i)\b(?:tell me about|who is|who was|what is|what was|can you tell me about|kan du beratta om|kan du berätta om|beratta om|berätta om)\b\s+(.+?)[.!?]*$",
+            r"(?i)\b(?:tell me about|who is|who was|what is|what was|can you tell me about|kan du beratta om|kan du berÃƒÂ¤tta om|beratta om|berÃƒÂ¤tta om)\b\s+(.+?)[.!?]*$",
             text,
         )
         if knowledge_match:
             query = self._resolve_recent_topic_query(knowledge_match.group(1))
+            if self._looks_like_personal_followup(ascii_compact) or self._looks_like_personal_followup(query.lower()):
+                return {"mode": "direct_reply"}
             if query and len(query) >= 3 and query.lower() not in {"you", "yourself", "me"}:
-                fuzzy_query = self._maybe_clarify_search_query(query)
-                if fuzzy_query.startswith("CLARIFY::"):
-                    return {
-                        "mode": "clarify_reply",
-                        "reply": fuzzy_query.split("::", 1)[1],
-                        "mood": "thoughtful",
-                    }
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": fuzzy_query, "limit": 3},
-                }
+                return self._wikipedia_plan(query)
 
         person_lookup_match = re.search(
             r"(?i)\b(?:check up|look up|lookup|check out|find|search for|tell me about)\b.*?\b(?:person|author|writer|poet|painter|artist)\b\s+(.+?)(?:\s+for me)?[.!?]*$",
             text,
         )
         if person_lookup_match:
-            query = self._resolve_recent_topic_query(person_lookup_match.group(1))
-            if query and len(query) >= 3:
-                fuzzy_query = self._maybe_clarify_search_query(query)
-                if fuzzy_query.startswith("CLARIFY::"):
-                    return {
-                        "mode": "clarify_reply",
-                        "reply": fuzzy_query.split("::", 1)[1],
-                        "mood": "thoughtful",
-                    }
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": fuzzy_query, "limit": 3},
-                }
+            return self._wikipedia_plan(self._resolve_recent_topic_query(person_lookup_match.group(1)))
 
         person_followup_match = re.search(r"(?i)^\s*(?:the\s+)?(?:person|author|writer|poet|painter|artist)\s+(.+?)\s*$", text)
         if person_followup_match:
             query = self._resolve_recent_topic_query(person_followup_match.group(1))
             if query and len(query) >= 3:
-                return {
-                    "mode": "tool_reply",
-                    "tool_name": "wikipedia_search",
-                    "tool_input": {"query": query, "limit": 3},
-                }
+                return self._tool_plan("wikipedia_search", query=query, limit=3)
 
         generic_search_match = re.search(
-            r"(?i)\b(search for|look up|find online|google|duckduckgo|find me info on|check online|sok efter|sök efter|sok upp|sök upp|kolla upp)\b\s*[:,-]?\s*(.+)$",
+            r"(?i)\b(search for|look up|find online|google|duckduckgo|find me info on|check online|sok efter|sÃƒÂ¶k efter|sok upp|sÃƒÂ¶k upp|kolla upp)\b\s*[:,-]?\s*(.+)$",
             text,
         )
         if generic_search_match:
             query = generic_search_match.group(2).strip(" :,-")
             if query:
-                fuzzy_query = self._maybe_clarify_search_query(query)
-                if fuzzy_query.startswith("CLARIFY::"):
-                    return {
-                        "mode": "clarify_reply",
-                        "reply": fuzzy_query.split("::", 1)[1],
-                        "mood": "thoughtful",
-                    }
+                return self._web_search_plan(query)
+
+        return None
+
+    def _looks_like_personal_followup(self, text: str) -> bool:
+        compact = re.sub(r"[^a-z0-9\s]", "", str(text or "").lower())
+        compact = re.sub(r"\s+", " ", compact).strip()
+        if not compact:
+            return False
+        personal_markers = {
+            "do you like",
+            "you like",
+            "what do you like",
+            "what is it that you like",
+            "that you like",
+            "song that you like",
+            "artist that you like",
+            "your favorite",
+            "your favourite",
+        }
+        pronoun_markers = {"about them", "about it", "like them", "like it"}
+        return any(marker in compact for marker in personal_markers | pronoun_markers)
+
+    def _plan(self, user_text: str) -> dict:
+        signals = self._build_text_signals(user_text)
+        text = signals.text
+        lowered = signals.lowered
+        compact = signals.compact
+        ascii_compact = signals.ascii_compact
+
+        follow_up_plan = self._plan_follow_up(text, compact, ascii_compact)
+        if follow_up_plan is not None:
+            return follow_up_plan
+
+        weather_plan = self._plan_weather_request(signals)
+        if weather_plan is not None:
+            return weather_plan
+
+        if self._is_time_query(signals):
+            return self._tool_plan("datetime_local")
+
+        math_match = re.search(
+            r"(?i)(?:what is|what's|calculate|calc|solve|vad ar|vad ÃƒÂ¤r|rakna ut|rÃƒÂ¤kna ut)?\s*([-+*/().\d\s]{3,})$",
+            text,
+        )
+        if math_match:
+            expression = math_match.group(1).strip()
+            if re.fullmatch(r"[-+*/().\d\s]+", expression) and any(ch.isdigit() for ch in expression):
                 return {
                     "mode": "tool_reply",
-                    "tool_name": "web_search",
-                    "tool_input": {"q": fuzzy_query, "k": 5},
+                    "tool_name": "calculator",
+                    "tool_input": {"expression": expression},
                 }
+
+        resource_plan = self._plan_resource_request(text, lowered, ascii_compact)
+        if resource_plan is not None:
+            return resource_plan
+
+        browser_plan = self._plan_browser_or_media(text, ascii_compact)
+        if browser_plan is not None:
+            return browser_plan
+
+        knowledge_plan = self._plan_knowledge_or_search(text, ascii_compact)
+        if knowledge_plan is not None:
+            return knowledge_plan
 
         return {"mode": "direct_reply"}
 
@@ -706,7 +688,7 @@ class AgentService:
         overrides = feature_state.get("overrides", {}) if isinstance(feature_state, dict) else {}
         return is_feature_enabled(feature_id, int(user_level or 1), overrides=overrides)
 
-    def _plan_follow_up(self, text: str, compact: str, ascii_compact: str) -> dict | None:
+    def _plan_follow_up(self, text: str, _compact: str, ascii_compact: str) -> dict | None:
         last_tool = self._last_tool_state.get("tool_name", "")
         last_seed = self._last_tool_state.get("seed_query", "")
         last_ai = self._last_tool_state.get("reply_hint", "")
@@ -717,13 +699,21 @@ class AgentService:
         last_source_url = self._last_tool_state.get("last_source_url", "")
         last_source_title = self._last_tool_state.get("last_source_title", "") or last_topic
         lowered = (text or "").strip().lower()
+        if self._looks_like_corrected_lookup(text):
+            recent_turns = self.memory.get_recent_turns(limit=4)
+            for turn in reversed(recent_turns):
+                ai_text = str(turn.get("ai", "") or "").lower()
+                user_text = str(turn.get("user", "") or "").lower()
+                if "nothing looked like a clean match" in ai_text or re.search(r"\bwhat is (?:a |an )?", user_text):
+                    return self._tool_plan("wikipedia_search", query=text.strip(" :,-.!?"), limit=3)
+
         if not last_ai and not last_tool:
             recent_turns = self.memory.get_recent_turns(limit=3)
             if self._looks_like_location_reply(text):
                 for turn in reversed(recent_turns):
                     ai_text = str(turn.get("ai", "") or "").lower()
                     user_text = str(turn.get("user", "") or "").lower()
-                    if "weather" in ai_text or "väder" in ai_text or "forecast" in ai_text:
+                    if "weather" in ai_text or "vader" in ai_text or "forecast" in ai_text:
                         return {
                             "mode": "tool_reply",
                             "tool_name": "weather_lookup",
@@ -735,7 +725,7 @@ class AgentService:
                             "tool_name": "weather_lookup",
                             "tool_input": {"location": text.strip(" :,-.!?")},
                         }
-                    if "weather" in user_text or "väder" in user_text or "forecast" in user_text:
+                    if "weather" in user_text or "vader" in user_text or "forecast" in user_text:
                         return {
                             "mode": "tool_reply",
                             "tool_name": "weather_lookup",
@@ -745,9 +735,9 @@ class AgentService:
                 for turn in reversed(recent_turns):
                     user_text = str(turn.get("user", "") or "").lower()
                     ai_text = str(turn.get("ai", "") or "").lower()
-                    if "weather" in user_text or "väder" in user_text or "forecast" in user_text:
+                    if "weather" in user_text or "vader" in user_text or "forecast" in user_text:
                         return {"mode": "direct_reply"}
-                    if "weather" in ai_text or "forecast" in ai_text or "wind" in ai_text or "storm" in ai_text:
+                    if "weather" in ai_text or "vader" in ai_text or "forecast" in ai_text:
                         return {"mode": "direct_reply"}
             return None
 
@@ -829,7 +819,7 @@ class AgentService:
                     if "which place" in ai_text or "vilken plats" in ai_text:
                         weather_context = True
                         break
-                    if "weather" in user_text or "väder" in user_text or "forecast" in user_text:
+                    if "weather" in user_text or "vader" in user_text or "forecast" in user_text:
                         weather_context = True
                         break
             if weather_context:
@@ -844,11 +834,23 @@ class AgentService:
 
         return None
 
+    def _looks_like_corrected_lookup(self, text: str) -> bool:
+        candidate = re.sub(r"\s+", " ", str(text or "").strip())
+        if not candidate or len(candidate) > 48:
+            return False
+        lowered = candidate.lower()
+        blocked = {"yes", "no", "ok", "okay", "thanks", "thank you", "hi", "hey", "hello"}
+        if lowered in blocked:
+            return False
+        if not re.fullmatch(r"[A-Za-z][A-Za-z' -]{2,47}", candidate):
+            return False
+        return len(candidate.split()) <= 3
+
     def _looks_like_location_reply(self, text: str) -> bool:
         candidate = re.sub(r"\s+", " ", str(text or "").strip())
         if not candidate or len(candidate) < 2 or len(candidate) > 64:
             return False
-        if not re.fullmatch(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9'., -]+", candidate):
+        if "_" in candidate or not re.fullmatch(r"[\w'., -]+", candidate):
             return False
         word_count = len([part for part in candidate.replace(",", " ").split() if part])
         if word_count == 0 or word_count > 5:
@@ -887,7 +889,6 @@ class AgentService:
             "stormigt",
             "kallt",
             "varmt",
-            "väder",
             "vader",
         }
         return any(marker in text for marker in markers)
@@ -1260,7 +1261,7 @@ class AgentService:
     def _resolve_recent_topic_query(self, query: str) -> str:
         cleaned = self._clean_media_query(query)
         cleaned = re.sub(r"(?i)\s+\b(?:on|in)\s+wikipedia\b$", "", cleaned).strip(" :,-?!\"'")
-        ascii_cleaned = cleaned.lower().replace("å", "a").replace("ä", "a").replace("ö", "o")
+        ascii_cleaned = cleaned.lower().replace("ÃƒÂ¥", "a").replace("ÃƒÂ¤", "a").replace("ÃƒÂ¶", "o")
         if not cleaned:
             return self._best_recent_topic_reference() or ""
 

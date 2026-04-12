@@ -3,6 +3,7 @@ import type { MobileProfile } from "@/src/types/api";
 
 const PROFILE_KEY = "nellie.mobile.profiles";
 const ACTIVE_PROFILE_KEY = "nellie.mobile.activeProfile";
+const ACTIVE_PERSONA_KEY = "nellie.mobile.activePersona";
 const BADGE_COLORS = ["#f2c14e", "#d96c75", "#5db7de", "#5dd39e", "#9b5de5", "#ff7b54"];
 
 const DEFAULT_PROFILES: MobileProfile[] = [
@@ -54,4 +55,29 @@ export async function loadActiveUserId(): Promise<string | null> {
 
 export async function saveActiveUserId(userId: string) {
   await AsyncStorage.setItem(ACTIVE_PROFILE_KEY, userId);
+}
+
+export async function loadActivePersonaId(): Promise<string | null> {
+  return await AsyncStorage.getItem(ACTIVE_PERSONA_KEY);
+}
+
+export async function saveActivePersonaId(personaId: string) {
+  await AsyncStorage.setItem(ACTIVE_PERSONA_KEY, personaId);
+}
+
+export function createMobileProfile(displayName: string, existingProfiles: MobileProfile[]): MobileProfile {
+  const name = String(displayName || "").trim() || "Traveler";
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "traveler";
+  const existingIds = new Set(existingProfiles.map((profile) => profile.userId));
+  let userId = slug;
+  let suffix = 2;
+  while (existingIds.has(userId)) {
+    userId = `${slug}-${suffix}`;
+    suffix += 1;
+  }
+  return {
+    userId,
+    displayName: name,
+    badgeColor: BADGE_COLORS[existingProfiles.length % BADGE_COLORS.length],
+  };
 }

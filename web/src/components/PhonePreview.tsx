@@ -38,6 +38,12 @@ function titleFromItem(item: GalleryItem): string {
   return item.title || item.path?.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, "") || "Gallery item";
 }
 
+function nextToolText(nextTool: ProfileSummary["progress"]["next_tool_unlock"]): string {
+  if (!nextTool) return "A new tool unlock will appear as the bond deepens.";
+  if (typeof nextTool === "string") return nextTool;
+  return nextTool.label ? `Level ${nextTool.level} • ${nextTool.label}` : `Level ${nextTool.level}`;
+}
+
 export function PhonePreview({ profile, summary, catalog, unlocked, messages, isSending }: PhonePreviewProps) {
   const [tab, setTab] = useState<PhoneTab>("chat");
   const progress = summary?.progress ?? null;
@@ -49,8 +55,8 @@ export function PhonePreview({ profile, summary, catalog, unlocked, messages, is
   return (
     <section className="panel preview-panel">
       <div className="panel-title-row">
-        <h2>Mobile Preview</h2>
-        <span className="muted">Emulated shell</span>
+        <h2>Mobile preview</h2>
+        <span className="muted">Presence shell</span>
       </div>
       <div className="phone-shell">
         <div className="phone-notch" />
@@ -108,7 +114,7 @@ export function PhonePreview({ profile, summary, catalog, unlocked, messages, is
                   )}
                 </div>
                 <div className="phone-composer">
-                  <span>{isSending ? "Nellie is replying..." : "Write to Nellie..."}</span>
+                  <span>{isSending ? "Nellie is replying..." : "Drop a signal..."}</span>
                   <button className="phone-send" type="button">
                     Send
                   </button>
@@ -141,7 +147,7 @@ export function PhonePreview({ profile, summary, catalog, unlocked, messages, is
                 <article className="phone-bond-card">
                   <span>Next reward</span>
                   <strong>{progress?.next_gallery_unlock || "More gallery soon"}</strong>
-                  <p>{progress?.next_tool_unlock || "A new tool unlock will appear as the bond deepens."}</p>
+                  <p>{nextToolText(progress?.next_tool_unlock)}</p>
                 </article>
               </div>
             ) : null}

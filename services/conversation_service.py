@@ -42,7 +42,7 @@ class ConversationService:
     XP_DECAY_WINDOW_SECONDS = 18 * 60 * 60
     MAX_LEVEL = 255
     RELATIONSHIP_STAGES = [
-        (1, "Anonymous"),
+        (0, "Anonymous"),
         (6, "Curious"),
         (16, "Warm"),
         (32, "Flirted"),
@@ -179,6 +179,10 @@ class ConversationService:
         self.memory.set_agent_state("gallery_locked_preview", self.get_locked_gallery_preview(limit=5))
         return self.memory.build_context(self.persona, k=k, current_user_text=user_text)
 
+    def _gallery_enabled(self) -> bool:
+        gallery_habits = self.persona.get("gallery_habits", {}) or {}
+        return bool(gallery_habits.get("enabled", True))
+
     def get_progress_state(self) -> dict:
         state = self.memory.get_agent_state("progression_state", default={}) or {}
         xp = int(state.get("xp", 0) or 0)
@@ -188,7 +192,7 @@ class ConversationService:
         stage = self._relationship_stage_name(level)
         current_floor = self._xp_for_level(level)
         next_level = min(self.MAX_LEVEL, level + 1)
-        next_total = self._xp_for_level(next_level) if level < self.MAX_LEVEL else current_floor
+        next_total = 1 if level == 0 else self._xp_for_level(next_level) if level < self.MAX_LEVEL else current_floor
         unlocked_tools = self._get_unlocked_tool_labels(level)
         next_tool = self._get_next_tool_unlock(level)
         next_gallery = self._get_next_gallery_unlock(level)
@@ -208,11 +212,30 @@ class ConversationService:
     def get_affection_state(self) -> dict:
         return self.get_progress_state()
 
+    def _feature_overrides(self) -> dict:
+        state = self.memory.get_agent_state("feature_access_state", default={}) or {}
+        return state.get("overrides", {}) if isinstance(state, dict) else {}
+
+    def _enabled_feature_labels(self, level: int, overrides: dict) -> list[str]:
+        enabled_features = get_enabled_feature_items(level, overrides=overrides)
+        return [
+            str(item.get("label", "") or "").strip()
+            for item in enabled_features
+            if str(item.get("label", "") or "").strip()
+        ]
+
+    def _available_feature_labels(self, level: int, overrides: dict) -> list[str]:
+        unlocked_features = get_unlocked_feature_items(level, overrides=overrides)
+        return [
+            str(item.get("label", "") or "").strip()
+            for item in unlocked_features
+            if str(item.get("label", "") or "").strip()
+        ]
+
     def get_feature_access_state(self) -> dict:
         progress_state = self.get_progress_state()
         level = int(progress_state.get("level", 1) or 1)
-        state = self.memory.get_agent_state("feature_access_state", default={}) or {}
-        overrides = state.get("overrides", {}) if isinstance(state, dict) else {}
+        overrides = self._feature_overrides()
         return build_feature_access_state(level, overrides=overrides)
 
     def get_profile_summary(self, session_id: str = "") -> dict:
@@ -220,18 +243,16 @@ class ConversationService:
         feature_access = self.get_feature_access_state()
         unlocked = self.get_unlocked_gallery()
         level = int(progress.get("level", 1) or 1)
-        state = self.memory.get_agent_state("feature_access_state", default={}) or {}
-        overrides = state.get("overrides", {}) if isinstance(state, dict) else {}
+        overrides = self._feature_overrides()
         enabled_features = get_enabled_feature_items(level, overrides=overrides)
-        unlocked_features = get_unlocked_feature_items(level, overrides=overrides)
         return {
             "session_id": session_id,
             "progress": progress,
             "feature_access": feature_access,
             "gallery_unlock_count": len(unlocked),
             "latest_unlock": unlocked[-1] if unlocked else None,
-            "enabled_feature_labels": [str(item.get("label", "") or "").strip() for item in enabled_features if str(item.get("label", "") or "").strip()],
-            "available_feature_labels": [str(item.get("label", "") or "").strip() for item in unlocked_features if str(item.get("label", "") or "").strip()],
+            "enabled_feature_labels": self._enabled_feature_labels(level, overrides),
+            "available_feature_labels": self._available_feature_labels(level, overrides),
             "next_feature_unlock": get_next_feature_unlock(level),
             "stage_copy": self._stage_copy(str(progress.get("stage", "Anonymous") or "Anonymous")),
             "practical_focus": self._practical_focus(level, enabled_features),
@@ -249,18 +270,20 @@ class ConversationService:
         if level < min_level:
             raise ValueError(f"feature_locked_until_level_{min_level}")
 
-        state = self.memory.get_agent_state("feature_access_state", default={}) or {}
-        overrides = dict(state.get("overrides", {}) or {}) if isinstance(state, dict) else {}
+        overrides = dict(self._feature_overrides() or {})
         overrides[str(feature_id)] = bool(enabled)
-        self.memory.set_agent_state("feature_access_state", {"overrides": overrides})
+        self._save_feature_overrides(overrides)
         updated = self.get_feature_access_state()
         for item in updated.get("items", []):
             if str(item.get("id", "")) == str(feature_id):
                 return item
         raise ValueError("feature_update_failed")
 
+    def _save_feature_overrides(self, overrides: dict) -> None:
+        self.memory.set_agent_state("feature_access_state", {"overrides": overrides})
+
     def admin_set_level(self, level: int) -> dict:
-        target_level = max(1, min(self.MAX_LEVEL, int(level or 1)))
+        target_level = max(0, min(self.MAX_LEVEL, int(level or 0)))
         xp = self._xp_for_level(target_level)
         self._sync_level_gallery_unlocks(target_level)
         unlocked_tools = self._get_unlocked_tool_labels(target_level)
@@ -285,13 +308,13 @@ class ConversationService:
             "progression_state",
             {
                 "xp": 0,
-                "level": 1,
+                "level": 0,
                 "last_reason": "admin_reset",
                 "updated_at": time.time(),
                 "award_counter": 0,
                 "tags": [],
-                "unlocked_tools": self._get_unlocked_tool_labels(1),
-                "next_tool_unlock": self._get_next_tool_unlock(1),
+                "unlocked_tools": self._get_unlocked_tool_labels(0),
+                "next_tool_unlock": self._get_next_tool_unlock(0),
             },
         )
         self.memory.set_agent_state("unlocked_gallery", [])
@@ -404,6 +427,8 @@ class ConversationService:
         return result
 
     def get_locked_gallery_preview(self, limit: int = 5) -> list[dict]:
+        if not self._gallery_enabled():
+            return []
         progress_state = self.get_progress_state()
         user_level = int(progress_state.get("level", 1) or 1)
         catalog = self.get_gallery_catalog()
@@ -412,6 +437,8 @@ class ConversationService:
         return locked[: max(1, limit)]
 
     def get_unlocked_gallery(self) -> list[dict]:
+        if not self._gallery_enabled():
+            return []
         progress_state = self.memory.get_agent_state("progression_state", default={}) or {}
         current_level = self._level_from_xp(int(progress_state.get("xp", 0) or 0))
         unlocked = self.memory.get_agent_state("unlocked_gallery", default=[]) or []
@@ -454,6 +481,8 @@ class ConversationService:
         return cleaned
 
     def get_gallery_catalog(self) -> list[dict]:
+        if not self._gallery_enabled():
+            return []
         unlocked = {item.get("filename", "") for item in self.get_unlocked_gallery()}
         catalog = []
         for rule in self.GALLERY_RULES:
@@ -483,6 +512,9 @@ class ConversationService:
         result = self.agent.handle(user_text, stream_callback=stream_callback)
         self._update_progression_state(user_text, result.reply, result.mood)
         self._update_nellie_preferences(user_text, result.reply, result.mood)
+        return self._build_conversation_result(user_text, result)
+
+    def _build_conversation_result(self, user_text: str, result) -> ConversationResult:
         gallery_image_path, gallery_image_caption, new_unlock, gallery_meta = self._select_gallery_image(
             user_text,
             result.reply,
@@ -524,26 +556,25 @@ class ConversationService:
 
         sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
         if not sentences:
-            return text[:140].strip()
+            return text[:110].strip()
 
         if mode == "tool_reply":
             first = sentences[0]
-            return first if len(first) <= 90 else f"{first[:87].rstrip()}..."
+            return first if len(first) <= 72 else f"{first[:69].rstrip()}..."
+
+        if mode == "clarify_reply":
+            first = sentences[0]
+            return first if len(first) <= 68 else f"{first[:65].rstrip()}..."
 
         first = sentences[0]
         second = sentences[1] if len(sentences) > 1 else ""
-        third = sentences[2] if len(sentences) > 2 else ""
-        if len(first) >= 105 or not second:
-            return first if len(first) <= 125 else f"{first[:122].rstrip()}..."
+        if len(first) >= 82 or not second:
+            return first if len(first) <= 96 else f"{first[:93].rstrip()}..."
 
         paired = f"{first} {second}".strip()
-        if len(paired) <= 135:
-            if third:
-                trio = f"{paired} {third}".strip()
-                if len(trio) <= 150:
-                    return trio
+        if len(paired) <= 108:
             return paired
-        return f"{paired[:132].rstrip()}..."
+        return f"{paired[:105].rstrip()}..."
 
     def _update_nellie_preferences(self, user_text: str, reply: str, mood: str) -> None:
         del reply, mood
@@ -590,6 +621,8 @@ class ConversationService:
             )
 
     def _select_gallery_image(self, user_text: str, reply: str, mood: str) -> tuple[str | None, str | None, dict | None, dict | None]:
+        if not self._gallery_enabled():
+            return None, None, None, None
         if self.gallery_dir is None or not self.gallery_dir.exists():
             return None, None, None, None
 
@@ -610,46 +643,25 @@ class ConversationService:
         last_filename = str(gallery_state.get("last_filename", "") or "")
         in_cooldown = (now - last_ts) < self.IMAGE_COOLDOWN_SECONDS
 
-        explicit_image_request = any(
-            token in compact
-            for token in ["send a pic", "send me a pic", "send a picture", "show me", "selfie", "photo", "picture"]
-        )
-        explicit_image_request = explicit_image_request or any(
-            token in compact for token in ["skicka en bild", "visa mig", "selfie", "bild", "foto"]
+        explicit_image_request = self._is_explicit_image_request(compact)
+        matched_rules = self._match_gallery_rules(
+            compact,
+            mood=mood,
+            user_level=user_level,
+            explicit_image_request=explicit_image_request,
         )
 
-        matched_rules = []
-        for rule in self.GALLERY_RULES:
-            keywords = rule.get("keywords", ())
-            if any(keyword in compact for keyword in keywords):
-                if not self._rule_is_eligible(rule, compact, mood=mood, user_level=user_level, explicit_image_request=explicit_image_request):
-                    continue
-                matched_rules.append(rule)
-
-        if explicit_image_request and not in_cooldown:
-            fallback = self._resolve_image_path("selfie.png")
-            selfie_rule = self._find_rule("selfie.png") or {"filename": "selfie.png"}
-            if (
-                fallback is not None
-                and last_filename != "selfie.png"
-                and self._rule_is_eligible(
-                    selfie_rule,
-                    compact,
-                    mood=mood,
-                    user_level=user_level,
-                    explicit_image_request=True,
-                )
-            ):
-                new_unlock = self._remember_gallery_choice(
-                    "selfie.png",
-                    now,
-                    reason="explicit",
-                    caption="All right. You get a proper status shot.",
-                )
-                return str(fallback), "All right. You get a proper status shot.", new_unlock, {
-                    "filename": "selfie.png",
-                    "reason": "explicit",
-                }
+        explicit_result = self._select_explicit_gallery_image(
+            compact,
+            mood=mood,
+            user_level=user_level,
+            explicit_image_request=explicit_image_request,
+            in_cooldown=in_cooldown,
+            last_filename=last_filename,
+            now=now,
+        )
+        if explicit_result is not None:
+            return explicit_result
 
         if matched_rules:
             rare_bias = max((self.RARITY_PRIORITY.get(str(rule.get("rarity", "common") or "common"), 0) for rule in matched_rules), default=0)
@@ -678,6 +690,79 @@ class ConversationService:
         if random.random() > base_probability:
             return None, None, None, None
 
+        return self._select_gallery_fallback(
+            compact,
+            mood=mood,
+            user_level=user_level,
+            last_filename=last_filename,
+            now=now,
+        )
+
+    def _is_explicit_image_request(self, compact: str) -> bool:
+        explicit_request = any(
+            token in compact
+            for token in ["send a pic", "send me a pic", "send a picture", "show me", "selfie", "photo", "picture"]
+        )
+        return explicit_request or any(
+            token in compact for token in ["skicka en bild", "visa mig", "selfie", "bild", "foto"]
+        )
+
+    def _match_gallery_rules(self, compact: str, mood: str, user_level: int, explicit_image_request: bool) -> list[dict]:
+        matched_rules = []
+        for rule in self.GALLERY_RULES:
+            keywords = rule.get("keywords", ())
+            if any(keyword in compact for keyword in keywords):
+                if not self._rule_is_eligible(rule, compact, mood=mood, user_level=user_level, explicit_image_request=explicit_image_request):
+                    continue
+                matched_rules.append(rule)
+        return matched_rules
+
+    def _select_explicit_gallery_image(
+        self,
+        compact: str,
+        mood: str,
+        user_level: int,
+        explicit_image_request: bool,
+        in_cooldown: bool,
+        last_filename: str,
+        now: float,
+    ) -> tuple[str | None, str | None, dict | None, dict | None] | None:
+        if not explicit_image_request or in_cooldown:
+            return None
+        fallback = self._resolve_image_path("selfie.png")
+        selfie_rule = self._find_rule("selfie.png") or {"filename": "selfie.png"}
+        if (
+            fallback is not None
+            and last_filename != "selfie.png"
+            and self._rule_is_eligible(
+                selfie_rule,
+                compact,
+                mood=mood,
+                user_level=user_level,
+                explicit_image_request=True,
+            )
+        ):
+            caption = "All right. You get a proper status shot."
+            new_unlock = self._remember_gallery_choice(
+                "selfie.png",
+                now,
+                reason="explicit",
+                caption=caption,
+            )
+            return str(fallback), caption, new_unlock, {
+                "filename": "selfie.png",
+                "reason": "explicit",
+            }
+        return None
+
+    def _select_gallery_fallback(
+        self,
+        compact: str,
+        mood: str,
+        user_level: int,
+        last_filename: str,
+        now: float,
+    ) -> tuple[str | None, str | None, dict | None, dict | None]:
         fallback_candidates = self.MOOD_FALLBACKS.get(mood, self.MOOD_FALLBACKS.get("neutral", []))
         for filename, caption in fallback_candidates:
             if filename == last_filename:
@@ -709,7 +794,7 @@ class ConversationService:
                 }
         return None, None, None, None
 
-    def _update_progression_state(self, user_text: str, reply: str, mood: str):
+    def _update_progression_state(self, user_text: str, _reply: str, mood: str):
         state = self.memory.get_agent_state("progression_state", default={}) or {}
         xp = int(state.get("xp", 0) or 0)
         level = int(state.get("level", self._level_from_xp(xp)) or self._level_from_xp(xp))
@@ -774,6 +859,7 @@ class ConversationService:
         )
 
     def _score_xp_delta(self, compact: str, mood: str, state: dict) -> tuple[int, str, set[str]]:
+        del state
         delta = 0
         tags: set[str] = set()
 
@@ -964,6 +1050,10 @@ class ConversationService:
         return any(marker in compact_text for marker in dramatic_markers)
 
     def _resolve_image_path(self, filename: str) -> Path | None:
+        if self.gallery_dir is None:
+            return None
+        if not self._gallery_enabled():
+            return None
         direct_path = self.gallery_dir / filename
         if direct_path.exists():
             return direct_path
@@ -1008,6 +1098,8 @@ class ConversationService:
 
     def _level_from_xp(self, xp: int) -> int:
         xp_value = max(0, int(xp or 0))
+        if xp_value <= 0:
+            return 0
         level = 1
         for candidate in range(2, self.MAX_LEVEL + 1):
             if xp_value < self._xp_for_level(candidate):
@@ -1016,6 +1108,8 @@ class ConversationService:
         return level
 
     def _xp_for_level(self, level: int) -> int:
+        if int(level or 0) <= 0:
+            return 0
         lvl = max(1, min(self.MAX_LEVEL, int(level or 1)))
         n = lvl - 1
         return int((n * n * 3.0) + (n * 18))
@@ -1065,6 +1159,8 @@ class ConversationService:
         return max(1, 1 + round(affection_min * 0.55))
 
     def _sync_level_gallery_unlocks(self, level: int):
+        if not self._gallery_enabled():
+            return
         if self.gallery_dir is None or not self.gallery_dir.exists():
             return
         unlocked = self.memory.get_agent_state("unlocked_gallery", default=[]) or []
@@ -1105,6 +1201,8 @@ class ConversationService:
             self.memory.set_agent_state("unlocked_gallery", unlocked)
 
     def _repair_gallery_unlocks(self, level: int):
+        if not self._gallery_enabled():
+            return
         unlocked = self.memory.get_agent_state("unlocked_gallery", default=[]) or []
         if not isinstance(unlocked, list):
             return
@@ -1138,6 +1236,8 @@ class ConversationService:
         rarity: str = "common",
         level_min: int = 1,
     ) -> dict | None:
+        if not self._gallery_enabled():
+            return None
         new_unlock = None
         image_path = self._resolve_image_path(filename)
         if image_path is not None:

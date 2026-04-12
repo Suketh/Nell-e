@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import time
 import wave
+from contextlib import suppress
 from io import BytesIO
 
 import requests
@@ -46,10 +47,8 @@ class TTS:
         self._check_health(force=True)
 
     def close(self):
-        try:
+        with suppress(Exception):
             self._session.close()
-        except Exception:
-            pass
         return None
 
     def set_voice_profile(self, voice_profile: str = "", voice_sample: str = ""):

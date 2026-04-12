@@ -31,8 +31,11 @@ export function MessageList({
     <div className="message-list">
       {messages.map((message) => (
         <article key={message.id} className={`message-bubble ${message.role}`}>
-          <div className="message-role">{message.role === "assistant" ? "Nellie" : "You"}</div>
-          <div>{message.text}</div>
+          <div className="message-header">
+            <div className="message-role">{message.role === "assistant" ? "Nellie" : "You"}</div>
+            <div className="message-index">{message.role === "assistant" ? "Presence reply" : "User signal"}</div>
+          </div>
+          <div className="message-body">{message.text}</div>
           {message.role === "assistant" ? (
             <div className="message-actions">
               <button
@@ -41,7 +44,7 @@ export function MessageList({
                 onClick={() => onPlayVoice?.(message)}
                 disabled={!onPlayVoice || isPlayingVoice}
               >
-                {isPlayingVoice ? "Playing..." : "Play voice"}
+                {isPlayingVoice ? "Playing..." : "Play return"}
               </button>
             </div>
           ) : null}

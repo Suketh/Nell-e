@@ -10,10 +10,10 @@ type ComposerProps = {
 };
 
 function voiceButtonLabel(state?: "idle" | "arming" | "listening", enabled?: boolean): string {
-  if (state === "listening") return "Stop recording";
-  if (state === "arming") return "Working...";
-  if (enabled) return "Start recording";
-  return "Enable mic";
+  if (state === "listening") return "Release mic";
+  if (state === "arming") return "Processing";
+  if (enabled) return "Open mic";
+  return "Arm mic";
 }
 
 export function Composer({ disabled, onSend, voiceStatus, voiceEnabled, voiceState, onVoiceTap }: ComposerProps) {
@@ -45,13 +45,13 @@ export function Composer({ disabled, onSend, voiceStatus, voiceEnabled, voiceSta
       <textarea
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        placeholder="Write to Nellie..."
+        placeholder="Write something with a little signal..."
         rows={3}
         disabled={disabled}
       />
       <div className="composer-actions">
         <div className="composer-hint">
-          Short messages feel the most natural here. Web voice playback is not wired yet.
+          Short, intentional prompts land best here. Voice input can shape the rhythm, text can shape the detail.
         </div>
         <button type="submit" className="send-btn" disabled={disabled || !value.trim()}>
           Send

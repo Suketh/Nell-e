@@ -1,0 +1,34 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "app.py",
+    "llm",
+    "server",
+    "services",
+    "ui",
+    "scripts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    ".venv",
+    ".voxtral-venv",
+    ".xtts-venv",
+    "mobile",
+    "web",
+    "data"
+  ],
+  "extraPaths": [
+    "."
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "."
+      ]
+    }
+  ]
+}

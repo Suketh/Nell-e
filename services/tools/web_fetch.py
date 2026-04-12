@@ -12,7 +12,7 @@ class _VisibleTextExtractor(HTMLParser):
         self.title_parts: list[str] = []
         self.text_parts: list[str] = []
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag, _attrs):
         lowered = tag.lower()
         if lowered in {"script", "style", "noscript"}:
             self._skip_stack.append(lowered)

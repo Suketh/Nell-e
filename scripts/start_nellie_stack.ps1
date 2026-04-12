@@ -4,7 +4,8 @@ param(
     [switch]$ServicesOnly,
     [switch]$ForceRestart,
     [switch]$MobileHttps,
-    [switch]$MobileExpo
+    [switch]$MobileExpo,
+    [switch]$SkipOllamaWarmup
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,20 +22,20 @@ $NpxCmd = "C:\Program Files\nodejs\npx.cmd"
 
 function Get-PreferredLanIp {
     $ipconfigOutput = ipconfig
-    $matches = [regex]::Matches($ipconfigOutput, 'IPv4 Address[^\:]*:\s*(\d+\.\d+\.\d+\.\d+)')
-    foreach ($match in $matches) {
+    $ipMatches = [regex]::Matches($ipconfigOutput, 'IPv4 Address[^\:]*:\s*(\d+\.\d+\.\d+\.\d+)')
+    foreach ($match in $ipMatches) {
         $candidate = $match.Groups[1].Value
         if ($candidate -and $candidate.StartsWith("192.168.")) { return $candidate }
     }
-    foreach ($match in $matches) {
+    foreach ($match in $ipMatches) {
         $candidate = $match.Groups[1].Value
         if ($candidate -and $candidate.StartsWith("10.")) { return $candidate }
     }
-    foreach ($match in $matches) {
+    foreach ($match in $ipMatches) {
         $candidate = $match.Groups[1].Value
         if ($candidate -and $candidate.StartsWith("172.")) { return $candidate }
     }
-    foreach ($match in $matches) {
+    foreach ($match in $ipMatches) {
         $candidate = $match.Groups[1].Value
         if ($candidate -and -not $candidate.StartsWith("127.") -and -not $candidate.StartsWith("169.254.")) {
             return $candidate
@@ -51,6 +52,74 @@ function Test-HttpOk {
     } catch {
         return $false
     }
+}
+
+function Get-ConfiguredOllamaModel {
+    $configPath = Join-Path $ProjectRoot "config.yaml"
+    if (-not (Test-Path $configPath)) {
+        return ""
+    }
+
+    foreach ($line in Get-Content -Path $configPath) {
+        $modelMatch = [regex]::Match($line, '^\s*text_model\s*:\s*(.+?)\s*$')
+        if ($modelMatch.Success) {
+            return $modelMatch.Groups[1].Value.Trim().Trim('"').Trim("'")
+        }
+    }
+    return ""
+}
+
+function Warmup-OllamaModel {
+    if ($SkipOllamaWarmup) {
+        Write-Host "[ollama] warmup skipped"
+        return
+    }
+
+    $ollamaCommand = Get-Command "ollama" -ErrorAction SilentlyContinue
+    if (-not $ollamaCommand) {
+        Write-Host "[ollama] command not found, skipping model warmup" -ForegroundColor DarkYellow
+        return
+    }
+
+    $modelName = Get-ConfiguredOllamaModel
+    if (-not $modelName) {
+        Write-Host "[ollama] no text_model found in config.yaml, skipping model warmup" -ForegroundColor DarkYellow
+        return
+    }
+
+    Write-Host "[ollama] verifying model -> $modelName"
+    & $ollamaCommand.Source show $modelName *> $null
+    if ($LASTEXITCODE -ne 0) {
+        throw "[ollama] model '$modelName' is not available locally. Run: ollama pull $modelName"
+    }
+
+    $logPath = Join-Path $RunDir "ollama-warmup.log"
+    $errLogPath = Join-Path $RunDir "ollama-warmup.err.log"
+    Remove-Item -Force -ErrorAction SilentlyContinue $logPath, $errLogPath
+
+    Write-Host "[ollama] warming model before app start..."
+    $warmup = Start-Process -FilePath $ollamaCommand.Source `
+        -ArgumentList @("run", $modelName, "Reply exactly: OK") `
+        -WorkingDirectory $ProjectRoot `
+        -RedirectStandardOutput $logPath `
+        -RedirectStandardError $errLogPath `
+        -WindowStyle "Hidden" `
+        -PassThru
+
+    if (-not $warmup.WaitForExit(120000)) {
+        Stop-Process -Id $warmup.Id -Force -ErrorAction SilentlyContinue
+        throw "[ollama] model warmup timed out. See log: $logPath"
+    }
+    if ($warmup.ExitCode -ne 0) {
+        $activeModels = & $ollamaCommand.Source ps 2> $null
+        if ($activeModels -match [regex]::Escape($modelName)) {
+            Write-Host "[ollama] warmup returned a non-zero exit code, but the model is active" -ForegroundColor DarkYellow
+        } else {
+            throw "[ollama] model warmup failed. See log: $errLogPath"
+        }
+    }
+
+    Write-Host "[ollama] model ready -> $modelName"
 }
 
 function Get-PidPath {
@@ -91,7 +160,8 @@ function Start-ManagedProcess {
         [string[]]$ArgumentList,
         [string]$WorkingDirectory,
         [string]$HealthUrl,
-        [string]$WindowStyle = "Hidden"
+        [string]$WindowStyle = "Hidden",
+        [switch]$AllowDetachedStartup
     )
 
     $pidPath = Get-PidPath $Name
@@ -145,6 +215,16 @@ function Start-ManagedProcess {
             try {
                 $null = Get-Process -Id $process.Id -ErrorAction Stop
             } catch {
+                if ($AllowDetachedStartup) {
+                    $detachedDeadline = (Get-Date).AddSeconds(10)
+                    while ((Get-Date) -lt $detachedDeadline) {
+                        Start-Sleep -Milliseconds 750
+                        if (Test-HttpOk $HealthUrl) {
+                            Write-Host "[$Name] healthy (detached) -> $HealthUrl"
+                            return
+                        }
+                    }
+                }
                 throw "[$Name] exited during startup. See log: $logPath"
             }
             Write-Host "[$Name] still starting..." -ForegroundColor DarkYellow
@@ -192,6 +272,8 @@ Start-ManagedProcess `
     -HealthUrl "http://127.0.0.1:8765/health" `
     -WindowStyle "Hidden"
 
+Warmup-OllamaModel
+
 if ($Web) {
     if (-not (Test-Path $NpmCmd)) {
         throw "Missing npm: $NpmCmd"
@@ -208,7 +290,8 @@ if ($Web) {
         -ArgumentList @("run", "dev", "--", "--host", "0.0.0.0", "--port", "5173") `
         -WorkingDirectory (Join-Path $ProjectRoot "web") `
         -HealthUrl $(if ($MobileHttps) { "" } else { "http://127.0.0.1:5173" }) `
-        -WindowStyle "Hidden"
+        -WindowStyle "Hidden" `
+        -AllowDetachedStartup
 }
 
 if ($MobileExpo) {

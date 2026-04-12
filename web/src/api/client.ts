@@ -59,6 +59,11 @@ export async function sendReply(input: {
 }
 
 export async function transcribePcmAudio(input: { pcm16: Int16Array; language?: string }): Promise<string> {
+  const pcmBytes = new Uint8Array(input.pcm16.byteLength);
+  pcmBytes.set(new Uint8Array(input.pcm16.buffer, input.pcm16.byteOffset, input.pcm16.byteLength));
+  const body = new Blob([pcmBytes], {
+    type: "application/octet-stream",
+  });
   const response = await fetch(`${STT_BASE}/transcribe`, {
     method: "POST",
     headers: {
@@ -68,7 +73,7 @@ export async function transcribePcmAudio(input: { pcm16: Int16Array; language?: 
       "X-Audio-Channels": "1",
       ...(input.language && input.language !== "auto" ? { "X-STT-Language": input.language } : {}),
     },
-    body: input.pcm16.buffer,
+    body,
   });
   if (!response.ok) {
     let detail = `STT request failed: ${response.status}`;

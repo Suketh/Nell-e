@@ -264,9 +264,6 @@ class DesktopGalleryController:
         self.window._affection_glow_grow.finished.connect(self.window._affection_glow_fade.start)
         self.window._affection_glow_grow.start()
 
-    def refresh_affection_progress_legacy(self):
-        self.refresh_affection_progress()
-
     def refresh_affection_progress(self):
         progress = {"xp": 0, "level": 1, "stage": "Anonymous", "xp_to_next_level": 0, "next_tool_unlock": None}
         catalog = []

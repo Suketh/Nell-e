@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -58,6 +57,7 @@ class DesktopSettingsController:
         mode_row.setContentsMargins(0, 0, 0, 0)
         mode_row.setSpacing(8)
         mode_row.addWidget(self.window.language_combo, 0)
+        mode_row.addWidget(self.window.model_combo, 0)
         mode_row.addStretch(1)
 
         voice_row = QHBoxLayout()

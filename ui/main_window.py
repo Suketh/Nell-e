@@ -34,6 +34,8 @@ from services.conversation_service import ConversationService
 
 import queue
 import threading
+import requests
+import yaml
 
 
 class MainWindow(QMainWindow):
@@ -278,6 +280,10 @@ class MainWindow(QMainWindow):
         self.subtitle_label.setObjectName("subtitleLabel")
         self.subtitle_label.setWordWrap(True)
         self.subtitle_label.setMaximumWidth(280)
+        self.presence_label = QLabel("A local companion presence shaped by mood, memory, voice, and the pace of the current thread.")
+        self.presence_label.setObjectName("presenceLabel")
+        self.presence_label.setWordWrap(True)
+        self.presence_label.setMaximumWidth(360)
         self.loading_label = QLabel("Launching Nellie... 1%")
         self.loading_label.setObjectName("loadingLabel")
         self.loading_label.setWordWrap(True)
@@ -285,6 +291,17 @@ class MainWindow(QMainWindow):
         self.profile_label = QLabel("")
         self.profile_label.setObjectName("profileLabel")
         self.profile_label.setWordWrap(True)
+        self.status_strip = QFrame()
+        self.status_strip.setObjectName("statusStrip")
+        status_layout = QHBoxLayout(self.status_strip)
+        status_layout.setContentsMargins(10, 8, 10, 8)
+        status_layout.setSpacing(8)
+        self.voice_status = QLabel("Voice warming up...")
+        self.voice_status.setObjectName("voiceStatus")
+        self.listening_status = QLabel("Listening warming up...")
+        self.listening_status.setObjectName("listeningStatus")
+        status_layout.addWidget(self.voice_status, 1)
+        status_layout.addWidget(self.listening_status, 1)
         self.affection_card = QFrame()
         self.affection_card.setObjectName("affectionCard")
         affection_layout = QVBoxLayout(self.affection_card)
@@ -355,6 +372,11 @@ class MainWindow(QMainWindow):
         self.language_combo.addItem("English", "en")
         self.language_combo.setToolTip("Choose whether Nellie should auto-detect, or listen in Swedish or English.")
         self.language_combo.currentIndexChanged.connect(self._on_language_changed)
+        self.model_combo = QComboBox()
+        self.model_combo.setObjectName("themeButton")
+        self.model_combo.setMinimumWidth(210)
+        self.model_combo.setToolTip("Choose which Ollama text model Nellie should use for backend replies.")
+        self.model_combo.currentIndexChanged.connect(self._on_model_changed)
         self.voice_combo = QComboBox()
         self.voice_combo.setObjectName("themeButton")
         self.voice_combo.setMinimumWidth(190)
@@ -459,8 +481,10 @@ class MainWindow(QMainWindow):
         title_stack.addWidget(self.eyebrow_label)
         title_stack.addWidget(self.title_label)
         title_stack.addWidget(self.subtitle_label)
+        title_stack.addWidget(self.presence_label)
         title_stack.addWidget(self.loading_label)
         title_stack.addWidget(self.profile_label)
+        title_stack.addWidget(self.status_strip)
         title_stack.addWidget(self.affection_card)
         title_stack.addWidget(self.utility_strip, 0, Qt.AlignRight)
         title_stack.addWidget(self.header_divider)
@@ -476,7 +500,7 @@ class MainWindow(QMainWindow):
 
         self.input = QLineEdit()
         self.input.setObjectName("messageInput")
-        self.input.setPlaceholderText("Write to Nellie...")
+        self.input.setPlaceholderText("Send Nellie a clear signal...")
         self.input.returnPressed.connect(self._submit_text)
 
         self.send_btn = QPushButton("Send")
@@ -528,6 +552,7 @@ class MainWindow(QMainWindow):
             on_transcript=self.on_user_utterance,
             on_error=self.on_stt_error,
         )
+        recorder.activity_changed.connect(self._set_presence_state)
         recorder.set_ready_state(False, "Voice input warming up...")
         return recorder
 
@@ -542,6 +567,7 @@ class MainWindow(QMainWindow):
         }
         self._active_user_text = ""
         self._active_ai_mood = "thoughtful"
+        self._presence_state = "idle"
         self._latest_agent_debug = "No agent activity yet."
         self._stream_buffer = []
         self._pending_stream_chunks = []
@@ -552,6 +578,7 @@ class MainWindow(QMainWindow):
         self._stream_flush_timer.timeout.connect(self._flush_pending_stream_chunks)
         threading.Thread(target=self._tts_worker, daemon=True).start()
         self._voice_choice_locked = False
+        self._model_choice_locked = False
         self._intro_animation = None
         self._resting_voice_status = "Voice ready"
         self._resting_listening_status = "Listening ready"
@@ -573,6 +600,7 @@ class MainWindow(QMainWindow):
 
     def _finalize_startup_ui(self):
         self._sync_language_combo()
+        self._sync_model_combo()
         self._set_voice_combo_loading()
         self._set_interaction_enabled(False)
         self._refresh_startup_progress("Launching Nellie")
@@ -606,6 +634,7 @@ class MainWindow(QMainWindow):
         self.chat_controller.run_chat(text)
 
     def _on_ai_stream_start(self):
+        self._set_presence_state("thinking")
         self.chat_controller.on_ai_stream_start()
 
     def _on_ai_stream_chunk(self, chunk: str):
@@ -615,6 +644,7 @@ class MainWindow(QMainWindow):
         self.chat_controller.on_ai_stream_done(reply, meta)
 
     def _on_ai_stream_error(self, err: str):
+        self._set_presence_state("idle")
         self.chat_controller.on_ai_stream_error(err)
 
     def _flush_pending_stream_chunks(self):
@@ -675,10 +705,25 @@ class MainWindow(QMainWindow):
         self.startup_controller.warmup_stt()
 
     def _on_voice_status_update(self, text: str):
+        lowered = (text or "").strip().lower()
+        if "speaking" in lowered or "playing voice demo" in lowered:
+            self._set_presence_state("speaking")
+        elif "thinking" in lowered:
+            self._set_presence_state("thinking")
+        elif "ready" in lowered or "unavailable" in lowered or "retrying" in lowered:
+            self._set_presence_state("idle")
         self.startup_controller.on_voice_status_update(text)
 
     def _on_listening_status_update(self, text: str, ready: bool):
         self.startup_controller.on_listening_status_update(text, ready)
+
+    def _set_presence_state(self, state: str):
+        normalized = (state or "idle").strip().lower()
+        if normalized not in {"idle", "listening", "thinking", "speaking"}:
+            normalized = "idle"
+        self._presence_state = normalized
+        if hasattr(self.avatar, "set_activity_state"):
+            self.avatar.set_activity_state(normalized)
 
     def _on_voice_catalog_update(self, voices_obj, selected_voice: str):
         voices = [str(item) for item in (voices_obj or []) if str(item).strip()]
@@ -708,6 +753,86 @@ class MainWindow(QMainWindow):
         self.language_combo.blockSignals(True)
         self.language_combo.setCurrentIndex(index if index >= 0 else 0)
         self.language_combo.blockSignals(False)
+
+    def _sync_model_combo(self):
+        current_model = str(self.conf.get("ollama", {}).get("text_model", "") or "").strip()
+        models = self._fetch_ollama_models()
+        if current_model and current_model not in models:
+            models.insert(0, current_model)
+
+        self._model_choice_locked = True
+        self.model_combo.clear()
+        if not models:
+            self.model_combo.addItem("No Ollama models found", "")
+            self.model_combo.setEnabled(False)
+            self._model_choice_locked = False
+            return
+
+        for model_name in models:
+            self.model_combo.addItem(model_name, model_name)
+        index = self.model_combo.findData(current_model)
+        self.model_combo.setCurrentIndex(index if index >= 0 else 0)
+        self.model_combo.setEnabled(True)
+        self._model_choice_locked = False
+
+    def _fetch_ollama_models(self) -> list[str]:
+        if self.ollama is not None and hasattr(self.ollama, "list_models"):
+            try:
+                return list(self.ollama.list_models() or [])
+            except Exception:
+                pass
+
+        host = str(self.conf.get("ollama", {}).get("host", "http://127.0.0.1:11434") or "").strip()
+        if not host:
+            return []
+        try:
+            response = requests.get(f"{host.rstrip('/')}/api/tags", timeout=(3, 10))
+            response.raise_for_status()
+            payload = response.json() if response.content else {}
+            models = payload.get("models", []) if isinstance(payload, dict) else []
+            names: list[str] = []
+            for item in models:
+                if not isinstance(item, dict):
+                    continue
+                name = str(item.get("name", "") or "").strip()
+                if name:
+                    names.append(name)
+            return names
+        except Exception:
+            return []
+
+    def _persist_runtime_config(self):
+        config_path = Path("config.yaml")
+        config_path.write_text(
+            yaml.safe_dump(self.conf, allow_unicode=True, sort_keys=False),
+            encoding="utf-8",
+        )
+
+    def _apply_text_model(self, model_name: str):
+        if self.ollama is not None and hasattr(self.ollama, "set_text_model"):
+            self.ollama.set_text_model(model_name)
+
+        if self.conversation is not None and hasattr(self.conversation, "set_text_model"):
+            self.conversation.set_text_model(model_name)
+
+    def _on_model_changed(self, index: int):
+        if self._model_choice_locked:
+            return
+        model_name = str(self.model_combo.itemData(index) or "").strip()
+        if not model_name:
+            return
+        current_model = str(self.conf.get("ollama", {}).get("text_model", "") or "").strip()
+        if model_name == current_model:
+            return
+        self.conf.setdefault("ollama", {})["text_model"] = model_name
+        try:
+            self._persist_runtime_config()
+            self._apply_text_model(model_name)
+            self.voice_status_update.emit(f"Model ready ({model_name})")
+        except Exception as exc:
+            self.conf.setdefault("ollama", {})["text_model"] = current_model
+            self._sync_model_combo()
+            QMessageBox.warning(self, "Model switch failed", f"Could not switch Ollama model.\n\n{exc}")
 
     def _set_voice_combo_loading(self):
         self.startup_controller.set_voice_combo_loading()
@@ -825,6 +950,12 @@ class MainWindow(QMainWindow):
                 color: {palette["subtitle"]};
                 font-size: 13px;
                 line-height: 1.35em;
+            }}
+            #presenceLabel {{
+                color: {palette["subtitle"]};
+                font-size: 12px;
+                line-height: 1.5em;
+                padding: 0 0 2px 0;
             }}
             #profileLabel {{
                 color: {palette["status"]};
@@ -945,9 +1076,21 @@ class MainWindow(QMainWindow):
                 font-weight: 800;
                 letter-spacing: 0.4px;
                 text-transform: uppercase;
-                padding-top: 0;
-                padding-right: 6px;
-                padding-bottom: 0;
+                padding: 4px 8px;
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid {palette["divider"]};
+            }}
+            #listeningStatus {{
+                color: {palette["status"]};
+                font-size: 11px;
+                font-weight: 800;
+                letter-spacing: 0.4px;
+                text-transform: uppercase;
+                padding: 4px 8px;
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid {palette["divider"]};
             }}
             #headerDivider {{
                 background: {palette["divider"]};
@@ -1286,11 +1429,22 @@ class MainWindow(QMainWindow):
                 letter-spacing: 1.5px;
                 padding-bottom: 4px;
             }}
+            #bubbleMeta {{
+                color: {palette["status"]};
+                font-size: 9px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1.2px;
+                padding-bottom: 6px;
+            }}
+            #chatBubble[role="user"] #bubbleMeta {{
+                color: {palette["user_speaker"]};
+            }}
             #bubbleText {{
                 font-family: "Georgia";
                 font-size: 16px;
                 font-weight: 500;
-                line-height: 1.34em;
+                line-height: 1.42em;
                 padding-bottom: 0;
             }}
             #bubbleImage {{
@@ -1313,7 +1467,7 @@ class MainWindow(QMainWindow):
                 background: {palette["input_bg"]};
                 color: {palette["input_text"]};
                 border: 1px solid {palette["input_border"]};
-                border-radius: 20px;
+                border-radius: 22px;
                 padding: 16px 18px;
                 font-size: 15px;
                 font-family: "Georgia";
@@ -1325,7 +1479,7 @@ class MainWindow(QMainWindow):
                 background: {palette["send_bg"]};
                 color: {palette["send_text"]};
                 border: none;
-                border-radius: 20px;
+                border-radius: 22px;
                 padding: 0 22px;
                 min-width: 96px;
                 min-height: 50px;
@@ -1375,6 +1529,14 @@ class MainWindow(QMainWindow):
             #recordButton:disabled {{
                 background: {palette["chat_scroll_track"]};
                 color: {palette["status"]};
+            }}
+            #recordMode {{
+                color: {palette["eyebrow"]};
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 1.4px;
+                padding-bottom: 2px;
             }}
             #recordStatus {{
                 color: {palette["record_status"]};
@@ -1700,9 +1862,6 @@ class MainWindow(QMainWindow):
 
     def _animate_affection_glow(self):
         self.gallery_controller.animate_affection_glow()
-
-    def _refresh_affection_progress_legacy(self):
-        self.gallery_controller.refresh_affection_progress_legacy()
 
     def _refresh_affection_progress(self):
         self.gallery_controller.refresh_affection_progress()

@@ -22,7 +22,9 @@ class XTTSRuntime:
         self.default_voice_sample = str(default_voice_sample or "").strip()
         self._tts: CoquiXTTSTTS | None = None
         self._active_voice_sample = ""
-        self._lock = threading.RLock()
+        self._cache_lock = threading.RLock()
+        self._engine_lock = threading.RLock()
+        self._inflight: dict[str, threading.Event] = {}
         self._cache: OrderedDict[str, bytes] = OrderedDict()
         self._cache_limit = 32
 
@@ -37,7 +39,7 @@ class XTTSRuntime:
 
     def ensure_loaded(self, voice_sample: str = ""):
         sample = self._resolve_sample(voice_sample)
-        with self._lock:
+        with self._engine_lock:
             if self._tts is None:
                 self._tts = CoquiXTTSTTS(language=self.language, voice_sample=sample or None)
                 self._active_voice_sample = sample
@@ -55,20 +57,40 @@ class XTTSRuntime:
             raise RuntimeError("empty_text")
         resolved_sample = self._resolve_sample(voice_sample)
         cache_key = f"{resolved_sample}|{normalized}"
-        with self._lock:
-            cached = self._cache.get(cache_key)
-            if cached is not None:
+        while True:
+            with self._cache_lock:
+                cached = self._cache.get(cache_key)
+                if cached is not None:
+                    self._cache.move_to_end(cache_key)
+                    return cached
+                inflight = self._inflight.get(cache_key)
+                if inflight is None:
+                    inflight = threading.Event()
+                    self._inflight[cache_key] = inflight
+                    is_owner = True
+                else:
+                    is_owner = False
+            if is_owner:
+                break
+            inflight.wait()
+
+        try:
+            with self._engine_lock:
+                self.ensure_loaded(voice_sample=voice_sample)
+                if self._tts is None:
+                    raise RuntimeError("xtts_not_loaded")
+                payload = self._tts.synthesize_wav_bytes(normalized)
+            with self._cache_lock:
+                self._cache[cache_key] = payload
                 self._cache.move_to_end(cache_key)
-                return cached
-            self.ensure_loaded(voice_sample=voice_sample)
-            if self._tts is None:
-                raise RuntimeError("xtts_not_loaded")
-            payload = self._tts.synthesize_wav_bytes(normalized)
-            self._cache[cache_key] = payload
-            self._cache.move_to_end(cache_key)
-            while len(self._cache) > self._cache_limit:
-                self._cache.popitem(last=False)
+                while len(self._cache) > self._cache_limit:
+                    self._cache.popitem(last=False)
             return payload
+        finally:
+            with self._cache_lock:
+                done = self._inflight.pop(cache_key, None)
+                if done is not None:
+                    done.set()
 
 
 class XTTSHandler(BaseHTTPRequestHandler):
@@ -126,7 +148,7 @@ class XTTSHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(audio)
 
-    def log_message(self, format, *args):
+    def log_message(self, _format, *_args):
         return
 
     def _send_json(self, status: int, payload: dict):

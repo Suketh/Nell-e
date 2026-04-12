@@ -1,5 +1,6 @@
 import subprocess
 import time
+from contextlib import suppress
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -151,10 +152,8 @@ class ServerHttpSTT:
         self._server_process = None
         self._ready = False
         if self._log_handle is not None:
-            try:
+            with suppress(Exception):
                 self._log_handle.close()
-            except Exception:
-                pass
         self._log_handle = None
 
     def _ensure_server(self):
@@ -257,7 +256,5 @@ class ServerHttpSTT:
             return False
 
     def __del__(self):
-        try:
+        with suppress(Exception):
             self.close()
-        except Exception:
-            pass

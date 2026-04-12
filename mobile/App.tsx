@@ -12,13 +12,22 @@ import { adminResetProgress, adminSetAllFeatures, adminSetLevel, buildGalleryAss
 import { playRemoteAudio } from "./src/audio/player";
 import { startNativeRecording, stopNativeRecording } from "./src/audio/recorder";
 import { clearAuthSession, loadAuthSession, loginLocally } from "./src/store/auth";
-import { loadActiveUserId, loadProfiles, saveActiveUserId } from "./src/store/profile";
+import { createMobileProfile, loadActivePersonaId, loadActiveUserId, loadProfiles, saveActivePersonaId, saveActiveUserId, saveProfiles } from "./src/store/profile";
 import { loadDiagnosticsEnabled, saveDiagnosticsEnabled } from "./src/store/diagnostics";
 import { randomSessionId } from "./src/store/session";
-import type { ChatMessage, FeatureAccessItem, FeatureAccessState, GalleryItem, MobileProfile, NelliePreference, ProfileSummary, VoiceProfile } from "./src/types/api";
+import type { ChatMessage, FeatureAccessItem, FeatureAccessState, GalleryItem, MobileProfile, NelliePreference, PersonaProfile, ProfileSummary, VoiceProfile } from "./src/types/api";
 
 type ScreenTab = "chat" | "gallery" | "bond" | "settings";
 type VoicePhase = "idle" | "listening" | "transcribing" | "replying" | "playing";
+type PresenceState = "idle" | "listening" | "thinking" | "speaking";
+const MOOD_OPTIONS = ["happy", "neutral", "thoughtful", "sad", "annoyed", "angry", "tired"] as const;
+type ReplyPlaybackPayload = {
+  replyText: string;
+  spokenReplyText: string;
+  embeddedAudioUri?: string;
+  embeddedTtsMs?: number;
+  embeddedCacheHit?: boolean;
+};
 
 function buildSpokenReply(text: string): string {
   const compact = String(text || "").replace(/\s+/g, " ").trim();
@@ -47,7 +56,7 @@ function mergeSummary(current: ProfileSummary | null, incoming: Partial<ProfileS
     session_id: sessionId,
     progress: {
       xp: 0,
-      level: 1,
+      level: 0,
       stage: "Anonymous",
     },
     gallery_unlock_count: 0,
@@ -71,6 +80,9 @@ function mergeSummary(current: ProfileSummary | null, incoming: Partial<ProfileS
     nellie_preferences: incoming.nellie_preferences ?? base.nellie_preferences,
     voice_profiles: incoming.voice_profiles ?? base.voice_profiles,
     selected_voice_profile: incoming.selected_voice_profile ?? base.selected_voice_profile,
+    persona_id: incoming.persona_id ?? base.persona_id,
+    persona_profiles: incoming.persona_profiles ?? base.persona_profiles,
+    selected_persona: incoming.selected_persona ?? base.selected_persona,
   };
 }
 
@@ -78,10 +90,13 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ScreenTab>("chat");
   const [profiles, setProfiles] = useState<MobileProfile[]>([]);
   const [activeUserId, setActiveUserId] = useState("guest");
+  const [activePersonaId, setActivePersonaId] = useState("nellie");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authUserId, setAuthUserId] = useState("guest");
+  const [authPersonaId, setAuthPersonaId] = useState("nellie");
   const [authPassword, setAuthPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [newProfileName, setNewProfileName] = useState("");
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [featureAccess, setFeatureAccess] = useState<FeatureAccessState | null>(null);
   const [catalog, setCatalog] = useState<GalleryItem[]>([]);
@@ -99,6 +114,7 @@ export default function App() {
   const [pendingFeatureId, setPendingFeatureId] = useState<string | null>(null);
   const [diagnosticsEnabled, setDiagnosticsEnabled] = useState(false);
   const [adminBusy, setAdminBusy] = useState(false);
+  const [adminMoodPreview, setAdminMoodPreview] = useState<string | null>(null);
   const [sessionId] = useState(() => randomSessionId());
 
   const activeProfile = useMemo(
@@ -113,37 +129,56 @@ export default function App() {
   );
   const voiceProfiles = summary?.voice_profiles ?? [];
   const selectedVoiceProfile = summary?.selected_voice_profile ?? null;
+  const personaProfiles: PersonaProfile[] = summary?.persona_profiles?.length
+    ? summary.persona_profiles
+    : [
+        { id: "nellie", name: "Nellie", description: "Warm, nerdy, voice-first companion." },
+        { id: "rolf", name: "Rolf", description: "Male wizard companion with dry practical warmth." },
+      ];
+  const activePersona = personaProfiles.find((persona) => persona.id === activePersonaId) || personaProfiles[0];
+  const presenceState: PresenceState =
+    voicePhase === "listening"
+      ? "listening"
+      : voicePhase === "transcribing" || voicePhase === "replying"
+        ? "thinking"
+        : voicePhase === "playing"
+          ? "speaking"
+          : "idle";
 
   useEffect(() => {
     async function boot() {
       const loadedProfiles = await loadProfiles();
       const storedUser = await loadActiveUserId();
+      const storedPersona = await loadActivePersonaId();
       const storedDiagnostics = await loadDiagnosticsEnabled();
       const session = await loadAuthSession();
       const nextUserId = session?.userId || storedUser || loadedProfiles[0]?.userId || "guest";
+      const nextPersonaId = storedPersona || "nellie";
       setProfiles(loadedProfiles);
       setAuthUserId(nextUserId);
+      setAuthPersonaId(nextPersonaId);
       setActiveUserId(nextUserId);
+      setActivePersonaId(nextPersonaId);
       setDiagnosticsEnabled(storedDiagnostics);
       if (session?.userId) {
         setIsAuthenticated(true);
-        await refreshForUser(nextUserId);
+        await refreshForUser(nextUserId, nextPersonaId);
       }
     }
 
     void boot();
   }, []);
 
-  async function refreshForUser(userId: string) {
+  async function refreshForUser(userId: string, personaId = activePersonaId) {
     const startedAt = Date.now();
     try {
       const [nextSummary, nextCatalog, nextUnlocked] = await Promise.all([
-        fetchProfileSummary(userId),
-        fetchGalleryCatalog(userId),
-        fetchUnlockedGallery(userId),
+        fetchProfileSummary(userId, personaId),
+        fetchGalleryCatalog(userId, personaId),
+        fetchUnlockedGallery(userId, personaId),
       ]);
       setSummary(nextSummary);
-      setFeatureAccess(nextSummary.feature_access ?? (await fetchFeatureAccess(userId)));
+      setFeatureAccess(nextSummary.feature_access ?? (await fetchFeatureAccess(userId, personaId)));
       setCatalog(nextCatalog);
       setUnlocked(nextUnlocked);
       void logDiagnostic("refresh_profile", { ok: true, ms: Date.now() - startedAt });
@@ -159,7 +194,7 @@ export default function App() {
       return;
     }
     try {
-      await postDiagnosticEvent(activeUserId, sessionId, {
+      await postDiagnosticEvent(activeUserId, activePersonaId, sessionId, {
         type,
         platform: "expo-mobile",
         ts: Date.now(),
@@ -170,7 +205,7 @@ export default function App() {
     }
   }
 
-  async function handleSend(text: string): Promise<{ replyText: string; spokenReplyText: string } | null> {
+  async function handleSend(text: string, options?: { includeTtsAudio?: boolean }): Promise<ReplyPlaybackPayload | null> {
     const startedAt = Date.now();
     setIsSending(true);
     setMessages((current) => [...current, { id: `${Date.now()}-user`, role: "user", text }]);
@@ -187,7 +222,7 @@ export default function App() {
         phoneActionLine = phoneAction.spoken;
         setVoiceHint(phoneAction.hint);
       }
-      const response = await sendReply({ userId: activeUserId, sessionId, text });
+      const response = await sendReply({ userId: activeUserId, personaId: activePersonaId, sessionId, text, includeTtsAudio: options?.includeTtsAudio });
       setSummary((current) =>
         mergeSummary(
           current,
@@ -215,13 +250,16 @@ export default function App() {
       }
       const replyText = phoneActionLine ? `${response.reply}\n\n${phoneActionLine}` : response.reply;
       const spokenReplyText = String(response.spoken_reply || "").trim() || buildSpokenReply(replyText);
+      const embeddedAudioUri = response.tts_audio_base64
+        ? `data:${response.tts_audio_content_type || "audio/wav"};base64,${response.tts_audio_base64}`
+        : undefined;
       setMessages((current) => [
         ...current,
         { id: `${Date.now()}-assistant`, role: "assistant", text: replyText, spokenText: spokenReplyText, mood: response.mood },
       ]);
       const hasNewUnlock = Boolean(response.new_unlock && Object.keys(response.new_unlock).length);
       if (hasNewUnlock) {
-        void refreshForUser(activeUserId);
+        void refreshForUser(activeUserId, activePersonaId);
       }
       void logDiagnostic("chat_reply", {
         ok: true,
@@ -230,8 +268,15 @@ export default function App() {
         text_chars: text.length,
         reply_chars: replyText.length,
         phone_action: Boolean(phoneActionLine),
+        embedded_tts: Boolean(embeddedAudioUri),
       });
-      return { replyText, spokenReplyText };
+      return {
+        replyText,
+        spokenReplyText,
+        embeddedAudioUri,
+        embeddedTtsMs: response.tts_meta?.tts_ms,
+        embeddedCacheHit: response.tts_meta?.cache_hit,
+      };
     } catch (error) {
       const text = error instanceof Error ? error.message : "Reply failed.";
       setMessages((current) => [...current, { id: `${Date.now()}-error`, role: "assistant", text, mood: "annoyed" }]);
@@ -254,7 +299,7 @@ export default function App() {
     setVoiceHint("Playing Nellie's voice...");
     try {
       const spokenText = String(lastAssistant.spokenText || "").trim() || buildSpokenReply(lastAssistant.text);
-      const audio = await fetchTtsAudioDataUri(spokenText, activeUserId);
+      const audio = await fetchTtsAudioDataUri(spokenText, activeUserId, activePersonaId);
       const playback = await playRemoteAudio(audio.uri);
       setVoiceHint("Voice playback finished.");
       void logDiagnostic("tts_play", {
@@ -275,6 +320,28 @@ export default function App() {
     }
   }
 
+  async function playReplyAudio(payload: ReplyPlaybackPayload): Promise<{ totalMs: number; fetchMs: number; loadMs: number; playMs: number; cacheHit?: boolean }> {
+    const startedAt = Date.now();
+    if (payload.embeddedAudioUri) {
+      const playback = await playRemoteAudio(payload.embeddedAudioUri);
+      return {
+        totalMs: Date.now() - startedAt,
+        fetchMs: payload.embeddedTtsMs ?? 0,
+        loadMs: playback.loadMs,
+        playMs: playback.playMs,
+        cacheHit: payload.embeddedCacheHit,
+      };
+    }
+    const audio = await fetchTtsAudioDataUri(payload.spokenReplyText, activeUserId, activePersonaId);
+    const playback = await playRemoteAudio(audio.uri);
+    return {
+      totalMs: Date.now() - startedAt,
+      fetchMs: audio.fetchMs,
+      loadMs: playback.loadMs,
+      playMs: playback.playMs,
+    };
+  }
+
   async function handleVoiceDraftSend() {
     const transcript = voiceDraft.trim();
     if (!transcript) {
@@ -286,23 +353,21 @@ export default function App() {
     try {
       setVoicePhase("replying");
       setVoiceHint("Sending corrected question to Nellie...");
-      const replyPayload = await handleSend(transcript);
+      const replyPayload = await handleSend(transcript, { includeTtsAudio: true });
       if (replyPayload) {
         setVoicePhase("playing");
         setVoiceHint("Playing Nellie's voice...");
-        const ttsStartedAt = Date.now();
-        const spokenReply = replyPayload.spokenReplyText;
-        const audio = await fetchTtsAudioDataUri(spokenReply, activeUserId);
-        const playback = await playRemoteAudio(audio.uri);
+        const playback = await playReplyAudio(replyPayload);
         setVoiceHint("Voice reply complete.");
         void logDiagnostic("voice_review_send", {
           ok: true,
           transcript_chars: transcript.length,
-          spoken_chars: spokenReply.length,
-          tts_ms: Date.now() - ttsStartedAt,
-          tts_fetch_ms: audio.fetchMs,
+          spoken_chars: replyPayload.spokenReplyText.length,
+          tts_ms: playback.totalMs,
+          tts_fetch_ms: playback.fetchMs,
           audio_load_ms: playback.loadMs,
           audio_play_ms: playback.playMs,
+          cache_hit: playback.cacheHit,
         });
       }
     } catch (error) {
@@ -356,23 +421,22 @@ export default function App() {
       void logDiagnostic("voice_transcribe", { ok: true, ms: Date.now() - sttStartedAt, chars: transcript.length });
       setVoicePhase("replying");
       setVoiceHint("Sending to Nellie...");
-      const replyPayload = await handleSend(transcript);
+      const replyPayload = await handleSend(transcript, { includeTtsAudio: true });
       if (replyPayload) {
         setVoicePhase("playing");
         setVoiceHint("Playing Nellie's voice...");
-        const ttsStartedAt = Date.now();
-        const audio = await fetchTtsAudioDataUri(replyPayload.spokenReplyText, activeUserId);
-        const playback = await playRemoteAudio(audio.uri);
+        const playback = await playReplyAudio(replyPayload);
         setVoiceHint("Voice reply complete.");
         void logDiagnostic("voice_roundtrip", {
           ok: true,
           total_ms: Date.now() - voiceStartedAt,
           transcript_chars: transcript.length,
           spoken_chars: replyPayload.spokenReplyText.length,
-          tts_ms: Date.now() - ttsStartedAt,
-          tts_fetch_ms: audio.fetchMs,
+          tts_ms: playback.totalMs,
+          tts_fetch_ms: playback.fetchMs,
           audio_load_ms: playback.loadMs,
           audio_play_ms: playback.playMs,
+          cache_hit: playback.cacheHit,
         });
       }
       return;
@@ -387,8 +451,8 @@ export default function App() {
     }
   }
 
-  const currentMood = messages[messages.length - 1]?.mood || "thoughtful";
-  const level = summary?.progress.level ?? 1;
+  const currentMood = adminMoodPreview || messages[messages.length - 1]?.mood || "thoughtful";
+  const level = summary?.progress.level ?? 0;
   const xp = summary?.progress.xp ?? 0;
   const xpIntoLevel = Math.max(0, summary?.progress.xp_into_level ?? 0);
   const xpForNextLevel = Math.max(0, summary?.progress.xp_for_next_level ?? 0);
@@ -409,6 +473,7 @@ export default function App() {
     [unlocked],
   );
   const lockedCount = Math.max(0, catalog.length - unlockedItems.length);
+  const galleryAvailable = catalog.length > 0 || unlockedItems.length > 0 || Boolean(nextGallery);
   const selectedGalleryImageUrl = selectedGalleryItem ? buildGalleryAssetUrl(selectedGalleryItem) : null;
 
   async function handleComposerSend(text: string): Promise<void> {
@@ -418,11 +483,11 @@ export default function App() {
   async function handleFeatureToggle(item: FeatureAccessItem, enabled: boolean): Promise<void> {
     setPendingFeatureId(item.id);
     try {
-      const nextFeatureAccess = await updateFeatureAccess(activeUserId, item.id, enabled);
+      const nextFeatureAccess = await updateFeatureAccess(activeUserId, activePersonaId, item.id, enabled);
       setFeatureAccess(nextFeatureAccess);
-      setVoiceHint(enabled ? `${item.label} is now enabled for Nellie.` : `${item.label} is now disabled for Nellie.`);
+      setVoiceHint(enabled ? `${item.label} is now enabled for ${activePersona?.name || "this persona"}.` : `${item.label} is now disabled for ${activePersona?.name || "this persona"}.`);
       void logDiagnostic("feature_toggle", { feature_id: item.id, enabled });
-      await refreshForUser(activeUserId);
+      await refreshForUser(activeUserId, activePersonaId);
     } catch (error) {
       setVoiceHint(error instanceof Error ? error.message : "Feature update failed.");
     } finally {
@@ -435,7 +500,7 @@ export default function App() {
     await saveDiagnosticsEnabled(enabled);
     setVoiceHint(enabled ? "Diagnostics enabled for this phone." : "Diagnostics disabled for this phone.");
     if (enabled) {
-      void postDiagnosticEvent(activeUserId, sessionId, {
+      void postDiagnosticEvent(activeUserId, activePersonaId, sessionId, {
         type: "diagnostics_enabled",
         platform: "expo-mobile",
         ts: Date.now(),
@@ -445,9 +510,9 @@ export default function App() {
 
   async function handleVoiceProfileSelect(profile: VoiceProfile) {
     try {
-      const nextSummary = await selectVoiceProfile(activeUserId, profile.id);
+      const nextSummary = await selectVoiceProfile(activeUserId, activePersonaId, profile.id);
       setSummary((current) => mergeSummary(current, nextSummary, activeUserId, sessionId));
-      setVoiceHint(`${profile.label} is now Nellie's active voice for this profile.`);
+      setVoiceHint(`${profile.label} is now ${activePersona?.name || "this persona"}'s active voice for this profile.`);
       void logDiagnostic("voice_profile_selected", { profile_id: profile.id });
     } catch (error) {
       setVoiceHint(error instanceof Error ? error.message : "Voice profile update failed.");
@@ -468,15 +533,51 @@ export default function App() {
     setVoiceHint(`Switched to ${profiles.find((item) => item.userId === userId)?.displayName || userId}. Sign in to continue.`);
   }
 
+  async function handlePersonaSwitch(personaId: string) {
+    if (personaId === activePersonaId) {
+      return;
+    }
+    setActivePersonaId(personaId);
+    setAuthPersonaId(personaId);
+    await saveActivePersonaId(personaId);
+    setMessages([]);
+    setSummary(null);
+    setFeatureAccess(null);
+    setCatalog([]);
+    setUnlocked([]);
+    await refreshForUser(activeUserId, personaId);
+    const persona = personaProfiles.find((item) => item.id === personaId);
+    setVoiceHint(`Switched to ${persona?.name || personaId}. This bond has its own level and memory.`);
+  }
+
+  async function handleCreateProfile() {
+    const profile = createMobileProfile(newProfileName, profiles);
+    const nextProfiles = [...profiles, profile];
+    setProfiles(nextProfiles);
+    await saveProfiles(nextProfiles);
+    setAuthUserId(profile.userId);
+    setNewProfileName("");
+    setAuthPassword("");
+    setAuthError("Profile created. Choose a password and a persona to enter.");
+  }
+
+  function handleAdminMoodPreview(mood: string | null) {
+    setAdminMoodPreview(mood);
+    setVoiceHint(mood ? `Admin previewing ${activePersona?.name || "persona"} mood: ${mood}.` : "Admin mood preview cleared.");
+  }
+
   async function handleLogin() {
     try {
       const session = await loginLocally(authUserId, authPassword);
       setIsAuthenticated(true);
       setAuthError("");
       setActiveUserId(session.userId);
+      setActivePersonaId(authPersonaId);
       await saveActiveUserId(session.userId);
-      await refreshForUser(session.userId);
-      setVoiceHint(`Logged in as ${profiles.find((item) => item.userId === session.userId)?.displayName || session.userId}.`);
+      await saveActivePersonaId(authPersonaId);
+      await refreshForUser(session.userId, authPersonaId);
+      const persona = personaProfiles.find((item) => item.id === authPersonaId);
+      setVoiceHint(`Logged in as ${profiles.find((item) => item.userId === session.userId)?.displayName || session.userId} with ${persona?.name || authPersonaId}.`);
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "Login failed.");
     }
@@ -498,10 +599,10 @@ export default function App() {
   async function handleAdminSetLevel(levelTarget: number) {
     setAdminBusy(true);
     try {
-      const nextSummary = await adminSetLevel(activeUserId, levelTarget);
+      const nextSummary = await adminSetLevel(activeUserId, activePersonaId, levelTarget);
       setSummary(nextSummary);
       setFeatureAccess(nextSummary.feature_access ?? null);
-      await refreshForUser(activeUserId);
+      await refreshForUser(activeUserId, activePersonaId);
       setVoiceHint(`Admin set level to ${levelTarget}.`);
     } catch (error) {
       setVoiceHint(error instanceof Error ? error.message : "Admin level update failed.");
@@ -513,11 +614,11 @@ export default function App() {
   async function handleAdminReset() {
     setAdminBusy(true);
     try {
-      const nextSummary = await adminResetProgress(activeUserId);
+      const nextSummary = await adminResetProgress(activeUserId, activePersonaId);
       setSummary(nextSummary);
       setFeatureAccess(nextSummary.feature_access ?? null);
-      await refreshForUser(activeUserId);
-      setVoiceHint("Admin reset this profile back to level 1.");
+      await refreshForUser(activeUserId, activePersonaId);
+      setVoiceHint("Admin reset this profile back to level 0.");
     } catch (error) {
       setVoiceHint(error instanceof Error ? error.message : "Admin reset failed.");
     } finally {
@@ -528,10 +629,10 @@ export default function App() {
   async function handleAdminSetAllFeatures(enabled: boolean) {
     setAdminBusy(true);
     try {
-      const nextFeatureAccess = await adminSetAllFeatures(activeUserId, enabled);
+      const nextFeatureAccess = await adminSetAllFeatures(activeUserId, activePersonaId, enabled);
       setFeatureAccess(nextFeatureAccess);
       setVoiceHint(enabled ? "Admin enabled all unlocked features." : "Admin disabled all unlocked features.");
-      await refreshForUser(activeUserId);
+      await refreshForUser(activeUserId, activePersonaId);
     } catch (error) {
       setVoiceHint(error instanceof Error ? error.message : "Admin feature update failed.");
     } finally {
@@ -571,6 +672,29 @@ export default function App() {
               ))}
             </View>
             <TextInput
+              value={newProfileName}
+              onChangeText={setNewProfileName}
+              placeholder="Create profile name"
+              placeholderTextColor="#7d8794"
+              style={styles.loginInput}
+            />
+            <TouchableOpacity style={styles.secondaryButton} onPress={handleCreateProfile}>
+              <Text style={styles.secondaryButtonText}>Create profile</Text>
+            </TouchableOpacity>
+            <Text style={styles.sectionEyebrow}>Choose persona</Text>
+            <View style={styles.profileRow}>
+              {personaProfiles.map((persona) => (
+                <TouchableOpacity
+                  key={persona.id}
+                  style={[styles.profileChip, persona.id === authPersonaId ? styles.profileChipActive : null]}
+                  onPress={() => setAuthPersonaId(persona.id)}
+                >
+                  <View style={[styles.profileChipDot, { backgroundColor: persona.id === "rolf" ? "#5db7de" : "#ff7b54" }]} />
+                  <Text style={styles.profileChipText}>{persona.name || persona.label || persona.id}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput
               value={authPassword}
               onChangeText={setAuthPassword}
               secureTextEntry
@@ -579,11 +703,15 @@ export default function App() {
               style={styles.loginInput}
             />
             <Text style={styles.loginHint}>
-              {authUserId === "admin-mobile" ? "Admin default password: nellie" : "Guest default password: guest"}
+              {authUserId === "admin-mobile"
+                ? "Admin default password: nellie"
+                : authUserId === "guest"
+                  ? "Guest default password: guest"
+                  : "New local profiles save the first password you enter."}
             </Text>
             {authError ? <Text style={styles.loginError}>{authError}</Text> : null}
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Enter Nellie</Text>
+              <Text style={styles.loginButtonText}>Enter {personaProfiles.find((persona) => persona.id === authPersonaId)?.name || "persona"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -598,11 +726,11 @@ export default function App() {
         <View style={[styles.header, activeTab === "chat" ? styles.headerCompact : null]}>
           <View style={styles.headerText}>
             <Text style={styles.eyebrow}>Nellie Mobile</Text>
-            <Text style={styles.headerTitle}>Nellie</Text>
+            <Text style={styles.headerTitle}>{activePersona?.name || "Nellie"}</Text>
             {activeTab === "chat" ? null : <Text style={styles.headerCopy}>A more personal, voice-first layer for the relationship.</Text>}
             <ProfileBadge profile={activeProfile} />
           </View>
-          <MoodAvatar mood={currentMood} label={currentMood} />
+          <MoodAvatar mood={currentMood} label={currentMood} activityState={presenceState} personaId={activePersonaId} />
         </View>
 
         <View style={[styles.hero, activeTab === "chat" ? styles.heroCompact : null]}>
@@ -612,7 +740,7 @@ export default function App() {
           </View>
           <Text style={styles.stage}>{summary?.progress.stage || "Connection forming"}</Text>
           <Text style={styles.copy}>
-            {activeTab === "chat" ? "Talk to her directly. Everything else should stay out of the way." : "This is where the bond with Nellie starts to take shape."}
+            {activeTab === "chat" ? `Talk to ${activePersona?.name || "Nellie"} directly. Everything else should stay out of the way.` : `This is where the bond with ${activePersona?.name || "Nellie"} starts to take shape.`}
           </Text>
           {activeTab === "chat" ? null : <Text style={styles.journeyCopy}>{journeyCopy}</Text>}
           <View style={styles.heroStats}>
@@ -640,7 +768,11 @@ export default function App() {
           </View>
           <View style={styles.heroNextRow}>
             <Text style={styles.heroNextText}>
-              {nextGallery ? `Next gallery: Lv ${nextGallery.level} • ${nextGallery.title}` : "Gallery tier fully unlocked for now"}
+              {nextGallery
+                ? `Next gallery: Lv ${nextGallery.level} • ${nextGallery.title}`
+                : galleryAvailable
+                  ? "Gallery tier fully unlocked for now"
+                  : "No gallery is attached to this persona yet"}
             </Text>
             <Text style={styles.heroNextText}>
               {nextTool ? `Next tool: Lv ${nextTool.level} • ${nextTool.label}` : "Core toolset unlocked"}
@@ -696,12 +828,16 @@ export default function App() {
               <Text style={styles.galleryIntroCopy}>
                 {unlockedItems.length
                   ? `You have unlocked ${unlockedItems.length} image${unlockedItems.length === 1 ? "" : "s"} so far.`
-                  : "No gallery images unlocked yet."}
+                  : galleryAvailable
+                    ? "No gallery images unlocked yet."
+                    : `${activePersona?.name || "This persona"} has no gallery attached yet.`}
               </Text>
               <Text style={styles.galleryIntroMeta}>
                 {nextGallery
                   ? `${lockedCount} locked reward${lockedCount === 1 ? "" : "s"} remain. Next at level ${nextGallery.level}: ${nextGallery.title}.`
-                  : "No further gallery tier is queued right now."}
+                  : galleryAvailable
+                    ? "No further gallery tier is queued right now."
+                    : "No images will be sent from this persona until a dedicated gallery is added."}
               </Text>
             </View>
             <GalleryGrid
@@ -741,7 +877,7 @@ export default function App() {
                   </Text>
                 ))
               ) : (
-                <Text style={styles.settingsNoteCopy}>Keep talking with Nellie and the next practical band will open soon.</Text>
+                <Text style={styles.settingsNoteCopy}>Keep talking with {activePersona?.name || "this persona"} and the next practical band will open soon.</Text>
               )}
             </View>
           </ScrollView>
@@ -766,10 +902,30 @@ export default function App() {
               </View>
             </View>
             <View style={styles.settingsNote}>
-              <Text style={styles.sectionEyebrow}>Voice</Text>
-              <Text style={styles.settingsNoteTitle}>Nellie voice</Text>
+              <Text style={styles.sectionEyebrow}>Persona</Text>
+              <Text style={styles.settingsNoteTitle}>Active companion</Text>
               <Text style={styles.settingsNoteCopy}>
-                Pick which saved Nellie voice this profile should use when text is spoken aloud.
+                Each persona keeps separate memory, progression, and voice settings for this user profile.
+              </Text>
+              <View style={styles.profileRow}>
+                {personaProfiles.map((persona) => (
+                  <TouchableOpacity
+                    key={persona.id}
+                    style={[styles.profileChip, persona.id === activePersonaId ? styles.profileChipActive : null]}
+                    onPress={() => handlePersonaSwitch(persona.id)}
+                  >
+                    <View style={[styles.profileChipDot, { backgroundColor: persona.id === "rolf" ? "#5db7de" : "#ff7b54" }]} />
+                    <Text style={styles.profileChipText}>{persona.name || persona.label || persona.id}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {activePersona?.description ? <Text style={styles.settingsNoteCopy}>{activePersona.description}</Text> : null}
+            </View>
+            <View style={styles.settingsNote}>
+              <Text style={styles.sectionEyebrow}>Voice</Text>
+              <Text style={styles.settingsNoteTitle}>{activePersona?.name || "Persona"} voice</Text>
+              <Text style={styles.settingsNoteCopy}>
+                Pick which saved voice this persona should use when text is spoken aloud.
               </Text>
               <View style={styles.profileRow}>
                 {voiceProfiles.map((profile) => (
@@ -799,10 +955,10 @@ export default function App() {
                 <Text style={styles.sectionEyebrow}>Testing</Text>
                 <Text style={styles.settingsNoteTitle}>Admin controls</Text>
                 <Text style={styles.settingsNoteCopy}>
-                  This profile can jump levels, reset progression, and unlock current feature bands for testing.
+                  Admin can test personas, voice profiles, mood portraits, levels, progression reset, and feature bands for the active user/persona pair.
                 </Text>
                 <View style={styles.adminRow}>
-                  {[1, 8, 16, 32, 64].map((target) => (
+                  {[0, 1, 8, 16, 32, 64, 255].map((target) => (
                     <TouchableOpacity
                       key={target}
                       style={[styles.adminButton, adminBusy ? styles.adminButtonDisabled : null]}
@@ -812,6 +968,21 @@ export default function App() {
                       <Text style={styles.adminButtonText}>Lv {target}</Text>
                     </TouchableOpacity>
                   ))}
+                </View>
+                <Text style={styles.settingsNoteTitle}>Mood preview</Text>
+                <View style={styles.adminRow}>
+                  {MOOD_OPTIONS.map((mood) => (
+                    <TouchableOpacity
+                      key={mood}
+                      style={[styles.adminButton, adminMoodPreview === mood ? styles.profileChipActive : null]}
+                      onPress={() => handleAdminMoodPreview(mood)}
+                    >
+                      <Text style={styles.adminButtonText}>{mood}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  <TouchableOpacity style={styles.adminButton} onPress={() => handleAdminMoodPreview(null)}>
+                    <Text style={styles.adminButtonText}>Live mood</Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.adminRow}>
                   <TouchableOpacity style={[styles.adminButton, adminBusy ? styles.adminButtonDisabled : null]} disabled={adminBusy} onPress={() => handleAdminSetAllFeatures(true)}>
@@ -829,9 +1000,9 @@ export default function App() {
             {isAdminProfile ? (
               <View style={styles.settingsNote}>
                 <Text style={styles.sectionEyebrow}>Emergent memory</Text>
-                <Text style={styles.settingsNoteTitle}>Nellie preferences</Text>
+                <Text style={styles.settingsNoteTitle}>{activePersona?.name || "Persona"} preferences</Text>
                 <Text style={styles.settingsNoteCopy}>
-                  These are soft preferences she has started forming from repeated dialogue and saved memory, not fixed persona facts.
+                  These are soft preferences that formed from repeated dialogue and saved memory, not fixed persona facts.
                 </Text>
                 {nelliePreferences.length ? (
                   nelliePreferences.map((item: NelliePreference) => (
@@ -840,7 +1011,7 @@ export default function App() {
                     </Text>
                   ))
                 ) : (
-                  <Text style={styles.settingsNoteCopy}>No stable Nellie-side preferences have formed yet.</Text>
+                  <Text style={styles.settingsNoteCopy}>No stable persona-side preferences have formed yet.</Text>
                 )}
               </View>
             ) : null}
@@ -1292,6 +1463,19 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: "#111111",
+    fontWeight: "700",
+  },
+  secondaryButton: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.10)",
+  },
+  secondaryButtonText: {
+    color: "#f2efe9",
     fontWeight: "700",
   },
   diagnosticsRow: {

@@ -1,6 +1,7 @@
+import math
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import (
     QColor,
     QLinearGradient,
@@ -39,6 +40,12 @@ class MoodAvatar(QLabel):
         self.setFixedSize(132, 132)
         self.setAlignment(Qt.AlignCenter)
         self._current_mood = "neutral"
+        self._source_pixmap = QPixmap()
+        self._activity_state = "idle"
+        self._animation_phase = 0.0
+        self._animation_timer = QTimer(self)
+        self._animation_timer.setInterval(48)
+        self._animation_timer.timeout.connect(self._advance_animation)
         self.set_mood("neutral")
 
     def normalize_mood(self, mood: str) -> str:
@@ -54,7 +61,32 @@ class MoodAvatar(QLabel):
         pixmap = QPixmap(str(img))
         if pixmap.isNull():
             return
-        self.setPixmap(self._styled_pixmap(pixmap))
+        self._source_pixmap = pixmap
+        self._refresh_pixmap()
+
+    def set_activity_state(self, state: str):
+        normalized = (state or "idle").strip().lower()
+        if normalized not in {"idle", "listening", "thinking", "speaking"}:
+            normalized = "idle"
+        if normalized == self._activity_state:
+            return
+        self._activity_state = normalized
+        if normalized == "idle":
+            self._animation_timer.stop()
+            self._animation_phase = 0.0
+        else:
+            if not self._animation_timer.isActive():
+                self._animation_timer.start()
+        self._refresh_pixmap()
+
+    def _advance_animation(self):
+        self._animation_phase = (self._animation_phase + 0.16) % (math.pi * 2)
+        self._refresh_pixmap()
+
+    def _refresh_pixmap(self):
+        if self._source_pixmap.isNull():
+            return
+        self.setPixmap(self._styled_pixmap(self._source_pixmap))
 
     def _styled_pixmap(self, pixmap: QPixmap) -> QPixmap:
         scaled = pixmap.scaled(
@@ -108,28 +140,38 @@ class MoodAvatar(QLabel):
         painter.setClipping(False)
 
         halo_color = self.MOOD_GLOWS.get(self._current_mood, QColor(245, 219, 181, 76))
+        halo_strength = self._activity_multiplier()
         halo = QRadialGradient(
             self.width() * 0.5,
             self.height() * 0.5,
             self.width() * 0.62,
         )
         halo.setColorAt(0.74, QColor(0, 0, 0, 0))
-        halo.setColorAt(1.0, halo_color)
+        halo.setColorAt(1.0, QColor(halo_color.red(), halo_color.green(), halo_color.blue(), min(255, int(halo_color.alpha() * halo_strength))))
         painter.setPen(Qt.NoPen)
         painter.setBrush(halo)
         painter.drawEllipse(1, 1, self.width() - 2, self.height() - 2)
 
-        glow_pen = QPen(QColor(255, 232, 199, 26), 4.5)
+        glow_pen = QPen(QColor(255, 232, 199, min(255, int(26 * halo_strength))), 4.5)
         painter.setPen(glow_pen)
         painter.drawEllipse(5, 5, self.width() - 10, self.height() - 10)
 
-        outer_pen = QPen(QColor(255, 244, 230, 92), 1.5)
+        outer_pen = QPen(QColor(255, 244, 230, min(255, int(92 * halo_strength))), 1.5)
         painter.setPen(outer_pen)
         painter.drawEllipse(3, 3, self.width() - 6, self.height() - 6)
 
-        inner_pen = QPen(QColor(255, 224, 190, 44), 1.0)
+        inner_pen = QPen(QColor(255, 224, 190, min(255, int(44 * halo_strength))), 1.0)
         painter.setPen(inner_pen)
         painter.drawEllipse(8, 8, self.width() - 16, self.height() - 16)
 
         painter.end()
         return styled
+
+    def _activity_multiplier(self) -> float:
+        if self._activity_state == "listening":
+            return 1.15 + 0.55 * ((math.sin(self._animation_phase * 1.7) + 1.0) / 2.0)
+        if self._activity_state == "thinking":
+            return 1.05 + 0.28 * ((math.sin(self._animation_phase) + 1.0) / 2.0)
+        if self._activity_state == "speaking":
+            return 1.2 + 0.7 * ((math.sin(self._animation_phase * 2.4) + 1.0) / 2.0)
+        return 1.0

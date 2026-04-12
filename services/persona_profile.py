@@ -91,8 +91,10 @@ def _normalize_character_sheet(raw: dict) -> dict:
             "guidance": dict(mood.get("guidance", {}) or {}),
         },
         "gallery_habits": {
+            "enabled": bool(gallery.get("enabled", True)),
             "show_images_prob": gallery.get("show_images_prob", 0.15),
             "triggers": list(gallery.get("triggers", []) or []),
         },
+        "voice_profile_id": str(raw.get("voice_profile_id", "") or "").strip(),
         "character_sheet": raw,
     }

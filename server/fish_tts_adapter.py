@@ -113,7 +113,7 @@ class FishAdapterHandler(BaseHTTPRequestHandler):
             return
         self._send_json(404, {"error": "not_found"})
 
-    def log_message(self, format, *args):
+    def log_message(self, _format, *_args):
         return
 
     def _send_json(self, status: int, payload: dict):

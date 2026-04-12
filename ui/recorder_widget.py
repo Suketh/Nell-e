@@ -3,12 +3,13 @@ import threading
 
 import sounddevice as sd
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 
 class RecorderWidget(QFrame):
     transcript_ready = Signal(str)
     transcription_failed = Signal(str)
+    activity_changed = Signal(str)
 
     def __init__(self, stt, on_transcript, on_error=None):
         super().__init__()
@@ -23,16 +24,27 @@ class RecorderWidget(QFrame):
         self.btn.released.connect(self.stop)
         self.btn.setCursor(Qt.PointingHandCursor)
 
+        self.mode = QLabel("Voice channel")
+        self.mode.setObjectName("recordMode")
+        self.mode.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
         self.status = QLabel("Press and hold to speak")
         self.status.setObjectName("recordStatus")
         self.status.setWordWrap(True)
         self.status.setMinimumHeight(self.status.fontMetrics().height() + 8)
 
+        info = QWidget()
+        info_layout = QVBoxLayout(info)
+        info_layout.setContentsMargins(0, 0, 0, 0)
+        info_layout.setSpacing(2)
+        info_layout.addWidget(self.mode)
+        info_layout.addWidget(self.status)
+
         layout = QHBoxLayout(self)
         layout.setContentsMargins(14, 12, 14, 12)
         layout.setSpacing(12)
         layout.addWidget(self.btn, 0)
-        layout.addWidget(self.status, 1)
+        layout.addWidget(info, 1)
 
         self._q = queue.Queue()
         self._rec = None
@@ -42,7 +54,7 @@ class RecorderWidget(QFrame):
         if self.on_error:
             self.transcription_failed.connect(self._handle_transcription_failed)
 
-    def _callback(self, indata, frames, time, status):
+    def _callback(self, indata, _frames, _time, _status):
         self._q.put(bytes(indata))
 
     def start(self):
@@ -51,8 +63,10 @@ class RecorderWidget(QFrame):
                 self.on_error("Lyssningen värmer fortfarande upp. Vänta ett ögonblick.")
             return
         self._clear_queue()
+        self.mode.setText("Live mic")
         self.status.setText("Listening...")
         self._set_state("recording")
+        self.activity_changed.emit("listening")
         self.btn.setText("Listening...")
         try:
             self._rec = sd.RawInputStream(
@@ -79,8 +93,10 @@ class RecorderWidget(QFrame):
             self._set_idle_state("Too short, try again")
             return
 
+        self.mode.setText("Speech to text")
         self.status.setText("Transcribing...")
         self._set_state("busy")
+        self.activity_changed.emit("thinking")
         self.btn.setText("Transcribing...")
 
         def run_stt():
@@ -105,13 +121,16 @@ class RecorderWidget(QFrame):
             self.on_error(err)
 
     def _set_idle_state(self, status_text: str):
+        self.mode.setText("Voice channel" if self._ready else "Voice offline")
         self.status.setText(status_text)
         self.btn.setText("Hold to talk" if self._ready else "Voice loading")
         self._set_state("idle")
+        self.activity_changed.emit("idle")
 
     def set_ready_state(self, ready: bool, status_text: str | None = None):
         self._ready = bool(ready)
         self.btn.setEnabled(self._ready)
+        self.mode.setText("Voice channel" if self._ready else "Voice offline")
         if status_text:
             self.status.setText(status_text)
         elif self._ready:
@@ -120,6 +139,7 @@ class RecorderWidget(QFrame):
             self.status.setText("Voice input warming up...")
         self.btn.setText("Hold to talk" if self._ready else "Voice loading")
         self._set_state("idle" if self._ready else "busy")
+        self.activity_changed.emit("idle")
 
     def _set_state(self, state: str):
         self.setProperty("state", state)

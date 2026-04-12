@@ -72,6 +72,15 @@ class HttpConversationClient:
     def clear_all(self):
         self._post_json("/v1/memory/clear", {"user_id": self.user_id, "session_id": self.session_id})
 
+    def set_text_model(self, model_name: str) -> dict:
+        normalized = str(model_name or "").strip()
+        if not normalized:
+            raise ValueError("empty_model_name")
+        return self._post_json(
+            "/v1/admin/ollama-model",
+            {"user_id": self.user_id, "session_id": self.session_id, "model": normalized},
+        )
+
     def close(self):
         if self._server_process and self._server_process.poll() is None:
             self._server_process.terminate()

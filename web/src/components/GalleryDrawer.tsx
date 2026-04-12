@@ -18,7 +18,7 @@ export function GalleryDrawer({ open, catalog, unlocked, onClose }: GalleryDrawe
     <div className="drawer-backdrop" onClick={onClose}>
       <aside className="drawer" onClick={(event) => event.stopPropagation()}>
         <div className="panel-title-row">
-          <h2>Gallery</h2>
+          <h2>Gallery room</h2>
           <button className="ghost-btn" onClick={onClose}>
             Close
           </button>

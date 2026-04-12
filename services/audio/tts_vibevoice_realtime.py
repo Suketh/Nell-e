@@ -6,6 +6,7 @@ import time
 import urllib.parse
 import urllib.request
 import wave
+from contextlib import suppress
 from io import BytesIO
 from pathlib import Path
 
@@ -210,10 +211,8 @@ class TTS:
     def warmup(self):
         self._ensure_server()
         self._load_config()
-        try:
+        with suppress(Exception):
             self.synthesize_pcm16("Hello.")
-        except Exception:
-            pass
 
     def is_ready(self) -> bool:
         return self._server_ready()
@@ -501,7 +500,5 @@ class TTS:
         return [chunk for chunk in normalized_chunks if chunk]
 
     def __del__(self):
-        try:
+        with suppress(Exception):
             self.close()
-        except Exception:
-            pass

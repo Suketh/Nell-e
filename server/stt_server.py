@@ -1,8 +1,8 @@
 import argparse
-import cgi
 import io
 import json
 import os
+import re
 import tempfile
 import wave
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -14,7 +14,7 @@ class STTBackend:
     def transcribe(self, pcm_bytes: bytes, language: str | None = None) -> dict:
         raise NotImplementedError
 
-    def transcribe_file(self, file_bytes: bytes, filename: str, content_type: str | None = None, language: str | None = None) -> dict:
+    def transcribe_file(self, file_bytes: bytes, filename: str, _content_type: str | None = None, language: str | None = None) -> dict:
         raise NotImplementedError
 
 
@@ -223,7 +223,7 @@ class STTRequestHandler(BaseHTTPRequestHandler):
             return
         self._send_json(404, {"error": "not_found"})
 
-    def log_message(self, format, *args):
+    def log_message(self, _format, *_args):
         return
 
     @staticmethod
@@ -249,26 +249,40 @@ class STTRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Max-Age", "86400")
 
     def _parse_multipart_file(self, body: bytes, content_type: str) -> tuple[bytes, str, str | None]:
-        env = {
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": content_type,
-            "CONTENT_LENGTH": str(len(body)),
-        }
-        form = cgi.FieldStorage(
-            fp=io.BytesIO(body),
-            headers=self.headers,
-            environ=env,
-            keep_blank_values=True,
-        )
-        if "file" not in form:
-            raise RuntimeError("multipart request is missing a 'file' field")
-        upload = form["file"]
-        file_bytes = upload.file.read()
-        filename = getattr(upload, "filename", None) or "audio.bin"
-        part_content_type = getattr(upload, "type", None)
-        if not file_bytes:
-            raise RuntimeError("uploaded audio file is empty")
-        return file_bytes, filename, part_content_type
+        boundary_match = re.search(r'boundary="?([^";]+)"?', content_type or "", re.IGNORECASE)
+        if not boundary_match:
+            raise RuntimeError("multipart request is missing a boundary")
+        boundary = boundary_match.group(1).encode("utf-8")
+        delimiter = b"--" + boundary
+
+        for chunk in body.split(delimiter):
+            part = chunk.strip()
+            if not part or part == b"--":
+                continue
+            if b"\r\n\r\n" not in part:
+                continue
+            raw_headers, raw_payload = part.split(b"\r\n\r\n", 1)
+            payload = raw_payload.rstrip(b"\r\n-")
+            header_lines = raw_headers.decode("utf-8", errors="ignore").split("\r\n")
+            headers: dict[str, str] = {}
+            for line in header_lines:
+                if ":" not in line:
+                    continue
+                key, value = line.split(":", 1)
+                headers[key.strip().lower()] = value.strip()
+
+            disposition = headers.get("content-disposition", "")
+            if "form-data" not in disposition or 'name="file"' not in disposition:
+                continue
+
+            filename_match = re.search(r'filename="([^"]*)"', disposition)
+            filename = filename_match.group(1).strip() if filename_match else "audio.bin"
+            part_content_type = headers.get("content-type")
+            if not payload:
+                raise RuntimeError("uploaded audio file is empty")
+            return payload, filename or "audio.bin", part_content_type
+
+        raise RuntimeError("multipart request is missing a 'file' field")
 
 
 def parse_args():

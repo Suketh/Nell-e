@@ -1,5 +1,6 @@
-import os, tempfile
-from contextlib import contextmanager
+import os
+import tempfile
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from io import BytesIO
 import wave
@@ -26,9 +27,9 @@ def _coqui_tos_agreed() -> bool:
 def _trusted_torch_load():
     original_torch_load = torch.load
 
-    def patched_torch_load(*args, **kwargs):
+    def patched_torch_load(*_args, **kwargs):
         kwargs.setdefault("weights_only", False)
-        return original_torch_load(*args, **kwargs)
+        return original_torch_load(*_args, **kwargs)
 
     torch.load = patched_torch_load
     try:
@@ -41,7 +42,7 @@ def _trusted_torch_load():
 def _patched_torchaudio_load():
     original_torchaudio_load = torchaudio.load
 
-    def safe_torchaudio_load(path, *args, **kwargs):
+    def safe_torchaudio_load(path, *_args, **_kwargs):
         data, sample_rate = sf.read(str(path), dtype="float32", always_2d=True)
         audio = torch.from_numpy(data.T.copy())
         return audio, int(sample_rate)
@@ -101,10 +102,8 @@ class TTS:
 
     def set_voice_sample(self, voice_sample: str | None):
         if self._temp_voice_sample and os.path.exists(self._temp_voice_sample):
-            try:
+            with suppress(OSError):
                 os.remove(self._temp_voice_sample)
-            except OSError:
-                pass
         self._temp_voice_sample = None
         self.voice_sample_path = voice_sample
         self.voice_sample = self._prepare_voice_sample(voice_sample)
@@ -132,14 +131,10 @@ class TTS:
             data, sr = sf.read(wav_path, dtype="float32")
             return data, sr
         finally:
-            try:
+            with suppress(OSError):
                 os.remove(wav_path)
-            except OSError:
-                pass
 
     def __del__(self):
         if self._temp_voice_sample and os.path.exists(self._temp_voice_sample):
-            try:
+            with suppress(OSError):
                 os.remove(self._temp_voice_sample)
-            except OSError:
-                pass

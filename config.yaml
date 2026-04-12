@@ -1,7 +1,7 @@
 ollama:
   host: http://localhost:11434
-  text_model: hermes3:8b
-  vision_model: llava:7b
+  text_model: gemma4:e2b
+  vision_model: gemma4:e2b
 backend:
   conversation:
     enabled: true
@@ -63,6 +63,10 @@ tts:
       label: Nellie III
       description: A little brighter and more forward.
       sample: assets/voices/Nellie3.wav
+    - id: ralph
+      label: Ralph
+      description: Male wizard voice for Rolf.
+      sample: assets/voices/ralph.mp3
   language: en
   fish_speech:
     base_url: http://127.0.0.1:8890
@@ -101,10 +105,10 @@ ui:
   accent_color: '#FFD447'
   enable_voice_input: true
 paths:
-  moods_dir: assets/moods
+  moods_dir: assets/moods/nellie
   gallery_dir: data/gallery
   db_path: data/memory.db
-  personality_path: data/personality.json
+  personality_path: data/personas/nellie.json
 policies:
   romance_rating: pg18
   safety_filters: false

@@ -131,9 +131,10 @@ class MemoryStore:
         with self._lock:
             cur = self.db.execute("SELECT user, ai, mood FROM turns ORDER BY id DESC LIMIT ?", (history_limit,))
             pairs = list(reversed(cur.fetchall()))
+        speaker_name = self._persona_speaker_name(persona)
         history_lines = []
         for user, ai, mood in pairs:
-            history_lines.append(f"USER: {user}\nNELLIE: {ai}")
+            history_lines.append(f"USER: {user}\n{speaker_name}: {ai}")
 
         memories = persona.get("memories", {})
         style = persona.get("style", {})
@@ -218,9 +219,78 @@ class MemoryStore:
         sections.extend(persona_sections)
 
         if history_lines:
+            sections.extend(
+                self._build_active_thread_sections(
+                    current_user_text=current_user_text,
+                    recent_pairs=pairs,
+                    speaker_name=speaker_name,
+                )
+            )
             sections.append("RECENT_CHAT:\n" + "\n\n".join(history_lines))
 
         return "\n\n".join(sections)
+
+    def _persona_speaker_name(self, persona: dict) -> str:
+        persona = persona or {}
+        character = persona.get("character", {}) if isinstance(persona.get("character"), dict) else {}
+        name = str(persona.get("name", "") or character.get("name", "") or "ASSISTANT").strip()
+        name = re.sub(r"[^A-Za-z0-9 _'-]", "", name).strip()
+        return name.upper() or "ASSISTANT"
+
+    def _build_active_thread_sections(self, *, current_user_text: str, recent_pairs: list, speaker_name: str) -> list[str]:
+        if not recent_pairs:
+            return []
+
+        user_text = re.sub(r"\s+", " ", (current_user_text or "").strip())
+        if not user_text:
+            return []
+
+        last_user, last_ai, _last_mood = recent_pairs[-1]
+        last_ai = re.sub(r"\s+", " ", (last_ai or "").strip())
+        if not last_ai or "?" not in last_ai:
+            return []
+
+        compact = re.sub(r"[^a-z0-9\s]", " ", user_text.lower())
+        compact = re.sub(r"\s+", " ", compact).strip()
+        squashed = compact.replace(" ", "")
+        word_count = len(compact.split())
+        continuation_replies = {
+            "yes",
+            "yeah",
+            "yep",
+            "sure",
+            "ok",
+            "okay",
+            "no",
+            "nope",
+            "maybe",
+            "i dont know",
+            "i do not know",
+            "dont know",
+            "no idea",
+            "not sure",
+            "go on",
+            "continue",
+            "why",
+            "what",
+            "really",
+        }
+        uncertainty_replies = {"idontknow", "idonotknow", "dontknow", "noidea", "notsure"}
+        looks_like_continuation = compact in continuation_replies or squashed in uncertainty_replies or word_count <= 5
+        if not looks_like_continuation:
+            return []
+
+        lines = [
+            f"- Your previous message as {speaker_name} asked: {last_ai}",
+            "- The user's current message is likely answering that previous question, not starting a new topic.",
+            "- Continue the same thread first. Do not act confused or ask what is unclear unless the previous question itself was unclear.",
+        ]
+        if re.search(r"(?i)\bwhy did\b", last_ai) and (compact in {"i dont know", "i do not know", "dont know", "no idea", "not sure"} or squashed in uncertainty_replies):
+            lines.append("- This looks like a joke setup; give the punchline now instead of asking another clarification question.")
+        if last_user:
+            previous_user_text = re.sub(r"\s+", " ", str(last_user)).strip()
+            lines.append(f"- The turn before that was the user saying: {previous_user_text}")
+        return ["ACTIVE_THREAD:\n" + "\n".join(lines)]
 
     def _build_nellie_preference_sections(self, nellie_preferences: dict) -> list[str]:
         items = (nellie_preferences or {}).get("items", {}) if isinstance(nellie_preferences, dict) else {}

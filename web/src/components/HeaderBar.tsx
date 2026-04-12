@@ -12,9 +12,9 @@ export function HeaderBar({ profile, progress, mood, onOpenGallery }: HeaderBarP
   return (
     <header className="header-bar">
       <div className="header-copy">
-        <div className="eyebrow">THE Nellie</div>
-        <h1 className="header-title">Private channel</h1>
-        <div className="hero-copy">A mobile shell for chat, memory, bond progression, and the parts of Nellie that unfold over time.</div>
+        <div className="eyebrow">Nell-e</div>
+        <h1 className="header-title">Private presence channel</h1>
+        <div className="hero-copy">A local-first companion shell shaped around mood, memory, and voice presence instead of a plain chat window.</div>
         <div className="subhead">
           <span className="profile-dot" style={{ backgroundColor: profile.badgeColor }} />
           {profile.displayName}

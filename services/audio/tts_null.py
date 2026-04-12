@@ -1,3 +1,3 @@
 class TTS:
-    def speak(self, text: str):
+    def speak(self, _text: str):
         return None

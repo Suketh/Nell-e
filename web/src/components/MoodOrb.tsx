@@ -26,7 +26,7 @@ const MOOD_ALIASES: Record<string, string> = {
   sleepy: "tired",
 };
 
-const moodPortraits = import.meta.glob("../../../assets/moods/*.png", {
+const moodPortraits = import.meta.glob("../../../assets/moods/**/*.png", {
   eager: true,
   query: "?url",
   import: "default",
@@ -39,8 +39,8 @@ function normalizeMood(mood?: string): string {
 }
 
 function portraitUrlForMood(mood: string): string {
-  const wantedSuffix = `/assets/moods/${mood}.png`;
-  const fallbackSuffix = "/assets/moods/neutral.png";
+  const wantedSuffix = `/assets/moods/nellie/${mood}.png`;
+  const fallbackSuffix = "/assets/moods/nellie/neutral.png";
   const wanted = Object.entries(moodPortraits).find(([key]) => key.replace(/\\/g, "/").endsWith(wantedSuffix))?.[1];
   const fallback = Object.entries(moodPortraits).find(([key]) => key.replace(/\\/g, "/").endsWith(fallbackSuffix))?.[1];
   return wanted || fallback || "";
