@@ -9,11 +9,35 @@ Nellie is a local AI companion project with multiple clients on top of the same 
 - STT server for speech-to-text
 - XTTS server for voice synthesis
 
+## Modernized Desktop
+
+The actively updated desktop application now lives in `desktop/`. It combines the
+responsive PySide6 interface with:
+
+- Chatterbox-Turbo as the primary expressive TTS engine
+- XTTS as an automatic fallback
+- local Ollama model switching
+- persistent conversation and preference memory
+- weather, web, Wikipedia, YouTube, and Spotify actions
+- safe arithmetic, local date/time, webpage reading, PDF extraction, and vision
+- contextual follow-up handling for people, albums, songs, and searches
+
+Start this version from the repository root:
+
+```powershell
+.\Start Nellie Desktop.bat
+```
+
+The start file delegates to `desktop/run_local.bat`, which is the canonical
+desktop launcher. The existing mobile, web, and server stack remains available
+for continued development.
+
 The project is built for local Windows use and uses Ollama for the language model, but the end product targets to become a mobile app.
 
 ## Project Structure
 
-- `app.py` starts the desktop app
+- `desktop/app.py` starts the modernized desktop app
+- `app.py` remains the original full-stack desktop client
 - `config.yaml` contains runtime configuration
 - `server/` contains the HTTP servers for conversation, STT, and XTTS
 - `services/` contains dialogue logic, tools, memory, and audio adapters

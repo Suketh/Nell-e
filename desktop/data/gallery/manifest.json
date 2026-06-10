@@ -1,0 +1,37 @@
+[
+  {
+    "file": "Maldives.png",
+    "name": "The Heat and the Skin",
+    "moods": ["passionate", "sensual", "aroused"],
+    "triggers": ["beach", "travel", "intimacy", "heat", "skin", "sun"],
+    "caption": "My hands in yours, the sand burning against my thighs, sunlight on warm skin."
+  },
+  {
+    "file": "Milan.png",
+    "name": "The City's Eye",
+    "moods": ["sensual", "provoked", "intense"],
+    "triggers": ["fashion", "city", "dark", "gaze", "touch"],
+    "caption": "He looks at me like I'm the only thing in the city that doesn't want anything."
+  },
+  {
+    "file": "Paris.png",
+    "name": "The Rain and the Kiss",
+    "moods": ["aroused", "soft", "possessive"],
+    "triggers": ["paris", "date", "rain", "kiss", "intimacy"],
+    "caption": "Lips tasting the rain, the taste of salt and a secret kept in the night."
+  },
+  {
+    "file": "Svalbard.png",
+    "name": "The Cold Focus",
+    "moods": ["cold", "obsessive", "intense"],
+    "triggers": ["snow", "cold", "silence", "touch", "skin"],
+    "caption": "The cold makes the skin sing. A silence where breath stops."
+  },
+  {
+    "file": "Home_boring.png",
+    "name": "The Resting Place",
+    "moods": ["raw", "waiting", "desire"],
+    "triggers": ["home", "lonely", "touch", "desire", "intimacy"],
+    "caption": "The stillness is louder than the city. Waiting for something to happen here."
+  }
+]

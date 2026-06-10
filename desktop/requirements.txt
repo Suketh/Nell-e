@@ -1,0 +1,18 @@
+PySide6>=6.7
+pydantic>=2.6
+requests>=2.32
+PyYAML>=6.0
+sounddevice>=0.4
+numpy>=1.26
+soundfile>=0.12
+pymupdf>=1.24
+Pillow>=10.0
+sqlalchemy>=2.0
+faiss-cpu>=1.8
+python-dotenv>=1.0
+# STT
+faster-whisper>=1.0.0
+# XTTS v2 backend for local conversational voice cloning
+# TTS
+# Chatterbox-Turbo is installed in .venv_chatterbox to avoid conflicting
+# torch/transformers pins with XTTS: pip install chatterbox-tts

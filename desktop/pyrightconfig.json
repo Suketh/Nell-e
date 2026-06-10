@@ -1,0 +1,31 @@
+{
+  "include": [
+    "app.py",
+    "llm",
+    "services",
+    "ui"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    ".venv",
+    ".tmp312",
+    "assets",
+    "data",
+    "models"
+  ],
+  "ignore": [
+  ],
+  "typeCheckingMode": "basic",
+  "useLibraryCodeForTypes": true,
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none",
+  "reportMissingTypeStubs": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownLambdaType": "none",
+  "reportUnknownParameterType": "none",
+  "reportUnknownAttributeType": "none",
+  "venvPath": ".",
+  "venv": ".venv"
+}

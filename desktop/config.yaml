@@ -1,0 +1,165 @@
+ollama:
+  host: http://localhost:11434
+  text_model: jayeshpandit2480/gemma3-UNCENSORED:4b
+  vision_model: llava:7b
+  models:
+    - id: jayeshpandit2480/gemma3-UNCENSORED:4b
+      label: Gemma 3 Uncensored (4B)
+    - id: gemma4:latest
+      label: Gemma 4 (8B)
+ollama_runtime:
+  num_ctx: 4096
+  num_gpu: 999
+  temperature: 0.68
+  num_predict: 220
+  think: false
+  quick_replies: false
+llm:
+  backend: ollama
+  base_url: http://127.0.0.1:8001/v1
+  model: ''
+  vision_model: ''
+  api_key: local-token
+llm_runtime:
+  temperature: 0.68
+  num_predict: 220
+  quick_replies: false
+backend:
+  mode: http
+  host: 127.0.0.1
+  port: 8011
+  base_url: http://127.0.0.1:8011
+  timeout_sec: 120
+  autostart: true
+  startup_wait_sec: 18
+  launch: .\.venv\Scripts\python.exe tools\local_nellie_backend_server.py
+  workdir: .
+stt:
+  engine: faster_whisper
+  prefer_voxtral_when_configured: true
+  language: en
+  model_size: small.en
+  device: cuda
+  beam_size: 5
+  vad_filter: true
+  hotwords: Nellie, hello, hi, headset
+  # `faster_whisper` is the current fully local default.
+  # `voxtral_realtime` can be used in `api` or `self_hosted` mode.
+  voxtral_mode: self_hosted
+  voxtral_base_url: https://api.mistral.ai
+  voxtral_model: voxtral-mini-latest
+  voxtral_api_key: ''
+  voxtral_self_hosted_url: http://127.0.0.1:8080
+  voxtral_self_hosted_enabled: true
+  voxtral_self_hosted_autostart: true
+  # Fill this with the real command that starts your local Voxtral server runtime.
+  voxtral_self_hosted_launch: .\.venv\Scripts\python.exe tools\local_voxtral_server.py --host 127.0.0.1 --port 8080 --model-size small.en --device auto --language en
+  # Optional working directory for the launch command above.
+  voxtral_self_hosted_workdir: .
+  voxtral_self_hosted_api_key: ''
+  voxtral_timeout_sec: 120
+languages:
+  default: en
+  options:
+    en:
+      label: English
+      reply_language: English
+      stt_language: en
+      input_placeholder: Write to Nellie...
+    sv:
+      label: Svenska
+      reply_language: Swedish
+      stt_language: sv
+      input_placeholder: Skriv till Nellie...
+tts:
+  # Python 3.11 is the supported runtime for this project.
+  # Chatterbox-Turbo is primary; XTTS v2 remains available as fallback.
+  engine: chatterbox_turbo
+  voice_sample: assets/voices/Nellie.wav
+  language: en
+  chatterbox_python: .venv_chatterbox/Scripts/python.exe
+  chatterbox_worker: tools/chatterbox_turbo_worker.py
+  chatterbox_device: cuda
+  chatterbox_timeout_sec: 300
+  chatterbox_lead_silence_ms: 180
+  chatterbox_tail_silence_ms: 140
+  xtts_model: tts_models/multilingual/multi-dataset/xtts_v2
+  xtts_language: en
+  xtts_device: cuda
+  xtts_temperature: 0.72
+  xtts_speed: 0.98
+  xtts_split_sentences: true
+  xtts_lead_silence_ms: 240
+  xtts_tail_silence_ms: 180
+  spoken_delivery:
+    enabled: true
+    filler_probability: 0.04
+    thinking_filler_probability: 0.10
+    laugh_probability: 0.02
+  mood_profiles:
+    neutral:
+      rate: -2%
+      pitch: +4Hz
+      volume: +0%
+      temperature: 0.72
+    happy:
+      pitch: +10Hz
+      rate: +5%
+      volume: +4%
+      temperature: 0.78
+    excited:
+      pitch: +16Hz
+      rate: +10%
+      volume: +8%
+      temperature: 0.84
+    sensual:
+      pitch: +0Hz
+      rate: -7%
+      volume: +3%
+      temperature: 0.76
+    sad:
+      pitch: -4Hz
+      rate: -9%
+      volume: -8%
+      temperature: 0.66
+    thinking:
+      pitch: +0Hz
+      rate: -7%
+      volume: -2%
+      temperature: 0.68
+    tired:
+      pitch: -6Hz
+      rate: -12%
+      volume: -8%
+      temperature: 0.62
+    sceptical:
+      pitch: -1Hz
+      rate: -1%
+      volume: +1%
+      temperature: 0.73
+    angry:
+      pitch: -2Hz
+      rate: +6%
+      volume: +6%
+      temperature: 0.80
+ui:
+  theme: light
+  accent_color: '#FFD447'
+paths:
+  moods_dir: assets/moods
+  gallery_dir: data/gallery
+  db_path: data/memory.db
+  personality_path: data/personality.json
+policies:
+  romance_rating: pg13
+  safety_filters: true
+audio:
+  # Leave empty to use the system default microphone.
+  input_device:
+  sample_rate: 48000
+  channels: 1
+  dtype: int16
+  latency: low
+  blocksize: 0
+  silence_threshold: 550
+  keep_edge_ms: 120

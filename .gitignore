@@ -9,8 +9,12 @@ __pycache__/
 
 # Virtual environments
 .venv/
+.venv_chatterbox/
 .voxtral-venv/
 .xtts-venv/
+desktop/.venv/
+desktop/.venv_chatterbox/
+desktop/.tmp312/
 
 # Local tool directories
 .dotnet-home/
@@ -36,6 +40,11 @@ data/*.db-wal
 data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal
+desktop/data/admin_logs/
+desktop/data/tts_cache/
+desktop/data/*.db
+desktop/data/*.db-shm
+desktop/data/*.db-wal
 *.log
 *.pid
 
@@ -76,3 +85,5 @@ web/dist/
 # Keep tracked sample voice assets by exception if needed
 !assets/voices/*.wav
 !assets/voices/ralph.mp3
+!desktop/assets/voices/*.wav
+!desktop/assets/voices/*.mp3
