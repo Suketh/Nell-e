@@ -8,13 +8,14 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QHBoxLayout, QMessageBox, QPushButton, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QMessageBox, QPushButton, QWidget
 
 
 PRE_ROLL_MS = 180
 POST_ROLL_MS = 220
 TARGET_PEAK = 0.82
 SILENCE_THRESHOLD = 550
+MIN_INPUT_PEAK = 80
 KEEP_EDGE_MS = 120
 
 
@@ -68,14 +69,20 @@ class RecorderWidget(QWidget):
         self.transcribe_func = transcribe_func
         self.event_callback = event_callback
 
-        self.btn = QPushButton("Hold to Talk")
+        self.btn = QPushButton("◉")
         self.btn.setObjectName("talkButton")
+        self.btn.setFixedSize(44, 44)
         self.btn.pressed.connect(self.start)
         self.btn.released.connect(self.stop)
 
+        self.status_label = QLabel("Hold to Talk")
+        self.status_label.setObjectName("voiceStatusLabel")
+
         lay = QHBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(8)
         lay.addWidget(self.btn)
+        lay.addWidget(self.status_label, 1)
 
         self._q = queue.Queue()
         self._rec = None
@@ -86,6 +93,7 @@ class RecorderWidget(QWidget):
         self._dtype = (self.conf.get("audio") or {}).get("dtype", "int16")
         self._busy = False
         self._recording = False
+        self._muted = False
 
         self.transcript_ready.connect(self.on_transcript)
         self.error_raised.connect(self._show_error)
@@ -97,6 +105,9 @@ class RecorderWidget(QWidget):
         self._q.put(bytes(indata))
 
     def start(self):
+        if self._muted:
+            self.ui_state_changed.emit("Microphone muted", False)
+            return
         if self._busy:
             self._record_event("speech_capture_skipped", status="transcription_busy")
             self.ui_state_changed.emit("Still transcribing...", False)
@@ -128,7 +139,7 @@ class RecorderWidget(QWidget):
                 channels=self._channels,
                 dtype=str(self._dtype),
             )
-            self.ui_state_changed.emit("Listening... release to send", True)
+            self.ui_state_changed.emit("Listening…  release to send", True)
         except Exception as e:
             self._recording = False
             self._record_event("speech_capture_failed", error=str(e))
@@ -167,7 +178,7 @@ class RecorderWidget(QWidget):
         audio_bytes = b"".join(chunks)
         if not audio_bytes:
             self._record_event("speech_capture_empty", status="no_audio_frames")
-            self.ui_state_changed.emit("No microphone audio - try again", True)
+            self.ui_state_changed.emit("No microphone audio — try again", True)
             return
 
         self._busy = True
@@ -200,6 +211,21 @@ class RecorderWidget(QWidget):
                     data = data.astype("int16", copy=False)
                     if data.size:
                         data = data - int(np.mean(data))
+                    raw_peak = int(np.max(np.abs(data))) if data.size else 0
+                    minimum_peak = int((self.conf.get("audio") or {}).get("minimum_input_peak", MIN_INPUT_PEAK))
+                    if raw_peak < minimum_peak:
+                        self._record_event(
+                            "speech_input_too_quiet",
+                            device=str(self._device),
+                            peak=raw_peak,
+                            minimum_peak=minimum_peak,
+                        )
+                        self.ui_state_changed.emit(
+                            f"Microphone signal too low on input {self._device}",
+                            True,
+                        )
+                        keep_result_status = True
+                        return
                     data = self._trim_silence(data, self._samplerate)
                     peak = int(np.max(np.abs(data))) if data.size else 0
                     if peak > 0:
@@ -228,7 +254,7 @@ class RecorderWidget(QWidget):
                 self.error_raised.emit("The microphone input overflowed during capture. Try speaking a little closer or lowering other audio load.")
             else:
                 self._record_event("speech_transcription_empty", status="no_speech_detected")
-                self.ui_state_changed.emit("No speech detected - try again", True)
+                self.ui_state_changed.emit("No speech detected — try again", True)
                 keep_result_status = True
         except Exception as e:
             self._record_event("speech_transcription_failed", error=str(e))
@@ -262,5 +288,12 @@ class RecorderWidget(QWidget):
             pass
 
     def _apply_ui_state(self, text: str, enabled: bool):
-        self.btn.setText(text)
-        self.btn.setEnabled(enabled)
+        self.status_label.setText(text)
+        self.btn.setEnabled(enabled and not self._muted)
+
+    def set_muted(self, muted: bool) -> None:
+        self._muted = bool(muted)
+        if self._muted and self._recording:
+            self.stop()
+        self.status_label.setText("Microphone muted" if self._muted else "Hold to Talk")
+        self.btn.setEnabled(not self._muted and not self._busy)

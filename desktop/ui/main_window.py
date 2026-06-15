@@ -3226,16 +3226,19 @@ class MainWindow(QMainWindow):
             #messageInput {{
                 background-color: {input_bg};
                 border: 1px solid {border};
-                border-radius: 18px;
-                padding: 13px 16px;
+                border-radius: 22px;
+                padding: 13px 18px;
                 color: {input_fg};
                 font-size: 15px;
                 min-height: 22px;
             }}
+            #messageInput:focus {{
+                border: 1px solid {accent};
+            }}
             #composerCard {{
                 background-color: {composer_bg};
                 border: 1px solid {badge_border};
-                border-radius: 21px;
+                border-radius: 24px;
             }}
             #composerTitle {{
                 color: {eyebrow_color};
@@ -3243,28 +3246,61 @@ class MainWindow(QMainWindow):
                 font-weight: 700;
                 letter-spacing: 0.1em;
                 text-transform: uppercase;
+                padding-bottom: 2px;
             }}
-            #composerHint {{
-                color: {subtitle_color};
-                font-size: 10px;
-                font-weight: 600;
+            #composerSendButton {{
+                background-color: {primary_bg};
+                color: {primary_fg};
+                border: 1px solid transparent;
+                border-radius: 22px;
+                font-size: 18px;
+                font-weight: 700;
+                padding: 0px;
             }}
-            #messageInput:focus {{
+            #composerSendButton:hover {{
+                background-color: {primary_hover};
                 border: 1px solid {accent};
             }}
-            #primaryButton, #secondaryButton, #talkButton, #headerSettingsButton {{
+            #composerSendButton:pressed {{
+                padding-top: 1px;
+            }}
+            #talkButton {{
+                background-color: {secondary_bg};
+                color: {eyebrow_color};
+                border: 1px solid {secondary_border};
+                border-radius: 22px;
+                font-size: 17px;
+                font-weight: 700;
+                padding: 0px;
+            }}
+            #talkButton:hover {{
+                border: 1px solid {accent};
+                color: {accent};
+            }}
+            #talkButton:disabled {{
+                color: {subtitle_color};
+                border: 1px solid {badge_border};
+            }}
+            #voiceStatusLabel {{
+                color: {subtitle_color};
+                font-size: 12px;
+                font-weight: 600;
+            }}
+            #primaryButton, #secondaryButton, #headerSettingsButton {{
                 border-radius: 17px;
                 padding: 10px 16px;
                 font-size: 13px;
                 font-weight: 700;
+                letter-spacing: 0.03em;
             }}
             #primaryButton {{
                 background-color: {primary_bg};
                 color: {primary_fg};
-                border: none;
+                border: 1px solid transparent;
             }}
             #primaryButton:hover {{
                 background-color: {primary_hover};
+                border: 1px solid {accent};
             }}
             #secondaryButton {{
                 background-color: {secondary_bg};
@@ -3275,19 +3311,16 @@ class MainWindow(QMainWindow):
                 background-color: {badge_bg};
                 color: {badge_fg};
                 border: 1px solid {badge_border};
-                padding: 7px 13px;
-                font-size: 11px;
+                padding: 7px 15px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
             }}
-            #talkButton {{
-                background-color: {secondary_bg};
-                color: {secondary_fg};
-                border: 1px solid {secondary_border};
-            }}
-            #secondaryButton:hover, #talkButton:hover, #headerSettingsButton:hover {{
+            #secondaryButton:hover, #headerSettingsButton:hover {{
                 background-color: {secondary_bg};
                 border: 1px solid {accent};
             }}
-            #primaryButton:pressed, #secondaryButton:pressed, #talkButton:pressed, #headerSettingsButton:pressed {{
+            #primaryButton:pressed, #secondaryButton:pressed, #headerSettingsButton:pressed {{
                 padding-top: 11px;
                 padding-bottom: 9px;
             }}
