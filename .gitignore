@@ -1,16 +1,95 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.egg-info/
-dist/
-build/
-.DS_Store
-*.log
+*.pyd
 .pytest_cache/
-.coverage
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
 .venv/
 .venv_chatterbox/
-.vscode/
-.tmp*/
-.update-backup-*/
+.voxtral-venv/
+.xtts-venv/
+desktop/.venv/
+desktop/.venv_chatterbox/
+desktop/.tmp312/
+desktop/.tmp/
+
+# Local tool directories
+.dotnet-home/
+
+# VS Code and editor noise
+.vscode/.ropeproject/
+*.code-workspace
+
+# OS noise
+Thumbs.db
+Desktop.ini
+
+# Runtime data and logs — root-level server
+data/run/
+data/diagnostics/
+data/users/
+data/client_profile.json
+data/client_profiles.json
+data/devcert/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/admin_logs/
 data/tts_cache/
+*.log
+*.pid
+
+# Runtime data and logs — desktop
+desktop/data/admin_logs/
+desktop/data/tts_cache/
+desktop/data/*.db
+desktop/data/*.db-shm
+desktop/data/*.db-wal
+
+# Large local assets and model weights
+models/
+external/VibeVoice/
+external/fish-speech/
+external/**/models/
+external/**/checkpoints/
+external/**/.cache/
+
+# Python build artifacts
+build/
+dist/
+dist-packages/
+*.egg-info/
+
+# Node / Expo / Vite
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/logs/
+web/node_modules/
+web/.run/
+web/dist/
+*.tsbuildinfo
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Generated audio or temporary output
+*.wav
+*.mp3
+*.tmp
+
+# Keep tracked sample voice assets by exception
+!assets/voices/*.wav
+!assets/voices/ralph.mp3
+!desktop/assets/voices/*.wav
+!desktop/assets/voices/*.mp3

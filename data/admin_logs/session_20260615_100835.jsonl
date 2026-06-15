@@ -1,7 +1,0 @@
-{"ts": "2026-06-15T10:08:39", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260615_100835.jsonl"}
-{"ts": "2026-06-15T10:09:06", "event": "speech_capture_started", "device": "10", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
-{"ts": "2026-06-15T10:09:08", "event": "speech_capture_complete", "duration_ms": 1100, "bytes": 105600, "overflow": false}
-{"ts": "2026-06-15T10:09:08", "event": "speech_transcription_empty", "status": "no_speech_detected"}
-{"ts": "2026-06-15T10:10:11", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
-{"ts": "2026-06-15T10:10:13", "event": "speech_capture_complete", "duration_ms": 1280, "bytes": 122880, "overflow": false}
-{"ts": "2026-06-15T10:10:13", "event": "speech_transcription_empty", "status": "no_speech_detected"}

@@ -1,6 +1,0 @@
-{"ts": "2026-06-15T09:49:12", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260615_094907.jsonl"}
-{"ts": "2026-06-15T09:50:50", "event": "model_changed", "previous": "hermes3:8b", "current": "gemma4:latest"}
-{"ts": "2026-06-15T09:50:50", "event": "model_changed", "previous": "gemma4:latest", "current": "gemma3:4b"}
-{"ts": "2026-06-15T09:50:52", "event": "model_changed", "previous": "gemma3:4b", "current": "gemma4:latest"}
-{"ts": "2026-06-15T09:50:52", "event": "model_changed", "previous": "gemma4:latest", "current": "hermes3:8b"}
-{"ts": "2026-06-15T09:51:07", "event": "speech_capture_failed", "error": "No working audio input combination found for device [-1, 1]. Last error: Error querying device -1"}

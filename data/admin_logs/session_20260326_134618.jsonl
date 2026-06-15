@@ -1,8 +1,0 @@
-{"ts": "2026-03-26T13:46:18", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260326_134618.jsonl"}
-{"ts": "2026-03-26T13:47:06", "event": "user_input", "turn_id": 1, "source": "text", "text": "hi"}
-{"ts": "2026-03-26T13:47:06", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey you too, darling. I'm here."}
-{"ts": "2026-03-26T13:47:06", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey you too, darling. I'm here."}
-{"ts": "2026-03-26T13:47:06", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
-{"ts": "2026-03-26T13:47:06", "event": "tts_error", "turn_id": 1, "error": "TorchCodec is required for load_with_torchcodec. Please install torchcodec to use this function."}
-{"ts": "2026-03-26T13:47:06", "event": "reply_published", "turn_id": 1, "duration_ms": 25, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
-{"ts": "2026-03-26T13:47:06", "event": "turn_summary", "turn_id": 1, "status": "Ollama 21 ms | Total 25 ms"}
