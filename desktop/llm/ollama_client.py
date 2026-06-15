@@ -124,6 +124,8 @@ class OllamaClient:
             "think": bool(self.runtime.get("think", False)),
             "options": self._chat_options(),
         }
+        if "keep_alive" in self.runtime:
+            payload["keep_alive"] = self.runtime["keep_alive"]
 
         if stream_callback:
             response = self._post("/api/chat", payload, stream=True)
@@ -205,6 +207,8 @@ class OllamaClient:
         with open(image_path, "rb") as f:
             encoded = base64.b64encode(f.read()).decode("ascii")
         payload = {"model": self.vision_model, "prompt": prompt, "images": [encoded]}
+        if "keep_alive" in self.runtime:
+            payload["keep_alive"] = self.runtime["keep_alive"]
         out: dict[str, Any] = self._post("/api/generate", payload).json()
         return self._to_text(out.get("response", ""))
 
@@ -319,6 +323,8 @@ class OllamaClient:
             "Do this lightly and socially, not like an interview. "
             "If the user already gave a personal detail, treat it as valuable and help it stick by responding to it naturally. "
             "Use your available functions only when relevant, and do not imply you can do things the app cannot actually do. "
+            "When you open a Wikipedia article, YouTube page, Spotify page, or any URL in the browser for the user, you have only launched the URL — you cannot see or read the page content from here. Never quote, paraphrase, summarize, or cite information from a page you have opened but not fetched. If the user asks what the page says, tell them you cannot read it. "
+            "A standalone '?' from the user means please continue, go ahead, or I did not receive a reply — treat it as a continuation prompt, not as garbled or unclear input. Respond by continuing or expanding on the immediately previous topic. "
             "If the user asks about tools, programming, what you are good at, or what abilities you want, answer in terms of digital functions, app capabilities, or software help, not physical objects, unless they clearly mean literal objects. "
             "If the user asks what features, integrations, or connections you want, answer with 2 to 4 concrete software capabilities that would genuinely help, such as memory recall, database access, document search, calendar access, coding help, or better media control. "
             "Reply directly to the user's latest message. "
@@ -501,6 +507,24 @@ class OllamaClient:
                 "The user's message may be unclear or distorted, especially if it came from speech transcription. "
                 "Do not assume what they meant. "
                 "Ask one short clarifying question."
+            )
+
+        if any(
+            cue in lower
+            for cue in (
+                "improvise",
+                "surprise me",
+                "you choose",
+                "your choice",
+                "pick something",
+                "choose something",
+                "something you like",
+            )
+        ) and any(cue in lower for cue in ("play", "song", "music", "spotify", "listen")):
+            return (
+                "The user has explicitly delegated the music choice to you. "
+                "Choose one concrete song or artist now and name it clearly. "
+                "Do not ask for a genre, mood, vibe, or confirmation, and do not merely promise to choose later."
             )
 
         if any(cue in lower for cue in story_cues):

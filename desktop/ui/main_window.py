@@ -213,12 +213,55 @@ class SettingsDialog(QDialog):
         self.remember_toggle.toggled.connect(self.window.set_remember_chat_enabled)
         behavior_layout.addWidget(self.remember_toggle)
 
-        self.web_search_toggle = QCheckBox("Allow web search for current info")
+        content_layout.addWidget(behavior_section)
+
+        tools_section, tools_layout = self._section_card("Tools")
+        tools_hint = QLabel("Enable or disable Nellie's individual capabilities.")
+        tools_hint.setObjectName("settingsHint")
+        tools_hint.setWordWrap(True)
+        tools_layout.addWidget(tools_hint)
+
+        self.calculator_toggle = QCheckBox("Calculator")
+        self.calculator_toggle.setObjectName("rememberToggle")
+        self.calculator_toggle.toggled.connect(self.window.set_calculator_enabled)
+        tools_layout.addWidget(self.calculator_toggle)
+
+        self.datetime_toggle = QCheckBox("Time and date")
+        self.datetime_toggle.setObjectName("rememberToggle")
+        self.datetime_toggle.toggled.connect(self.window.set_datetime_enabled)
+        tools_layout.addWidget(self.datetime_toggle)
+
+        self.weather_toggle = QCheckBox("Weather")
+        self.weather_toggle.setObjectName("rememberToggle")
+        self.weather_toggle.toggled.connect(self.window.set_weather_enabled)
+        tools_layout.addWidget(self.weather_toggle)
+
+        self.wikipedia_toggle = QCheckBox("Wikipedia")
+        self.wikipedia_toggle.setObjectName("rememberToggle")
+        self.wikipedia_toggle.toggled.connect(self.window.set_wikipedia_enabled)
+        tools_layout.addWidget(self.wikipedia_toggle)
+
+        self.web_search_toggle = QCheckBox("Web search")
         self.web_search_toggle.setObjectName("rememberToggle")
         self.web_search_toggle.toggled.connect(self.window.set_web_search_enabled)
-        behavior_layout.addWidget(self.web_search_toggle)
+        tools_layout.addWidget(self.web_search_toggle)
 
-        content_layout.addWidget(behavior_section)
+        self.web_fetch_toggle = QCheckBox("Web page reading")
+        self.web_fetch_toggle.setObjectName("rememberToggle")
+        self.web_fetch_toggle.toggled.connect(self.window.set_web_fetch_enabled)
+        tools_layout.addWidget(self.web_fetch_toggle)
+
+        self.youtube_toggle = QCheckBox("YouTube")
+        self.youtube_toggle.setObjectName("rememberToggle")
+        self.youtube_toggle.toggled.connect(self.window.set_youtube_enabled)
+        tools_layout.addWidget(self.youtube_toggle)
+
+        self.spotify_toggle = QCheckBox("Spotify")
+        self.spotify_toggle.setObjectName("rememberToggle")
+        self.spotify_toggle.toggled.connect(self.window.set_spotify_enabled)
+        tools_layout.addWidget(self.spotify_toggle)
+
+        content_layout.addWidget(tools_section)
 
         safety_section, safety_layout = self._section_card("Safety and Limits")
 
@@ -306,7 +349,14 @@ class SettingsDialog(QDialog):
         self.language_select.blockSignals(True)
         self.theme_select.blockSignals(True)
         self.remember_toggle.blockSignals(True)
+        self.calculator_toggle.blockSignals(True)
+        self.datetime_toggle.blockSignals(True)
+        self.weather_toggle.blockSignals(True)
+        self.wikipedia_toggle.blockSignals(True)
         self.web_search_toggle.blockSignals(True)
+        self.web_fetch_toggle.blockSignals(True)
+        self.youtube_toggle.blockSignals(True)
+        self.spotify_toggle.blockSignals(True)
         self.pegi13_toggle.blockSignals(True)
         self.safety_filters_toggle.blockSignals(True)
 
@@ -367,7 +417,14 @@ class SettingsDialog(QDialog):
         if theme_index >= 0:
             self.theme_select.setCurrentIndex(theme_index)
         self.remember_toggle.setChecked(self.window.remember_chat_enabled)
+        self.calculator_toggle.setChecked(self.window.calculator_enabled)
+        self.datetime_toggle.setChecked(self.window.datetime_enabled)
+        self.weather_toggle.setChecked(self.window.weather_enabled)
+        self.wikipedia_toggle.setChecked(self.window.wikipedia_enabled)
         self.web_search_toggle.setChecked(self.window.web_search_enabled)
+        self.web_fetch_toggle.setChecked(self.window.web_fetch_enabled)
+        self.youtube_toggle.setChecked(self.window.youtube_enabled)
+        self.spotify_toggle.setChecked(self.window.spotify_enabled)
         self.pegi13_toggle.setChecked(self.window.pegi13_enabled)
         self.safety_filters_toggle.setChecked(self.window.safety_filters_enabled)
         self.policy_hint.setText(self.window.describe_policy_settings())
@@ -382,7 +439,14 @@ class SettingsDialog(QDialog):
         self.language_select.blockSignals(False)
         self.theme_select.blockSignals(False)
         self.remember_toggle.blockSignals(False)
+        self.calculator_toggle.blockSignals(False)
+        self.datetime_toggle.blockSignals(False)
+        self.weather_toggle.blockSignals(False)
+        self.wikipedia_toggle.blockSignals(False)
         self.web_search_toggle.blockSignals(False)
+        self.web_fetch_toggle.blockSignals(False)
+        self.youtube_toggle.blockSignals(False)
+        self.spotify_toggle.blockSignals(False)
         self.pegi13_toggle.blockSignals(False)
         self.safety_filters_toggle.blockSignals(False)
 
@@ -468,8 +532,15 @@ class MainWindow(QMainWindow):
         self.current_expression = "neutral"
         self.progression = self._load_progression_state()
         self._last_progression_flash_ts = 0.0
-        self.remember_chat_enabled = True
+        self.remember_chat_enabled = state_store.load_app_state("remember_chat_enabled", "1") == "1"
+        self.calculator_enabled = state_store.load_app_state("tool_calculator", "1") == "1"
+        self.datetime_enabled = state_store.load_app_state("tool_datetime", "1") == "1"
+        self.weather_enabled = state_store.load_app_state("tool_weather", "1") == "1"
+        self.wikipedia_enabled = state_store.load_app_state("tool_wikipedia", "1") == "1"
         self.web_search_enabled = state_store.load_app_state("web_search_enabled", "0") == "1"
+        self.web_fetch_enabled = state_store.load_app_state("tool_web_fetch", "1") == "1"
+        self.youtube_enabled = state_store.load_app_state("tool_youtube", "0") == "1"
+        self.spotify_enabled = state_store.load_app_state("tool_spotify", "0") == "1"
         ollama_conf = conf.get("ollama", {})
         configured_text_model = str(ollama_conf.get("text_model", "")).strip()
         self.available_text_models = {
@@ -619,6 +690,7 @@ class MainWindow(QMainWindow):
             on_transcript=lambda text: self.on_user_utterance(text, source="speech"),
             transcribe_func=self.stt.transcribe_bytes,
             conf=self.conf,
+            event_callback=lambda event, payload: self.session_logger.record(event, **payload),
         )
 
         self.composer_card = ComposerCard(self.recorder, self._input_placeholder())
@@ -1533,6 +1605,10 @@ class MainWindow(QMainWindow):
 
     def set_remember_chat_enabled(self, enabled: bool) -> None:
         self.remember_chat_enabled = bool(enabled)
+        self._state_store().save_app_state(
+            "remember_chat_enabled",
+            "1" if self.remember_chat_enabled else "0",
+        )
         self._refresh_header_badges()
         if hasattr(self, "settings_dialog"):
             self.settings_dialog.sync_from_window()
@@ -1545,6 +1621,43 @@ class MainWindow(QMainWindow):
             self._save_state("web_search_enabled", "1" if self.web_search_enabled else "0")
         if hasattr(self, "settings_dialog"):
             self.settings_dialog.sync_from_window()
+
+    def _save_tool_state(self, key: str, enabled: bool) -> None:
+        value = "1" if enabled else "0"
+        if self.backend is not None:
+            self.backend.save_app_state(key, value)
+        else:
+            self._save_state(key, value)
+        if hasattr(self, "settings_dialog"):
+            self.settings_dialog.sync_from_window()
+
+    def set_calculator_enabled(self, enabled: bool) -> None:
+        self.calculator_enabled = bool(enabled)
+        self._save_tool_state("tool_calculator", self.calculator_enabled)
+
+    def set_datetime_enabled(self, enabled: bool) -> None:
+        self.datetime_enabled = bool(enabled)
+        self._save_tool_state("tool_datetime", self.datetime_enabled)
+
+    def set_weather_enabled(self, enabled: bool) -> None:
+        self.weather_enabled = bool(enabled)
+        self._save_tool_state("tool_weather", self.weather_enabled)
+
+    def set_wikipedia_enabled(self, enabled: bool) -> None:
+        self.wikipedia_enabled = bool(enabled)
+        self._save_tool_state("tool_wikipedia", self.wikipedia_enabled)
+
+    def set_web_fetch_enabled(self, enabled: bool) -> None:
+        self.web_fetch_enabled = bool(enabled)
+        self._save_tool_state("tool_web_fetch", self.web_fetch_enabled)
+
+    def set_youtube_enabled(self, enabled: bool) -> None:
+        self.youtube_enabled = bool(enabled)
+        self._save_tool_state("tool_youtube", self.youtube_enabled)
+
+    def set_spotify_enabled(self, enabled: bool) -> None:
+        self.spotify_enabled = bool(enabled)
+        self._save_tool_state("tool_spotify", self.spotify_enabled)
 
     def test_speech_input(self) -> None:
         label = self.available_stt_engines.get(self.current_stt_engine, "Speech input")
@@ -1764,10 +1877,21 @@ class MainWindow(QMainWindow):
             return True
         return False
 
+    def _tools_enabled_dict(self) -> dict:
+        return {
+            "calculator": self.calculator_enabled,
+            "datetime_local": self.datetime_enabled,
+            "weather_lookup": self.weather_enabled,
+            "wikipedia_search": self.wikipedia_enabled,
+            "web_fetch": self.web_fetch_enabled,
+            "youtube_control": self.youtube_enabled,
+            "spotify_control": self.spotify_enabled,
+        }
+
     def _try_handle_agent_action(self, reply_id: int, text: str) -> bool:
         if self.backend is None:
             return False
-        result = self.backend.try_agent_action(text)
+        result = self.backend.try_agent_action(text, tools_enabled=self._tools_enabled_dict())
         if not result or not result.get("handled"):
             return False
         self._record_admin_event(
@@ -1786,12 +1910,16 @@ class MainWindow(QMainWindow):
             str(result.get("action", "agent_action")),
         )
 
-        enqueued = self._enqueue_tts(reply, self._tts_generation, reply_id, mood)
+
+    def _emit_agent_reply(self, reply_id: int, user_text: str, reply: str, mood: str, action: str) -> bool:
+        generation = self._tts_generation
+        if reply:
+            spoken, reaction = self._prepare_spoken_utterance(user_text, reply, mood)
+            if reaction:
+                self._enqueue_tts(reaction, generation, reply_id, mood="_reaction", prepared=True)
+            self._enqueue_tts(spoken or reply, generation, reply_id, mood, prepared=True)
         self._record_admin_event("reply_ready", turn_id=reply_id, mood=mood, reply=reply)
-        if enqueued:
-            self.reply_ready.emit(reply_id, user_text, reply, mood)
-        else:
-            self._publish_reply(reply_id, user_text, reply, mood)
+        self.reply_ready.emit(reply_id, user_text, reply, mood)
         return True
 
     def _run_backend_turn(self, reply_id: int, text: str, source: str = "text") -> None:
@@ -1807,6 +1935,7 @@ class MainWindow(QMainWindow):
                 input_source=source,
                 remember_chat=self.remember_chat(),
                 web_search_enabled=self.web_search_enabled,
+                tools_enabled=self._tools_enabled_dict(),
             )
         except Exception as e:
             self._record_admin_event("backend_error", turn_id=reply_id, error=str(e))
@@ -2168,6 +2297,12 @@ class MainWindow(QMainWindow):
         lower = (text or "").strip().lower()
         if lower.startswith("/search "):
             return True
+        if re.fullmatch(
+            r"(?:shall|should|can|could) we (?:try to )?(?:look up|search for|find) "
+            r"(?:a |another )?(?:song|track|video|topic)(?: again)?[?.! ]*",
+            lower,
+        ):
+            return False
         search_cues = [
             "search", "look up", "lookup", "find online", "on the internet",
             "browse", "web search", "latest", "current", "today", "news", "recent",

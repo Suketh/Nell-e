@@ -485,6 +485,23 @@ class OpenAILocalClient:
                 "Do not assume what they meant. "
                 "Ask one short clarifying question."
             )
+        if any(
+            cue in lower
+            for cue in (
+                "improvise",
+                "surprise me",
+                "you choose",
+                "your choice",
+                "pick something",
+                "choose something",
+                "something you like",
+            )
+        ) and any(cue in lower for cue in ("play", "song", "music", "spotify", "listen")):
+            return (
+                "The user has explicitly delegated the music choice to you. "
+                "Choose one concrete song or artist now and name it clearly. "
+                "Do not ask for a genre, mood, vibe, or confirmation, and do not merely promise to choose later."
+            )
         if any(cue in lower for cue in story_cues):
             return (
                 "The user is inviting a story or mini-scene. "

@@ -38,8 +38,8 @@ environment, applies local runtime paths, and starts `app.py`.
 - The active Ollama language model can be changed in Settings under Conversation.
 
 Configured language-model choices:
-- `Gemma 3 Uncensored (4B)`
-- `Gemma 4 (8B)` using the installed Ollama model `gemma4:latest`
+- `Gemma 3 (4B)` using `gemma3:4b`
+- `Gemma 4` using the local alias `gemma4:latest`
 
 ## Config
 The main settings live in `config.yaml`.
@@ -93,7 +93,7 @@ Recommended direction:
 - most realistic setup on this project is `WSL2 + vLLM + local OpenAI-compatible transcription endpoint`
 
 ### XTTS v2
-XTTS v2 is the active local TTS path in the app.
+XTTS v2 is the automatic fallback when Chatterbox-Turbo is unavailable.
 
 Typical config:
 ```yaml

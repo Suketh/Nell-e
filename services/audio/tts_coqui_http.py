@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import re
+import tempfile
 import time
 import wave
 from contextlib import suppress
 from io import BytesIO
+from pathlib import Path
 
 import requests
 
@@ -50,6 +52,21 @@ class TTS:
         with suppress(Exception):
             self._session.close()
         return None
+
+    def speak(self, text: str):
+        audio = self.synthesize_wav_bytes(text)
+        temporary_path = ""
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
+                audio_file.write(audio)
+                temporary_path = audio_file.name
+            import winsound
+
+            winsound.PlaySound(temporary_path, winsound.SND_FILENAME)
+        finally:
+            if temporary_path:
+                with suppress(OSError):
+                    Path(temporary_path).unlink()
 
     def set_voice_profile(self, voice_profile: str = "", voice_sample: str = ""):
         self.voice_profile = str(voice_profile or "").strip()

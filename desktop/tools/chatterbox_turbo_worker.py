@@ -16,6 +16,10 @@ class Worker:
         if self.model is not None and self.device == resolved_device:
             return
         with contextlib.redirect_stdout(sys.stderr):
+            import perth
+
+            if perth.PerthImplicitWatermarker is None:
+                perth.PerthImplicitWatermarker = perth.DummyWatermarker
             from chatterbox.tts_turbo import ChatterboxTurboTTS
 
             self.model = ChatterboxTurboTTS.from_pretrained(device=resolved_device)
@@ -46,7 +50,13 @@ class Worker:
             return {"id": request_id, "ok": True, "sample_rate": int(model.sr)}
         except Exception as exc:
             traceback.print_exc(file=sys.stderr)
-            return {"id": request_id, "ok": False, "error": str(exc)}
+            message = str(exc)
+            if "1455" in message or "paging file" in message.lower() or "sidväxlingsfil" in message.lower():
+                message = (
+                    "Windows virtual memory is too low for Chatterbox. "
+                    "Increase the pagefile to system-managed or at least 16 GB, restart Windows, and try again."
+                )
+            return {"id": request_id, "ok": False, "error": message}
 
 
 def main() -> None:

@@ -88,8 +88,13 @@ function Warmup-OllamaModel {
     }
 
     Write-Host "[ollama] verifying model -> $modelName"
-    & $ollamaCommand.Source show $modelName *> $null
-    if ($LASTEXITCODE -ne 0) {
+    $verify = Start-Process -FilePath $ollamaCommand.Source `
+        -ArgumentList @("show", $modelName) `
+        -WorkingDirectory $ProjectRoot `
+        -WindowStyle "Hidden" `
+        -Wait `
+        -PassThru
+    if ($verify.ExitCode -ne 0) {
         throw "[ollama] model '$modelName' is not available locally. Run: ollama pull $modelName"
     }
 

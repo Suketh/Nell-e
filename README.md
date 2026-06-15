@@ -76,13 +76,13 @@ Nellie uses Ollama according to `config.yaml`.
 
 Current defaults in this project:
 
-- text model: `hermes3:8b`
+- modern desktop text model: `gemma3:4b`
 - vision model: `llava:7b`
 
 Example:
 
 ```powershell
-ollama pull hermes3:8b
+ollama pull gemma3:4b
 ollama pull llava:7b
 ```
 
@@ -99,7 +99,8 @@ Simplest option:
 Or directly:
 
 ```powershell
-python app.py
+cd desktop
+.\run_local.bat
 ```
 
 ### Web + Desktop

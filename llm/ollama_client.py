@@ -97,15 +97,17 @@ class OllamaClient:
         "tired": 2,
     }
 
-    def __init__(self, host, text_model, vision_model=None):
+    def __init__(self, host, text_model, vision_model=None, connect_timeout=10, read_timeout=120):
         self.host = host.rstrip("/")
         self.text_model = text_model
         self.vision_model = vision_model or text_model
+        self.connect_timeout = max(1, float(connect_timeout or 10))
+        self.read_timeout = max(5, float(read_timeout or 120))
         self._session = requests.Session()
         self._system_prompt_cache = {}
 
     def _post(self, path, payload, stream=False):
-        r = self._session.post(f"{self.host}{path}", json=payload, timeout=(10, 300), stream=stream)
+        r = self._session.post(f"{self.host}{path}", json=payload, timeout=(self.connect_timeout, self.read_timeout), stream=stream)
         r.raise_for_status()
         return r
 

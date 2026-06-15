@@ -15,6 +15,7 @@ __pycache__/
 desktop/.venv/
 desktop/.venv_chatterbox/
 desktop/.tmp312/
+desktop/.tmp/
 
 # Local tool directories
 .dotnet-home/

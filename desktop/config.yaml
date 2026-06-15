@@ -1,15 +1,18 @@
 ollama:
   host: http://localhost:11434
-  text_model: jayeshpandit2480/gemma3-UNCENSORED:4b
+  text_model: hermes3:8b
   vision_model: llava:7b
   models:
-    - id: jayeshpandit2480/gemma3-UNCENSORED:4b
-      label: Gemma 3 Uncensored (4B)
+    - id: hermes3:8b
+      label: Hermes 3 (8B)
     - id: gemma4:latest
-      label: Gemma 4 (8B)
+      label: Gemma 4 E2B
+    - id: gemma3:4b
+      label: Gemma 3 (4B)
 ollama_runtime:
   num_ctx: 4096
   num_gpu: 999
+  keep_alive: 0
   temperature: 0.68
   num_predict: 220
   think: false

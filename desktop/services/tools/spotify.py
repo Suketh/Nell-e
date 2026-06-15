@@ -11,6 +11,35 @@ def extract_spotify_query(text: str, context: str = "") -> str:
     if not raw:
         return ""
     lowered = raw.lower().strip()
+    normalized = re.sub(r"[^\w\s]", "", lowered).strip()
+    spotify_context = _has_spotify_intent(context)
+
+    if spotify_context:
+        listening_match = re.match(
+            r"^(?:i(?: would|'d)? like to|i want to|let(?:'s| us)) "
+            r"(?:listen to|hear|play) (.+?)[.!? ]*$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        if listening_match:
+            return _clean_query(listening_match.group(1))
+
+        confirmations = {
+            "yes",
+            "yes please",
+            "yes please go ahead",
+            "yeah",
+            "yeah go ahead",
+            "go ahead",
+            "sure",
+            "okay",
+            "ok",
+            "do it",
+            "play it",
+            "open it",
+        }
+        if normalized in confirmations:
+            return _resolve_contextual_query(context)
 
     explicit_contextual_patterns = [
         r"^(?:can you )?play (?:it|that|this|that song|that track|that one|this song) for me on spotify[.!? ]*$",
@@ -24,6 +53,7 @@ def extract_spotify_query(text: str, context: str = "") -> str:
             return _resolve_contextual_query(context)
 
     patterns = [
+        r"^(?:why don'?t you )?(?:try to )?(?:find|look up|search for) (.+?) on spotify[.!? ]*$",
         r"^(?:can you )?play (.+?) on spotify for me[.!? ]*$",
         r"^(?:can you )?play (.+?) on spotify[.!? ]*$",
         r"^(?:can you )?put on (.+?) on spotify for me[.!? ]*$",
@@ -60,6 +90,27 @@ def extract_spotify_query(text: str, context: str = "") -> str:
     ):
         return _resolve_contextual_query(context)
     return ""
+
+
+def is_spotify_choice_request(text: str, context: str = "") -> bool:
+    lowered = re.sub(r"\s+", " ", str(text or "").casefold()).strip()
+    choice_cues = (
+        "improvise",
+        "surprise me",
+        "you choose",
+        "your choice",
+        "pick something",
+        "choose something",
+        "something you like",
+    )
+    media_cues = ("play", "song", "music", "spotify", "listen")
+    return any(cue in lowered for cue in choice_cues) and (
+        any(cue in lowered for cue in media_cues) or _has_spotify_intent(context)
+    )
+
+
+def extract_spotify_suggestion(text: str) -> str:
+    return _clean_query(_resolve_contextual_query(text))
 
 
 def open_spotify_query(query: str) -> tuple[bool, str]:
@@ -116,6 +167,24 @@ def _clean_query(query: str) -> str:
 
 def _resolve_contextual_query(context: str) -> str:
     source = str(context or "")
+    spotify_request = re.findall(
+        r"\b(?:find|look up|search for)\s+(.{2,120}?)\s+on spotify(?=[.!?\n]|$)",
+        source,
+        flags=re.IGNORECASE,
+    )
+    if spotify_request:
+        return _clean_query(spotify_request[-1])
+
+    requested_track = re.findall(
+        r"\b(?:listen to|hear|play)\s+(.{2,100}?)\s+by\s+"
+        r"([A-Za-z][\w'&.-]*(?:\s+[A-Za-z][\w'&.-]*){0,4})(?=[.!?\n]|$)",
+        source,
+        flags=re.IGNORECASE,
+    )
+    if requested_track:
+        title, artist = requested_track[-1]
+        return f"{title.strip(' ,.!?')} {artist.strip(' ,.!?')}"
+
     quoted = re.findall(r'["“](.*?)["”]', source)
     if quoted:
         last = quoted[-1].strip()
@@ -169,6 +238,34 @@ def _resolve_contextual_query(context: str) -> str:
     if artist:
         return artist
     return ""
+
+
+def _has_spotify_intent(context: str) -> bool:
+    lowered = str(context or "").casefold()
+    explicit_spotify = "spotify" in lowered and any(
+        cue in lowered
+        for cue in (
+            "listen",
+            "song",
+            "track",
+            "play",
+            "open",
+            "what are you looking",
+        )
+    )
+    pending_music_action = any(
+        cue in lowered
+        for cue in (
+            "play me a song",
+            "play something",
+            "i'll play",
+            "i will play",
+            "how about some",
+            "pick something",
+            "you choose",
+        )
+    )
+    return explicit_spotify or pending_music_action
 
 
 def _last_artist(context: str) -> str:

@@ -246,6 +246,29 @@ def build_tts(conf: dict[str, Any]) -> Any:
     tts_conf = conf.get("tts", {})
     tts_engine = tts_conf.get("engine", "none")
 
+    if tts_engine == "coqui_xtts_server":
+        from services.audio.tts_coqui_http import TTS as TTS_CoquiHttp
+
+        server_conf = tts_conf.get("coqui_xtts_server", {})
+        try:
+            tts = TTS_CoquiHttp(
+                base_url=server_conf.get("base_url", "http://127.0.0.1:8891"),
+                health_url=server_conf.get("health_url"),
+                timeout=server_conf.get("timeout", 120),
+                language=tts_conf.get("language", "en"),
+                output_samplerate=server_conf.get("output_samplerate", 24000),
+                synth_path=server_conf.get("synth_path", "/v1/tts"),
+                health_path=server_conf.get("health_path", "/health"),
+                use_post=server_conf.get("use_post", True),
+            )
+            tts.set_voice_profile(
+                tts_conf.get("default_voice_profile", ""),
+                tts_conf.get("voice_sample", ""),
+            )
+            return tts
+        except Exception as exc:
+            return fallback_to_pyttsx3_or_null("Coqui XTTS server unavailable", exc)
+
     if tts_engine == "coqui_xtts":
         from services.audio.tts_coqui_xtts import TTS as TTS_Coqui
 
@@ -317,8 +340,30 @@ def connect_optional_close(app: QApplication, service: Any) -> None:
         app.aboutToQuit.connect(service.close)
 
 
+def ensure_window_is_visible(app: QApplication, window: MainWindow) -> None:
+    frame = window.frameGeometry()
+    visible_screens = [
+        screen.availableGeometry()
+        for screen in app.screens()
+        if screen.availableGeometry().intersects(frame)
+    ]
+    if visible_screens:
+        return
+
+    screen = app.primaryScreen()
+    if screen is None:
+        return
+    available = screen.availableGeometry()
+    window.move(
+        available.center().x() - window.width() // 2,
+        available.center().y() - window.height() // 2,
+    )
+
+
 def main() -> None:
+    print("[startup] bootstrapping app context", flush=True)
     context = bootstrap_app_context()
+    print("[startup] creating QApplication", flush=True)
     app = QApplication(sys.argv)
 
     connect_optional_close(app, context.memory)
@@ -326,6 +371,7 @@ def main() -> None:
     connect_optional_close(app, context.tts)
     connect_optional_close(app, context.stt)
 
+    print("[startup] creating MainWindow", flush=True)
     window = MainWindow(
         conf=context.conf,
         persona=context.persona,
@@ -335,7 +381,16 @@ def main() -> None:
         memory=context.memory,
         conversation=context.conversation,
     )
+    print("[startup] showing MainWindow", flush=True)
     window.show()
+    ensure_window_is_visible(app, window)
+    print(
+        "[startup] window state "
+        f"platform={app.platformName()} visible={window.isVisible()} "
+        f"handle={int(window.winId())} geometry={window.geometry().getRect()}",
+        flush=True,
+    )
+    print("[startup] entering Qt event loop", flush=True)
     sys.exit(app.exec())
 
 

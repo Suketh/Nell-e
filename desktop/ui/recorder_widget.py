@@ -61,11 +61,12 @@ class RecorderWidget(QWidget):
     error_raised = Signal(str)
     ui_state_changed = Signal(str, bool)
 
-    def __init__(self, on_transcript, transcribe_func=None, conf=None):
+    def __init__(self, on_transcript, transcribe_func=None, conf=None, event_callback=None):
         super().__init__()
         self.conf = conf or {}
         self.on_transcript = on_transcript
         self.transcribe_func = transcribe_func
+        self.event_callback = event_callback
 
         self.btn = QPushButton("Hold to Talk")
         self.btn.setObjectName("talkButton")
@@ -84,6 +85,7 @@ class RecorderWidget(QWidget):
         self._channels = int((self.conf.get("audio") or {}).get("channels", 1))
         self._dtype = (self.conf.get("audio") or {}).get("dtype", "int16")
         self._busy = False
+        self._recording = False
 
         self.transcript_ready.connect(self.on_transcript)
         self.error_raised.connect(self._show_error)
@@ -96,6 +98,10 @@ class RecorderWidget(QWidget):
 
     def start(self):
         if self._busy:
+            self._record_event("speech_capture_skipped", status="transcription_busy")
+            self.ui_state_changed.emit("Still transcribing...", False)
+            return
+        if self._recording:
             return
         try:
             cfg_audio = self.conf.get("audio") or {}
@@ -114,7 +120,18 @@ class RecorderWidget(QWidget):
                 blocksize=int(cfg_audio.get("blocksize", 0) or 0),
             )
             self._rec.start()
+            self._recording = True
+            self._record_event(
+                "speech_capture_started",
+                device=str(self._device),
+                sample_rate=self._samplerate,
+                channels=self._channels,
+                dtype=str(self._dtype),
+            )
+            self.ui_state_changed.emit("Listening... release to send", True)
         except Exception as e:
+            self._recording = False
+            self._record_event("speech_capture_failed", error=str(e))
             self.error_raised.emit(
                 "Could not open the microphone.\n\n"
                 f"{e}\n\n"
@@ -125,22 +142,49 @@ class RecorderWidget(QWidget):
     def stop(self):
         if self._busy:
             return
-        if self._rec:
+        if not self._recording or self._rec is None:
+            return
+
+        try:
             if POST_ROLL_MS > 0:
                 time.sleep(POST_ROLL_MS / 1000.0)
             self._rec.stop()
             self._rec.close()
+        except Exception as e:
+            self._record_event("speech_capture_failed", error=str(e))
+            self.error_raised.emit(f"Could not finish microphone capture.\n\n{e}")
+            return
+        finally:
             self._rec = None
+            self._recording = False
 
-        audio_bytes = b"".join(list(self._q.queue))
+        chunks = []
+        while True:
+            try:
+                chunks.append(self._q.get_nowait())
+            except queue.Empty:
+                break
+        audio_bytes = b"".join(chunks)
         if not audio_bytes:
+            self._record_event("speech_capture_empty", status="no_audio_frames")
+            self.ui_state_changed.emit("No microphone audio - try again", True)
             return
 
         self._busy = True
+        sample_width = np.dtype(self._dtype).itemsize
+        frame_count = len(audio_bytes) / max(1, sample_width * self._channels)
+        duration_ms = round((frame_count / max(1, self._samplerate)) * 1000)
+        self._record_event(
+            "speech_capture_complete",
+            duration_ms=duration_ms,
+            bytes=len(audio_bytes),
+            overflow=self._overflow_detected,
+        )
         self.ui_state_changed.emit("Transcribing...", False)
         threading.Thread(target=self._transcribe_audio, args=(audio_bytes,), daemon=True).start()
 
     def _transcribe_audio(self, audio_bytes: bytes):
+        keep_result_status = False
         try:
             if self.transcribe_func:
                 with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
@@ -177,14 +221,22 @@ class RecorderWidget(QWidget):
                 text = "(stub) Hello Nellie!"
 
             if text.strip():
+                self._record_event("speech_transcription_complete", text=text.strip())
                 self.transcript_ready.emit(text)
             elif self._overflow_detected:
+                self._record_event("speech_transcription_empty", status="input_overflow")
                 self.error_raised.emit("The microphone input overflowed during capture. Try speaking a little closer or lowering other audio load.")
+            else:
+                self._record_event("speech_transcription_empty", status="no_speech_detected")
+                self.ui_state_changed.emit("No speech detected - try again", True)
+                keep_result_status = True
         except Exception as e:
+            self._record_event("speech_transcription_failed", error=str(e))
             self.error_raised.emit(f"Transcription failed.\n\n{e}")
         finally:
             self._busy = False
-            self.ui_state_changed.emit("Hold to Talk", True)
+            if not keep_result_status:
+                self.ui_state_changed.emit("Hold to Talk", True)
 
     def _trim_silence(self, data: np.ndarray, samplerate: int) -> np.ndarray:
         if data.size == 0:
@@ -200,6 +252,14 @@ class RecorderWidget(QWidget):
 
     def _show_error(self, message: str):
         QMessageBox.critical(self, "Audio error", message)
+
+    def _record_event(self, event: str, **payload):
+        if self.event_callback is None:
+            return
+        try:
+            self.event_callback(event, payload)
+        except Exception:
+            pass
 
     def _apply_ui_state(self, text: str, enabled: bool):
         self.btn.setText(text)

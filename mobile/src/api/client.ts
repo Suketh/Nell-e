@@ -11,7 +11,7 @@ function withUser(path: string, userId: string, personaId = "nellie"): string {
 async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(await buildHttpErrorMessage(response, "Request failed"));
   }
   return (await response.json()) as T;
 }
@@ -23,9 +23,34 @@ async function postJson<T>(path: string, payload: Record<string, unknown>): Prom
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    throw new Error(await buildHttpErrorMessage(response, "Request failed"));
   }
   return (await response.json()) as T;
+}
+
+async function buildHttpErrorMessage(response: Response, fallback: string): Promise<string> {
+  const requestId = response.headers.get("X-Request-Id");
+  const suffix = requestId ? ` Ref ${requestId}.` : "";
+  try {
+    const payload = (await response.clone().json()) as { message?: string; error?: string; detail?: string; request_id?: string };
+    const message = String(payload.message || payload.detail || payload.error || "").trim();
+    const payloadRequestId = String(payload.request_id || requestId || "").trim();
+    const payloadSuffix = payloadRequestId ? ` Ref ${payloadRequestId}.` : suffix;
+    if (message) {
+      return `${fallback}: ${response.status} - ${message}${payloadSuffix}`;
+    }
+  } catch {
+    // Fall through to text/body fallback below.
+  }
+  try {
+    const text = (await response.text()).trim();
+    if (text) {
+      return `${fallback}: ${response.status} - ${text.slice(0, 180)}${suffix}`;
+    }
+  } catch {
+    // Ignore body parsing failures; status is still useful.
+  }
+  return `${fallback}: ${response.status}${suffix}`;
 }
 
 export async function fetchProfileSummary(userId: string, personaId = "nellie"): Promise<ProfileSummary> {
@@ -138,7 +163,7 @@ export async function fetchTtsAudioDataUri(text: string, userId?: string, person
     }),
   });
   if (!response.ok) {
-    throw new Error(`TTS failed: ${response.status}`);
+    throw new Error(await buildHttpErrorMessage(response, "TTS failed"));
   }
   const audioBuffer = await response.arrayBuffer();
   const mimeType = String(response.headers.get("Content-Type") || "audio/wav");
@@ -206,7 +231,7 @@ export async function transcribeAudioFile(fileUri: string, language = "auto"): P
     body: formData,
   });
   if (!response.ok) {
-    throw new Error(`STT failed: ${response.status}`);
+    throw new Error(await buildHttpErrorMessage(response, "STT failed"));
   }
   const payload = (await response.json()) as { text?: string };
   return String(payload.text || "").trim();

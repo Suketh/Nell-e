@@ -21,7 +21,12 @@ from services.tools.browser_actions import (
     open_wikipedia_query,
     open_youtube_query,
 )
-from services.tools.spotify import extract_spotify_query, open_spotify_query
+from services.tools.spotify import (
+    extract_spotify_query,
+    extract_spotify_suggestion,
+    is_spotify_choice_request,
+    open_spotify_query,
+)
 from services.tools.calculator_safe import evaluate_expression, extract_expression
 from services.tools.datetime_local import lookup_local_datetime
 from services.tools.web_fetch import extract_url, fetch_webpage
@@ -129,7 +134,8 @@ class LocalBackendAdapter:
                 return (str(result[0]), str(result[1]), str(result[2]))
         return None
 
-    def try_agent_action(self, text: str) -> dict[str, Any] | None:
+    def try_agent_action(self, text: str, tools_enabled: dict | None = None) -> dict[str, Any] | None:
+        te = tools_enabled or {}
         lowered = re.sub(r"\s+", " ", str(text or "").strip().casefold())
         memory = self._require_memory()
         remember_match = re.match(r"^(?:remember|remember that|remember this)[: ]+(.+)$", lowered, flags=re.IGNORECASE)
@@ -138,7 +144,7 @@ class LocalBackendAdapter:
         user_role = memory.get_user_fact("user_role") if hasattr(memory, "get_user_fact") else None
 
         expression = extract_expression(text)
-        if expression:
+        if expression and te.get("calculator", True):
             try:
                 result = evaluate_expression(expression)
             except (ArithmeticError, SyntaxError, ValueError) as exc:
@@ -157,7 +163,7 @@ class LocalBackendAdapter:
                 "status": "handled",
             }
 
-        if lowered in {
+        if te.get("datetime_local", True) and lowered in {
             "what time is it",
             "what's the time",
             "what is the time",
@@ -184,7 +190,7 @@ class LocalBackendAdapter:
             }
 
         page_url = extract_url(text)
-        if page_url and any(cue in lowered for cue in ("read ", "summarize ", "check ", "läs ", "sammanfatta ")):
+        if page_url and te.get("web_fetch", True) and any(cue in lowered for cue in ("read ", "summarize ", "check ", "läs ", "sammanfatta ")):
             try:
                 page = fetch_webpage(page_url, max_chars=1800)
             except Exception as exc:
@@ -271,17 +277,20 @@ class LocalBackendAdapter:
 
         recent_context = self._recent_tool_context()
 
-        wikipedia_query = extract_wikipedia_query(text, context=recent_context)
-        if wikipedia_query:
-            return self._browser_action("wikipedia_open", "Wikipedia", wikipedia_query, open_wikipedia_query)
+        if te.get("wikipedia_search", True):
+            wikipedia_query = extract_wikipedia_query(text, context=recent_context)
+            if wikipedia_query:
+                return self._browser_action("wikipedia_open", "Wikipedia", wikipedia_query, open_wikipedia_query)
 
-        youtube_query = extract_youtube_query(text, context=recent_context)
-        if youtube_query:
-            return self._browser_action("youtube_open", "YouTube", youtube_query, open_youtube_query)
+        if te.get("youtube_control", False):
+            youtube_query = extract_youtube_query(text, context=recent_context)
+            if youtube_query:
+                return self._browser_action("youtube_open", "YouTube", youtube_query, open_youtube_query)
 
-        spotify_query = extract_spotify_query(text, context=recent_context)
-        if spotify_query:
-            return self._browser_action("spotify_play", "Spotify", spotify_query, open_spotify_query)
+        if te.get("spotify_control", False):
+            spotify_query = extract_spotify_query(text, context=recent_context)
+            if spotify_query:
+                return self._browser_action("spotify_play", "Spotify", spotify_query, open_spotify_query)
 
         return None
 
@@ -295,9 +304,11 @@ class LocalBackendAdapter:
         input_source: str = "text",
         remember_chat: bool = True,
         web_search_enabled: bool = False,
+        tools_enabled: dict | None = None,
     ) -> dict[str, Any]:
+        te = tools_enabled or {}
         persona = self._persona_with_runtime_progression(persona)
-        agent_result = self.try_agent_action(user_text)
+        agent_result = self.try_agent_action(user_text, tools_enabled=te)
         if agent_result and agent_result.get("handled"):
             result = dict(agent_result)
             result["kind"] = "agent"
@@ -316,7 +327,7 @@ class LocalBackendAdapter:
             query_text = followup_query
         if web_search_enabled and self._should_use_web_search(query_text):
             web_query = self._extract_web_query(query_text)
-            if is_weather_query(web_query):
+            if is_weather_query(web_query) and te.get("weather_lookup", True):
                 try:
                     weather = current_weather(extract_location(web_query))
                     return {
@@ -362,6 +373,19 @@ class LocalBackendAdapter:
             response_language=response_language,
             input_source=input_source,
         )
+        if te.get("spotify_control", False) and is_spotify_choice_request(user_text, context=context):
+            suggestion = extract_spotify_suggestion(reply)
+            if suggestion:
+                action_result = self._browser_action(
+                    "spotify_play",
+                    "Spotify",
+                    suggestion,
+                    open_spotify_query,
+                )
+                action_result["kind"] = "agent"
+                if action_result.get("status") == "opened":
+                    action_result["reply"] = f"{reply.rstrip()} Opening Spotify now."
+                return action_result
         return {
             "kind": "chat",
             "reply": reply,
@@ -528,6 +552,12 @@ class LocalBackendAdapter:
         lower = (text or "").strip().lower()
         if lower.startswith("/search "):
             return True
+        if re.fullmatch(
+            r"(?:shall|should|can|could) we (?:try to )?(?:look up|search for|find) "
+            r"(?:a |another )?(?:song|track|video|topic)(?: again)?[?.! ]*",
+            lower,
+        ):
+            return False
         search_cues = [
             "search", "look up", "lookup", "find online", "on the internet",
             "browse", "web search", "latest", "current", "today", "news", "recent",

@@ -16,6 +16,11 @@ from services.persona.human_presence import build_human_presence_instruction
 from services.tools.weather_open_meteo import extract_location, format_weather, is_weather_query
 from services.tools.web_duckduckgo import _prefer_wikipedia, _search_bing_rss, _wikipedia_query
 from services.tools.browser_actions import extract_wikipedia_query, extract_youtube_query
+from services.tools.spotify import (
+    extract_spotify_query,
+    extract_spotify_suggestion,
+    is_spotify_choice_request,
+)
 from services.tools.calculator_safe import evaluate_expression, extract_expression
 from services.tools.datetime_local import lookup_local_datetime
 from services.tools.web_fetch import extract_url
@@ -251,6 +256,88 @@ class OnlineToolTests(unittest.TestCase):
         )
         self.assertEqual(extract_wikipedia_query("can you look it up on wikipedia?", context), "Willie Nelson")
         self.assertEqual(extract_youtube_query("can you start youtube for me?", context), "Willie Nelson")
+        self.assertEqual(extract_wikipedia_query("Open Wikipedia for me.", context), "Willie Nelson")
+        self.assertEqual(extract_youtube_query("Show me a video about Willie Nelson."), "willie nelson")
+        self.assertEqual(extract_youtube_query("Show me the video.", context), "Willie Nelson")
+
+    def test_spotify_followup_uses_requested_track(self) -> None:
+        spotify_prompt = (
+            "USER: Why don't you try to find something on Spotify for me?\n"
+            "NELLIE: What are you looking to listen to?"
+        )
+        self.assertEqual(
+            extract_spotify_query(
+                "I would like to listen to Heaven and Hell by Black Sabbath.",
+                spotify_prompt,
+            ),
+            "Heaven and Hell by Black Sabbath",
+        )
+
+        confirmation_context = (
+            f"{spotify_prompt}\n"
+            "USER: I would like to listen to Heaven and Hell by Black Sabbath.\n"
+            "NELLIE: I can open that up for you right now."
+        )
+        self.assertEqual(
+            extract_spotify_query("Yeah, go ahead.", confirmation_context),
+            "Heaven and Hell Black Sabbath",
+        )
+        self.assertEqual(
+            extract_spotify_query(
+                "Why don't you try to find Heaven and Hell by Black Sabbath on Spotify?"
+            ),
+            "heaven and hell by black sabbath",
+        )
+        self.assertEqual(
+            extract_spotify_query("Yes, please, go ahead.", confirmation_context),
+            "Heaven and Hell Black Sabbath",
+        )
+        direct_confirmation_context = (
+            "USER: Why don't you try to find Heaven and Hell by Black Sabbath on Spotify?\n"
+            "NELLIE: I can open that up for you right now."
+        )
+        self.assertEqual(
+            extract_spotify_query("Yes, please, go ahead.", direct_confirmation_context),
+            "Heaven and Hell by Black Sabbath",
+        )
+
+    def test_vague_search_planning_question_does_not_trigger_web_lookup(self) -> None:
+        adapter = LocalBackendAdapter(llm=None, memory=None)
+        self.assertFalse(adapter._should_use_web_search("Shall we try to look up a song again?"))
+
+    def test_spotify_improvisation_extracts_model_choice(self) -> None:
+        self.assertTrue(
+            is_spotify_choice_request(
+                "Just improvise. You choose.",
+                "USER: Why don't you improvise and play me a song that you like?",
+            )
+        )
+        self.assertEqual(
+            extract_spotify_suggestion(
+                "I'll play something with raw energy. How about some early Joy Division? It fits."
+            ),
+            "early Joy Division",
+        )
+        self.assertEqual(
+            extract_spotify_query(
+                "Go ahead.",
+                "USER: Play me a song that you like.\n"
+                "NELLIE: How about some early Joy Division?",
+            ),
+            "early Joy Division",
+        )
+
+        conf = load_config()
+        client = OllamaClient(
+            host=conf["ollama"]["host"],
+            text_model=conf["ollama"]["text_model"],
+            runtime=conf["ollama_runtime"],
+        )
+        instruction = client._response_style_instruction(
+            "Why don't you improvise and play me a song that you like?"
+        )
+        self.assertIn("Choose one concrete song or artist now", instruction)
+        self.assertIn("Do not ask for a genre, mood, vibe, or confirmation", instruction)
 
     def test_web_grounding_retry_detects_tool_denial(self) -> None:
         conf = load_config()
@@ -382,6 +469,8 @@ class PreferenceMemoryTests(unittest.TestCase):
             store.capture_user_facts("I like story-driven RPGs.")
             store.capture_user_facts("I don't like forced small talk.")
             store.capture_user_facts("I'm soon having a vacation.")
+            store.capture_user_facts("I love local AI projects.")
+            store.capture_user_facts("I would love to hear Heaven and Hell by Black Sabbath on Spotify.")
             store.db.commit()
 
             facts = dict(store.load_user_facts(limit=20))
@@ -390,6 +479,8 @@ class PreferenceMemoryTests(unittest.TestCase):
             self.assertIn("story-driven RPGs", values)
             self.assertIn("forced small talk", values)
             self.assertIn("having a vacation", values)
+            self.assertIn("local AI projects", values)
+            self.assertIn("Heaven and Hell by Black Sabbath", values)
             store.close()
 
     def test_context_prioritizes_latest_turns_over_persona_text(self) -> None:

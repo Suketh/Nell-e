@@ -9,6 +9,7 @@ import re
 import sys
 import threading
 import time
+import uuid
 from urllib.parse import parse_qs, urlparse
 from collections import OrderedDict
 
@@ -33,6 +34,8 @@ class ConversationRuntime:
             self.config["ollama"]["host"],
             text_model=self.config["ollama"]["text_model"],
             vision_model=self.config["ollama"]["vision_model"],
+            connect_timeout=self.config.get("ollama", {}).get("connect_timeout", 10),
+            read_timeout=self.config.get("ollama", {}).get("read_timeout", 120),
         )
         self._lock = threading.RLock()
         self._user_services: dict[str, dict] = {}
@@ -46,6 +49,8 @@ class ConversationRuntime:
         self._tts_cache_lock = threading.RLock()
         self._tts_engine_lock = threading.RLock()
         self._tts_inflight: dict[str, threading.Event] = {}
+        self._tts_failure_backoff: dict[str, float] = {}
+        self._tts_failure_backoff_seconds = float(self.config.get("tts", {}).get("failure_backoff_seconds", 8) or 8)
         self._prime_thread: threading.Thread | None = None
         self._start_background_prime()
 
@@ -83,6 +88,30 @@ class ConversationRuntime:
                 }
             )
         return profiles
+
+    def health(self) -> dict:
+        return {
+            "ok": True,
+            "ollama": {
+                "host": self.config.get("ollama", {}).get("host", ""),
+                "text_model": self.ollama.text_model,
+                "vision_model": self.ollama.vision_model,
+                "read_timeout": self.ollama.read_timeout,
+            },
+            "personas": [profile["id"] for profile in self.get_persona_profiles()],
+            "tts": {
+                "primary": self._engine_label(self.tts),
+                "fallback": self._engine_label(self.tts_fallback),
+                "cache_size": len(self._tts_cache),
+                "backoff_size": len(self._tts_failure_backoff),
+                "priming": bool(self._prime_thread and self._prime_thread.is_alive()),
+            },
+        }
+
+    def _engine_label(self, engine) -> str:
+        if engine is None:
+            return ""
+        return str(getattr(engine, "__class__", type(engine)).__name__ or "tts")
 
     def get_persona_profile(self, persona_id: str | None) -> dict:
         normalized = self._normalize_persona_id(persona_id)
@@ -403,6 +432,11 @@ class ConversationRuntime:
                         "language": str((self.config.get("tts", {}) or {}).get("language", "en") or "en"),
                     }
                     return wav_bytes, sample_rate, meta
+                backoff_until = self._tts_failure_backoff.get(cache_key)
+                if backoff_until is not None:
+                    if backoff_until > time.monotonic():
+                        raise RuntimeError("TTS is cooling down after a recent failure. The text reply is ready.")
+                    self._tts_failure_backoff.pop(cache_key, None)
 
                 inflight = self._tts_inflight.get(cache_key)
                 if inflight is None:
@@ -454,6 +488,14 @@ class ConversationRuntime:
                 "language": str((self.config.get("tts", {}) or {}).get("language", "en") or "en"),
             }
             return wav_bytes, sample_rate, meta
+        except Exception:
+            if self._tts_failure_backoff_seconds > 0:
+                with self._tts_cache_lock:
+                    self._tts_failure_backoff[cache_key] = time.monotonic() + self._tts_failure_backoff_seconds
+                    if len(self._tts_failure_backoff) > self._tts_cache_limit:
+                        expired_or_oldest = min(self._tts_failure_backoff, key=self._tts_failure_backoff.get)
+                        self._tts_failure_backoff.pop(expired_or_oldest, None)
+            raise
         finally:
             with self._tts_cache_lock:
                 done = self._tts_inflight.pop(cache_key, None)
@@ -527,16 +569,25 @@ class ConversationHandler(BaseHTTPRequestHandler):
         }
         spoken_reply = str(result.spoken_reply or "").strip()
         if include_tts_audio and spoken_reply:
-            wav_bytes, sample_rate, tts_meta = self.runtime.synthesize_tts(spoken_reply, services["user_id"], services["persona_id"])
-            self._append_tts_diagnostic(services["user_id"], tts_meta)
-            payload.update(
-                {
-                    "tts_audio_base64": base64.b64encode(wav_bytes).decode("ascii"),
-                    "tts_audio_content_type": "audio/wav",
-                    "tts_sample_rate": sample_rate,
-                    "tts_meta": tts_meta,
+            try:
+                wav_bytes, sample_rate, tts_meta = self.runtime.synthesize_tts(spoken_reply, services["user_id"], services["persona_id"])
+                self._append_tts_diagnostic(services["user_id"], tts_meta)
+                payload.update(
+                    {
+                        "tts_audio_base64": base64.b64encode(wav_bytes).decode("ascii"),
+                        "tts_audio_content_type": "audio/wav",
+                        "tts_sample_rate": sample_rate,
+                        "tts_meta": tts_meta,
+                    }
+                )
+            except Exception as exc:
+                request_id = self._request_id()
+                payload["tts_error"] = {
+                    "code": self._error_code(exc, fallback="tts_failed"),
+                    "message": self._public_error_message(exc, fallback="Voice generation failed."),
+                    "request_id": request_id,
                 }
-            )
+                self._log_server_error(request_id, "embedded_tts_failed", exc)
         return payload
 
     def _handle_get_routes(self, parsed, services: dict, conversation, memory) -> bool:
@@ -759,10 +810,11 @@ class ConversationHandler(BaseHTTPRequestHandler):
         return False
 
     def do_GET(self):
+        request_id = self._request_id()
         try:
             parsed = urlparse(self.path)
             if parsed.path == "/health":
-                self._send_json(200, {"ok": True})
+                self._send_json(200, self.runtime.health())
                 return
             user_id = self._request_user_id(parsed)
             persona_id = self._request_persona_id(parsed)
@@ -775,9 +827,11 @@ class ConversationHandler(BaseHTTPRequestHandler):
                 return
             self._send_json(404, {"error": "Not found"})
         except Exception as exc:
-            self._send_json(500, {"error": str(exc) or "Request failed"})
+            self._log_server_error(request_id, "get_failed", exc)
+            self._send_error(500, exc, request_id=request_id)
 
     def do_POST(self):
+        request_id = self._request_id()
         try:
             parsed = urlparse(self.path)
             payload = self._read_json()
@@ -795,11 +849,12 @@ class ConversationHandler(BaseHTTPRequestHandler):
                 return
             self._send_json(404, {"error": "Not found"})
         except json.JSONDecodeError:
-            self._send_json(400, {"error": "invalid_json"})
+            self._send_error(400, "invalid_json", message="The request body was not valid JSON.", request_id=request_id)
         except ValueError as exc:
-            self._send_json(400, {"error": str(exc) or "invalid_request"})
+            self._send_error(400, exc, fallback="invalid_request", request_id=request_id)
         except Exception as exc:
-            self._send_json(500, {"error": str(exc) or "Request failed"})
+            self._log_server_error(request_id, "post_failed", exc)
+            self._send_error(500, exc, request_id=request_id)
 
     def log_message(self, _format, *_args):
         return
@@ -825,10 +880,56 @@ class ConversationHandler(BaseHTTPRequestHandler):
     def _payload_persona_id(self, payload: dict) -> str:
         return str(payload.get("persona_id", "nellie") or "nellie")
 
+    def _request_id(self) -> str:
+        header_value = str(self.headers.get("X-Request-Id", "") or "").strip()
+        if header_value:
+            return re.sub(r"[^a-zA-Z0-9._-]+", "-", header_value)[:80] or uuid.uuid4().hex[:12]
+        return uuid.uuid4().hex[:12]
+
+    def _error_code(self, error, fallback: str = "request_failed") -> str:
+        text = str(error or "").lower()
+        if "tts" in text or "voice" in text or "synthesis" in text:
+            return "tts_failed"
+        if "ollama" in text or "model" in text or "llm" in text:
+            return "llm_failed"
+        if "timed out" in text or "timeout" in text:
+            return "timeout"
+        if isinstance(error, str) and error:
+            return re.sub(r"[^a-z0-9_]+", "_", error.lower()).strip("_") or fallback
+        return fallback
+
+    def _public_error_message(self, error, fallback: str = "Request failed.") -> str:
+        code = self._error_code(error, fallback="request_failed")
+        if code == "tts_failed":
+            return "Voice generation failed. The text reply may still be available."
+        if code == "llm_failed":
+            return "The language model did not answer in time or returned an error."
+        if code == "timeout":
+            return "The request timed out. Try again in a moment."
+        text = str(error or "").strip()
+        if text and len(text) <= 140 and not any(token in text.lower() for token in ["traceback", "password", "api_key", "authorization"]):
+            return text
+        return fallback
+
+    def _send_error(self, status: int, error, *, message: str | None = None, fallback: str = "request_failed", request_id: str | None = None):
+        request_id = request_id or self._request_id()
+        payload = {
+            "ok": False,
+            "error": self._error_code(error, fallback=fallback),
+            "message": message or self._public_error_message(error),
+            "request_id": request_id,
+        }
+        self._send_json(status, payload)
+
+    def _log_server_error(self, request_id: str, event_type: str, error) -> None:
+        print(f"[conversation-error] request_id={request_id} type={event_type} error={error}", file=sys.stderr)
+
     def _send_json(self, status: int, payload: dict):
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self._send_cors_headers()
+        if isinstance(payload, dict) and payload.get("request_id"):
+            self.send_header("X-Request-Id", str(payload.get("request_id")))
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()

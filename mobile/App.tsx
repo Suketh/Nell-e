@@ -18,7 +18,7 @@ import { randomSessionId } from "./src/store/session";
 import type { ChatMessage, FeatureAccessItem, FeatureAccessState, GalleryItem, MobileProfile, NelliePreference, PersonaProfile, ProfileSummary, VoiceProfile } from "./src/types/api";
 
 type ScreenTab = "chat" | "gallery" | "bond" | "settings";
-type VoicePhase = "idle" | "listening" | "transcribing" | "replying" | "playing";
+type VoicePhase = "idle" | "listening" | "transcribing" | "replying" | "generating_voice" | "playing";
 type PresenceState = "idle" | "listening" | "thinking" | "speaking";
 const MOOD_OPTIONS = ["happy", "neutral", "thoughtful", "sad", "annoyed", "angry", "tired"] as const;
 type ReplyPlaybackPayload = {
@@ -27,6 +27,7 @@ type ReplyPlaybackPayload = {
   embeddedAudioUri?: string;
   embeddedTtsMs?: number;
   embeddedCacheHit?: boolean;
+  ttsError?: string;
 };
 
 function buildSpokenReply(text: string): string {
@@ -45,6 +46,63 @@ function buildSpokenReply(text: string): string {
     return paired;
   }
   return first.length <= 170 ? first : `${first.slice(0, 167).trimEnd()}...`;
+}
+
+function personaIntroCopy(persona: PersonaProfile): string {
+  const id = String(persona.id || "").toLowerCase();
+  if (id === "rolf") {
+    return "A dry, steady male wizard voice with practical warmth. His path starts with voice and memory before gallery.";
+  }
+  if (id === "nellie") {
+    return "A warmer voice-first companion with mood, memory, progression, and gallery beats.";
+  }
+  return persona.description || "A separate companion profile with its own memory, voice, and progression.";
+}
+
+function voicePhaseCopy(phase: VoicePhase, personaName: string): { label: string; detail: string } {
+  if (phase === "listening") {
+    return {
+      label: "Listening now",
+      detail: "Speak naturally. The recording is still on until you stop it.",
+    };
+  }
+  if (phase === "transcribing") {
+    return {
+      label: "Turning voice into text",
+      detail: "Your recording is being transcribed before it is sent to the companion.",
+    };
+  }
+  if (phase === "replying") {
+    return {
+      label: `${personaName} is thinking`,
+      detail: "The text reply is being prepared first, so the conversation should not feel stuck on voice generation.",
+    };
+  }
+  if (phase === "generating_voice") {
+    return {
+      label: "Generating voice",
+      detail: "The text reply is ready. The voice can take a little longer, especially for longer answers.",
+    };
+  }
+  if (phase === "playing") {
+    return {
+      label: "Voice is playing",
+      detail: "The generated voice is ready. Longer replies may take longer before this step begins.",
+    };
+  }
+  return {
+    label: "Voice ready",
+    detail: "Use text for precision, or voice when you want the exchange to feel more direct.",
+  };
+}
+
+function voiceUnavailableHint(error: unknown, fallback = "Voice playback failed."): string {
+  const text = error instanceof Error ? error.message : fallback;
+  const normalized = text.toLowerCase();
+  if (normalized.includes("tts") || normalized.includes("voice")) {
+    return `Voice unavailable. Text reply is ready. ${text}`;
+  }
+  return text;
 }
 
 function mergeSummary(current: ProfileSummary | null, incoming: Partial<ProfileSummary> | null | undefined, userId: string, sessionId = ""): ProfileSummary | null {
@@ -136,14 +194,16 @@ export default function App() {
         { id: "rolf", name: "Rolf", description: "Male wizard companion with dry practical warmth." },
       ];
   const activePersona = personaProfiles.find((persona) => persona.id === activePersonaId) || personaProfiles[0];
+  const authPersona = personaProfiles.find((persona) => persona.id === authPersonaId) || personaProfiles[0];
   const presenceState: PresenceState =
     voicePhase === "listening"
       ? "listening"
-      : voicePhase === "transcribing" || voicePhase === "replying"
+      : voicePhase === "transcribing" || voicePhase === "replying" || voicePhase === "generating_voice"
         ? "thinking"
         : voicePhase === "playing"
           ? "speaking"
           : "idle";
+  const voicePhaseLabel = voicePhaseCopy(voicePhase, activePersona?.name || "Nellie");
 
   useEffect(() => {
     async function boot() {
@@ -183,7 +243,7 @@ export default function App() {
       setUnlocked(nextUnlocked);
       void logDiagnostic("refresh_profile", { ok: true, ms: Date.now() - startedAt });
     } catch (error) {
-      const text = error instanceof Error ? error.message : "Could not reach Nellie backend.";
+      const text = error instanceof Error ? error.message : "Could not reach the companion service.";
       setVoiceHint(text);
       void logDiagnostic("refresh_profile", { ok: false, ms: Date.now() - startedAt, error: text });
     }
@@ -253,6 +313,10 @@ export default function App() {
       const embeddedAudioUri = response.tts_audio_base64
         ? `data:${response.tts_audio_content_type || "audio/wav"};base64,${response.tts_audio_base64}`
         : undefined;
+      const embeddedTtsError = String(response.tts_error?.message || "").trim();
+      if (embeddedTtsError && options?.includeTtsAudio) {
+        setVoiceHint(embeddedTtsError);
+      }
       setMessages((current) => [
         ...current,
         { id: `${Date.now()}-assistant`, role: "assistant", text: replyText, spokenText: spokenReplyText, mood: response.mood },
@@ -269,6 +333,7 @@ export default function App() {
         reply_chars: replyText.length,
         phone_action: Boolean(phoneActionLine),
         embedded_tts: Boolean(embeddedAudioUri),
+        embedded_tts_error: embeddedTtsError || undefined,
       });
       return {
         replyText,
@@ -276,6 +341,7 @@ export default function App() {
         embeddedAudioUri,
         embeddedTtsMs: response.tts_meta?.tts_ms,
         embeddedCacheHit: response.tts_meta?.cache_hit,
+        ttsError: embeddedTtsError || undefined,
       };
     } catch (error) {
       const text = error instanceof Error ? error.message : "Reply failed.";
@@ -289,17 +355,20 @@ export default function App() {
 
   async function handlePlayLastReply() {
     const lastAssistant = [...messages].reverse().find((message) => message.role === "assistant");
+    const personaName = activePersona?.name || "Nellie";
     if (!lastAssistant) {
-      setVoiceHint("No Nellie reply to play yet.");
+      setVoiceHint(`No ${personaName} reply to play yet.`);
       return;
     }
     const startedAt = Date.now();
     setIsPlayingVoice(true);
-    setVoicePhase("playing");
-    setVoiceHint("Playing Nellie's voice...");
     try {
       const spokenText = String(lastAssistant.spokenText || "").trim() || buildSpokenReply(lastAssistant.text);
+      setVoicePhase("generating_voice");
+      setVoiceHint(`Generating ${personaName}'s voice...`);
       const audio = await fetchTtsAudioDataUri(spokenText, activeUserId, activePersonaId);
+      setVoicePhase("playing");
+      setVoiceHint(`Playing ${personaName}'s voice...`);
       const playback = await playRemoteAudio(audio.uri);
       setVoiceHint("Voice playback finished.");
       void logDiagnostic("tts_play", {
@@ -311,7 +380,7 @@ export default function App() {
         audio_play_ms: playback.playMs,
       });
     } catch (error) {
-      const text = error instanceof Error ? error.message : "Voice playback failed.";
+      const text = voiceUnavailableHint(error, "Voice playback failed.");
       setVoiceHint(text);
       void logDiagnostic("tts_play", { ok: false, ms: Date.now() - startedAt, error: text });
     } finally {
@@ -322,7 +391,10 @@ export default function App() {
 
   async function playReplyAudio(payload: ReplyPlaybackPayload): Promise<{ totalMs: number; fetchMs: number; loadMs: number; playMs: number; cacheHit?: boolean }> {
     const startedAt = Date.now();
+    const personaName = activePersona?.name || "Nellie";
     if (payload.embeddedAudioUri) {
+      setVoicePhase("playing");
+      setVoiceHint(`Playing ${personaName}'s voice...`);
       const playback = await playRemoteAudio(payload.embeddedAudioUri);
       return {
         totalMs: Date.now() - startedAt,
@@ -332,7 +404,14 @@ export default function App() {
         cacheHit: payload.embeddedCacheHit,
       };
     }
+    if (payload.ttsError) {
+      throw new Error(payload.ttsError);
+    }
+    setVoicePhase("generating_voice");
+    setVoiceHint(`Generating ${personaName}'s voice...`);
     const audio = await fetchTtsAudioDataUri(payload.spokenReplyText, activeUserId, activePersonaId);
+    setVoicePhase("playing");
+    setVoiceHint(`Playing ${personaName}'s voice...`);
     const playback = await playRemoteAudio(audio.uri);
     return {
       totalMs: Date.now() - startedAt,
@@ -340,6 +419,37 @@ export default function App() {
       loadMs: playback.loadMs,
       playMs: playback.playMs,
     };
+  }
+
+  function startReplyAudioInBackground(
+    payload: ReplyPlaybackPayload,
+    diagnosticType: "voice_review_send" | "voice_roundtrip",
+    diagnosticPayload: Record<string, unknown>,
+  ) {
+    setIsPlayingVoice(true);
+    void (async () => {
+      try {
+        const playback = await playReplyAudio(payload);
+        setVoiceHint("Voice reply complete.");
+        void logDiagnostic(diagnosticType, {
+          ok: true,
+          ...diagnosticPayload,
+          spoken_chars: payload.spokenReplyText.length,
+          tts_ms: playback.totalMs,
+          tts_fetch_ms: playback.fetchMs,
+          audio_load_ms: playback.loadMs,
+          audio_play_ms: playback.playMs,
+          cache_hit: playback.cacheHit,
+        });
+      } catch (error) {
+        const text = voiceUnavailableHint(error, "Voice playback failed.");
+        setVoiceHint(text);
+        void logDiagnostic(diagnosticType, { ok: false, ...diagnosticPayload, error: text });
+      } finally {
+        setIsPlayingVoice(false);
+        setVoicePhase("idle");
+      }
+    })();
   }
 
   async function handleVoiceDraftSend() {
@@ -350,33 +460,27 @@ export default function App() {
     }
     setVoiceDraftVisible(false);
     setIsVoiceBusy(true);
+    let voiceContinuesInBackground = false;
     try {
+      const personaName = activePersona?.name || "Nellie";
       setVoicePhase("replying");
-      setVoiceHint("Sending corrected question to Nellie...");
-      const replyPayload = await handleSend(transcript, { includeTtsAudio: true });
+      setVoiceHint(`Sending corrected question to ${personaName}...`);
+      const replyPayload = await handleSend(transcript, { includeTtsAudio: false });
       if (replyPayload) {
-        setVoicePhase("playing");
-        setVoiceHint("Playing Nellie's voice...");
-        const playback = await playReplyAudio(replyPayload);
-        setVoiceHint("Voice reply complete.");
-        void logDiagnostic("voice_review_send", {
-          ok: true,
+        voiceContinuesInBackground = true;
+        startReplyAudioInBackground(replyPayload, "voice_review_send", {
           transcript_chars: transcript.length,
-          spoken_chars: replyPayload.spokenReplyText.length,
-          tts_ms: playback.totalMs,
-          tts_fetch_ms: playback.fetchMs,
-          audio_load_ms: playback.loadMs,
-          audio_play_ms: playback.playMs,
-          cache_hit: playback.cacheHit,
         });
       }
     } catch (error) {
-      const text = error instanceof Error ? error.message : "Voice review send failed.";
+      const text = voiceUnavailableHint(error, "Voice review send failed.");
       setVoiceHint(text);
       void logDiagnostic("voice_review_send", { ok: false, error: text });
     } finally {
       setIsVoiceBusy(false);
-      setVoicePhase("idle");
+      if (!voiceContinuesInBackground) {
+        setVoicePhase("idle");
+      }
       setVoiceDraft("");
     }
   }
@@ -391,6 +495,7 @@ export default function App() {
 
   async function handleVoiceShell() {
     const voiceStartedAt = Date.now();
+    let voiceContinuesInBackground = false;
     try {
       if (!isRecording) {
         await startNativeRecording();
@@ -419,35 +524,28 @@ export default function App() {
         return;
       }
       void logDiagnostic("voice_transcribe", { ok: true, ms: Date.now() - sttStartedAt, chars: transcript.length });
+      const personaName = activePersona?.name || "Nellie";
       setVoicePhase("replying");
-      setVoiceHint("Sending to Nellie...");
-      const replyPayload = await handleSend(transcript, { includeTtsAudio: true });
+      setVoiceHint(`Sending to ${personaName}...`);
+      const replyPayload = await handleSend(transcript, { includeTtsAudio: false });
       if (replyPayload) {
-        setVoicePhase("playing");
-        setVoiceHint("Playing Nellie's voice...");
-        const playback = await playReplyAudio(replyPayload);
-        setVoiceHint("Voice reply complete.");
-        void logDiagnostic("voice_roundtrip", {
-          ok: true,
+        voiceContinuesInBackground = true;
+        startReplyAudioInBackground(replyPayload, "voice_roundtrip", {
           total_ms: Date.now() - voiceStartedAt,
           transcript_chars: transcript.length,
-          spoken_chars: replyPayload.spokenReplyText.length,
-          tts_ms: playback.totalMs,
-          tts_fetch_ms: playback.fetchMs,
-          audio_load_ms: playback.loadMs,
-          audio_play_ms: playback.playMs,
-          cache_hit: playback.cacheHit,
         });
       }
       return;
     } catch (error) {
       setIsRecording(false);
-      const text = error instanceof Error ? error.message : "Native recording failed.";
+      const text = voiceUnavailableHint(error, "Native recording failed.");
       setVoiceHint(text);
       void logDiagnostic("voice_roundtrip", { ok: false, total_ms: Date.now() - voiceStartedAt, error: text });
     } finally {
       setIsVoiceBusy(false);
-      setVoicePhase("idle");
+      if (!voiceContinuesInBackground) {
+        setVoicePhase("idle");
+      }
     }
   }
 
@@ -460,9 +558,9 @@ export default function App() {
   const heroProgress = xpForNextLevel > 0 ? Math.max(0, Math.min(1, xpIntoLevel / xpForNextLevel)) : 1;
   const nextGallery = summary?.progress && typeof summary.progress.next_gallery_unlock === "object" ? summary.progress.next_gallery_unlock : null;
   const nextTool = summary?.progress && typeof summary.progress.next_tool_unlock === "object" ? summary.progress.next_tool_unlock : null;
-  const journeyCopy = summary?.stage_copy || journeyDescription(summary?.progress.stage || "Anonymous");
+  const journeyCopy = summary?.stage_copy || journeyDescription(summary?.progress.stage || "Anonymous", activePersona?.name || "Your companion");
   const practicalFocus =
-    summary?.practical_focus || "As Nellie levels up, the bond should translate into more useful things she can actually do for you.";
+    summary?.practical_focus || `As ${activePersona?.name || "your companion"} levels up, the bond should translate into more useful things they can actually do for you.`;
   const enabledFeatureLabels = summary?.enabled_feature_labels ?? [];
   const availableFeatureLabels = summary?.available_feature_labels ?? [];
   const nextFeatureUnlock = summary?.next_feature_unlock ?? null;
@@ -650,15 +748,16 @@ export default function App() {
             <Text style={styles.eyebrow}>Nellie Mobile</Text>
             <Text style={styles.loginTitle}>Enter the bond</Text>
             <Text style={styles.loginCopy}>
-              Nellie should feel less like a utility and more like a presence. This mobile layer keeps the entry quieter, warmer, and more personal.
+              Create a local profile, choose who you want to travel with, and start at level 0. Memory, voice, and progression stay tied to that profile and persona.
             </Text>
             <View style={styles.loginPresenceCard}>
-              <Text style={styles.loginPresenceEyebrow}>What opens here</Text>
-              <Text style={styles.loginPresenceTitle}>Voice, memory, gallery, and progression in one place.</Text>
+              <Text style={styles.loginPresenceEyebrow}>Before you enter</Text>
+              <Text style={styles.loginPresenceTitle}>Text appears first. Voice may take a moment.</Text>
               <Text style={styles.loginPresenceCopy}>
-                Use the phone for the relationship itself. Keep rollout and admin controls in the browser on your computer.
+                The app shows when your companion is listening, thinking, generating voice, or when something failed. If voice is slow, the answer should still be readable.
               </Text>
             </View>
+            <Text style={styles.sectionEyebrow}>Step 1 - Choose or create profile</Text>
             <View style={styles.profileRow}>
               {profiles.map((profile) => (
                 <TouchableOpacity
@@ -681,18 +780,26 @@ export default function App() {
             <TouchableOpacity style={styles.secondaryButton} onPress={handleCreateProfile}>
               <Text style={styles.secondaryButtonText}>Create profile</Text>
             </TouchableOpacity>
-            <Text style={styles.sectionEyebrow}>Choose persona</Text>
-            <View style={styles.profileRow}>
+            <Text style={styles.sectionEyebrow}>Step 2 - Choose companion</Text>
+            <View style={styles.personaCardRow}>
               {personaProfiles.map((persona) => (
                 <TouchableOpacity
                   key={persona.id}
-                  style={[styles.profileChip, persona.id === authPersonaId ? styles.profileChipActive : null]}
+                  style={[styles.personaCard, persona.id === authPersonaId ? styles.personaCardActive : null]}
                   onPress={() => setAuthPersonaId(persona.id)}
                 >
                   <View style={[styles.profileChipDot, { backgroundColor: persona.id === "rolf" ? "#5db7de" : "#ff7b54" }]} />
-                  <Text style={styles.profileChipText}>{persona.name || persona.label || persona.id}</Text>
+                  <Text style={styles.personaCardTitle}>{persona.name || persona.label || persona.id}</Text>
+                  <Text style={styles.personaCardCopy}>{personaIntroCopy(persona)}</Text>
                 </TouchableOpacity>
               ))}
+            </View>
+            <View style={styles.loginPresenceCard}>
+              <Text style={styles.loginPresenceEyebrow}>Step 3 - Start at level 0</Text>
+              <Text style={styles.loginPresenceTitle}>{authPersona?.name || "This companion"} begins carefully.</Text>
+              <Text style={styles.loginPresenceCopy}>
+                Level 0 means a new bond: less assumed history, separate memory, and separate voice settings for this profile.
+              </Text>
             </View>
             <TextInput
               value={authPassword}
@@ -711,7 +818,7 @@ export default function App() {
             </Text>
             {authError ? <Text style={styles.loginError}>{authError}</Text> : null}
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Enter {personaProfiles.find((persona) => persona.id === authPersonaId)?.name || "persona"}</Text>
+              <Text style={styles.loginButtonText}>Enter {authPersona?.name || "persona"}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -794,23 +901,19 @@ export default function App() {
           <View style={styles.chatArea}>
             <View style={styles.presenceCard}>
               <Text style={styles.sectionEyebrow}>Presence</Text>
-              <Text style={styles.presenceTitle}>Nellie is listening for tone, not just words.</Text>
-              {activeTab === "chat" ? null : (
-                <Text style={styles.presenceCopy}>
-                  Use text when you want precision. Use voice when you want the exchange to feel more direct and alive.
-                </Text>
-              )}
+              <Text style={styles.presenceTitle}>{activePersona?.name || "Nellie"} is listening for tone, not just words.</Text>
+              <Text style={styles.presenceCopy}>{voicePhaseLabel.detail}</Text>
             </View>
             <View style={styles.voiceRow}>
               <TouchableOpacity style={styles.voiceButton} onPress={handlePlayLastReply} disabled={isPlayingVoice}>
                 <Text style={styles.voiceButtonText}>{isPlayingVoice ? "Playing..." : "Play last reply"}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.voiceButton, isRecording ? styles.voiceButtonActive : null]} onPress={handleVoiceShell} disabled={isVoiceBusy}>
-                <Text style={styles.voiceButtonText}>{isRecording ? "Stop recording" : isVoiceBusy ? "Working..." : "Voice shell"}</Text>
+              <TouchableOpacity style={[styles.voiceButton, isRecording ? styles.voiceButtonActive : null]} onPress={handleVoiceShell} disabled={isVoiceBusy || isPlayingVoice}>
+                <Text style={styles.voiceButtonText}>{isRecording ? "Stop recording" : isVoiceBusy ? "Working..." : isPlayingVoice ? "Voice playing..." : "Voice shell"}</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.voicePhase}>
-              {voicePhase === "idle" ? "Voice ready" : `Voice: ${voicePhase}`}
+              {voicePhaseLabel.label}
             </Text>
             <Text style={styles.voiceHint}>{voiceHint}</Text>
             <View style={styles.panel}>
@@ -858,7 +961,7 @@ export default function App() {
             </View>
             <View style={styles.settingsNote}>
               <Text style={styles.sectionEyebrow}>Practical access</Text>
-              <Text style={styles.settingsNoteTitle}>What Nellie can do now</Text>
+              <Text style={styles.settingsNoteTitle}>What {activePersona?.name || "your companion"} can do now</Text>
               <Text style={styles.settingsNoteCopy}>
                 {enabledFeatureLabels.length
                   ? enabledFeatureLabels.join(", ")
@@ -1033,7 +1136,7 @@ export default function App() {
               </View>
               <Text style={styles.settingsNoteTitle}>Phone permissions only</Text>
               <Text style={styles.settingsNoteCopy}>
-                This mobile settings view controls what Nellie is allowed to use on your phone. Admin tools and rollout controls still belong in the browser on your computer.
+                This mobile settings view controls what {activePersona?.name || "your companion"} is allowed to use on your phone. Admin tools and rollout controls still belong in the browser on your computer.
               </Text>
               <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Text style={styles.logoutButtonText}>Sign out</Text>
@@ -1066,7 +1169,7 @@ export default function App() {
             }}
           />
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Did Nellie hear that right?</Text>
+            <Text style={styles.modalTitle}>Did {activePersona?.name || "your companion"} hear that right?</Text>
             <Text style={styles.modalCaption}>
               You can correct the transcript before it gets sent, or record it again if it came through wrong.
             </Text>
@@ -1084,7 +1187,7 @@ export default function App() {
                 <Text style={styles.voiceDraftButtonMutedText}>Record again</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.voiceDraftButton} onPress={handleVoiceDraftSend} disabled={isVoiceBusy}>
-                <Text style={styles.voiceDraftButtonText}>{isVoiceBusy ? "Sending..." : "Send to Nellie"}</Text>
+                <Text style={styles.voiceDraftButtonText}>{isVoiceBusy ? "Sending..." : `Send to ${activePersona?.name || "companion"}`}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1094,14 +1197,14 @@ export default function App() {
   );
 }
 
-function journeyDescription(stage: string): string {
+function journeyDescription(stage: string, personaName: string): string {
   const mapping: Record<string, string> = {
-    Anonymous: "You are at the beginning. Nellie is still careful, a little hidden, and learning who you are.",
-    Curious: "She is starting to notice your habits and interests. The bond is beginning to take shape.",
-    Warm: "Nellie is more open now. She remembers more, reacts more personally, and feels more present.",
-    Flirted: "The tone shifts here. She gets more suggestive, more aware of chemistry, and less distant.",
-    Close: "This is where she starts feeling actively invested in you, not just responsive.",
-    Magnetic: "Late-stage Nellie. Confident, intimate, and very aware of the connection between you.",
+    Anonymous: `You are at the beginning. ${personaName} is still careful, a little hidden, and learning who you are.`,
+    Curious: "They are starting to notice your habits and interests. The bond is beginning to take shape.",
+    Warm: `${personaName} is more open now. They remember more, react more personally, and feel more present.`,
+    Flirted: "The tone shifts here. They get more suggestive, more aware of chemistry, and less distant.",
+    Close: "This is where they start feeling actively invested in you, not just responsive.",
+    Magnetic: `Late-stage ${personaName}. Confident, intimate, and very aware of the connection between you.`,
   };
   return mapping[stage] || mapping.Anonymous;
 }
@@ -1376,6 +1479,31 @@ const styles = StyleSheet.create({
   profileChipText: {
     color: "#f2efe9",
     fontWeight: "700",
+  },
+  personaCardRow: {
+    gap: 10,
+  },
+  personaCard: {
+    borderRadius: 20,
+    padding: 14,
+    gap: 7,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  personaCardActive: {
+    backgroundColor: "rgba(255,123,84,0.14)",
+    borderColor: "rgba(255,123,84,0.34)",
+  },
+  personaCardTitle: {
+    color: "#f2efe9",
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  personaCardCopy: {
+    color: "#c8d0da",
+    lineHeight: 18,
+    fontSize: 12,
   },
   loginShell: {
     flex: 1,

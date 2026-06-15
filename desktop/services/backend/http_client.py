@@ -29,7 +29,18 @@ class HttpBackendClient:
             json=payload,
             timeout=(10, self.timeout),
         )
-        response.raise_for_status()
+        if not response.ok:
+            detail = ""
+            try:
+                body = response.json()
+                if isinstance(body, dict):
+                    detail = str(body.get("error", "") or body.get("detail", "")).strip()
+            except Exception:
+                detail = str(response.text or "").strip()
+            message = f"Backend {response.status_code} for {path}"
+            if detail:
+                message += f": {detail}"
+            raise RuntimeError(message)
         data = response.json()
         if not isinstance(data, dict):
             raise RuntimeError(f"Unexpected backend response from {path}")
@@ -101,8 +112,8 @@ class HttpBackendClient:
             str(data.get("mood", "")),
         )
 
-    def try_agent_action(self, text: str) -> dict[str, Any] | None:
-        data = self._post("/v1/agent/action", {"text": text})
+    def try_agent_action(self, text: str, tools_enabled: dict | None = None) -> dict[str, Any] | None:
+        data = self._post("/v1/agent/action", {"text": text, "tools_enabled": tools_enabled or {}})
         return data if data.get("handled") else None
 
     def respond_turn(
@@ -115,6 +126,7 @@ class HttpBackendClient:
         input_source: str = "text",
         remember_chat: bool = True,
         web_search_enabled: bool = False,
+        tools_enabled: dict | None = None,
     ) -> dict[str, Any]:
         return self._post(
             "/v1/turn/respond",
@@ -127,6 +139,7 @@ class HttpBackendClient:
                 "input_source": input_source,
                 "remember_chat": bool(remember_chat),
                 "web_search_enabled": bool(web_search_enabled),
+                "tools_enabled": tools_enabled or {},
             },
         )
 

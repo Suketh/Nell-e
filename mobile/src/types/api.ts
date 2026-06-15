@@ -126,6 +126,11 @@ export type ReplyResponse = {
     text_chars?: number;
     language?: string;
   };
+  tts_error?: {
+    code?: string;
+    message?: string;
+    request_id?: string;
+  };
   mood: string;
   context?: string;
   mode: string;

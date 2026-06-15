@@ -44,6 +44,7 @@ class MemoryStore:
         self._thread_state = local()
         self.db.executescript(SCHEMA)
         self._backfill_preference_memory()
+        self._backfill_expanded_memory()
         self.db.commit()
 
     @property
@@ -113,6 +114,20 @@ class MemoryStore:
             "INSERT INTO app_state(key, value) VALUES(?, ?) "
             "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
             ("preference_memory_backfill_v2", "1"),
+        )
+
+    def _backfill_expanded_memory(self) -> None:
+        marker_key = "preference_memory_backfill_v3"
+        if self.db.execute("SELECT 1 FROM app_state WHERE key = ?", (marker_key,)).fetchone():
+            return
+        rows = self.db.execute("SELECT user FROM turns ORDER BY id DESC LIMIT 300").fetchall()
+        for (user_text,) in rows:
+            for key, value in self._extract_user_facts(str(user_text or "")):
+                self._save_user_fact(key, value)
+        self.db.execute(
+            "INSERT INTO app_state(key, value) VALUES(?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (marker_key, "1"),
         )
 
     def _save_user_fact(self, key: str, value: str) -> None:
@@ -337,9 +352,27 @@ class MemoryStore:
             value = likes_match.group(1).strip(" .!?,")
             facts.append((self._memory_key("likes", value), value))
 
+        enjoys_match = re.search(
+            r"\b(?:i love|i enjoy|i am interested in|i'm interested in) ([^.!?]{3,120})",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if enjoys_match:
+            value = enjoys_match.group(1).strip(" .!?,")
+            facts.append((self._memory_key("likes", value), value))
+
         swedish_likes = re.search(r"\bjag (?:gillar|tycker om|älskar) ([^.!?]{3,120})", text, flags=re.IGNORECASE)
         if swedish_likes:
             value = swedish_likes.group(1).strip(" .!?,")
+            facts.append((self._memory_key("likes", value), value))
+
+        swedish_interest = re.search(
+            r"\bjag (?:älskar|uppskattar|är intresserad av) ([^.!?]{3,120})",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if swedish_interest:
+            value = swedish_interest.group(1).strip(" .!?,")
             facts.append((self._memory_key("likes", value), value))
 
         dislikes_match = re.search(
@@ -390,6 +423,15 @@ class MemoryStore:
         )
         if music_match:
             value = music_match.group(2).strip(" .!?,")
+            facts.append((self._memory_key("music", value), value))
+
+        music_request = re.search(
+            r"\bi would love to (?:hear|listen to) ([^.!?]{3,140})",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if music_request:
+            value = re.sub(r"\s+on spotify\s*$", "", music_request.group(1), flags=re.IGNORECASE).strip(" .!?,")
             facts.append((self._memory_key("music", value), value))
 
         swedish_music = re.search(

@@ -1,7 +1,9 @@
 ollama:
   host: http://localhost:11434
-  text_model: gemma4:e2b
+  text_model: hermes3:8b
   vision_model: gemma4:e2b
+  connect_timeout: 10
+  read_timeout: 120
 backend:
   conversation:
     enabled: true
@@ -47,6 +49,7 @@ stt:
 tts:
   engine: coqui_xtts_server
   fallback_engine: vibevoice_realtime
+  failure_backoff_seconds: 8
   stream_while_generating: false
   voice_sample: assets/voices/Nellie1.wav
   default_voice_profile: nellie1

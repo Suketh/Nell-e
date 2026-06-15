@@ -12,18 +12,27 @@ def extract_wikipedia_query(text: str, context: str = "") -> str:
         return ""
     lowered = raw.lower().strip()
     patterns = [
+        r"^.*\b(?:article|page|entry)\b (?:about|with|on|for) (.+?)(?: on wikipedia)?[.!? ]*$",
+        r"^(?:can you |please )?(?:open|show me|bring up) wikipedia (?:about|for|on) (.+?)[.!? ]*$",
+        r"^(?:can you |please )?(?:open|show me|bring up) (?:the )?wikipedia (?:page|article) (?:about|for|on) (.+?)[.!? ]*$",
         r"^(?:can you )?(?:open|search|look up) (.+?) on wikipedia[.!? ]*$",
         r"^(?:can you )?(?:open|search|look up) wikipedia (?:for )?(.+?)[.!? ]*$",
         r"^(?:wikipedia )(.+?)[.!? ]*$",
+        r"^(?:kan du )?(?:oppna|öppna|visa) wikipedia (?:om|for|för) (.+?)[.!? ]*$",
     ]
     for pattern in patterns:
         match = re.match(pattern, lowered, flags=re.IGNORECASE)
         if match:
             query = _clean_query(match.group(1))
-            if query in {"it", "that", "this", "that topic", "this topic"}:
+            if query in {"it", "that", "this", "me", "for me", "that topic", "this topic"} or query.startswith("me "):
                 return _resolve_contextual_query(context)
             return query
     if any(cue in lowered for cue in ["open it on wikipedia", "look it up on wikipedia", "search it on wikipedia"]):
+        return _resolve_contextual_query(context)
+    if re.match(
+        r"^(?:can you |please )?(?:open|show me|bring up) (?:wikipedia|the wikipedia page)(?: for me)?[.!? ]*$",
+        lowered,
+    ) or re.match(r"^(?:kan du )?(?:oppna|öppna|visa) wikipedia(?: for mig|för mig)?[.!? ]*$", lowered):
         return _resolve_contextual_query(context)
     return ""
 
@@ -35,10 +44,12 @@ def extract_youtube_query(text: str, context: str = "") -> str:
     lowered = raw.lower().strip()
     patterns = [
         r"^(?:can you )?(?:start|open) youtube(?: for me)?[.!? ]*$",
+        r"^(?:can you |please )?(?:show me|find|open) (?:a |the )?(?:video|clip|live performance|interview|tutorial|trailer) (?:of|about|for) (.+?)(?: on youtube)?[.!? ]*$",
         r"^(?:can you )?(?:open|search) (.+?) on youtube[.!? ]*$",
         r"^(?:can you )?play (.+?) on youtube[.!? ]*$",
         r"^(?:can you )?(?:open|search) youtube (?:for )?(.+?)[.!? ]*$",
         r"^(?:youtube )(.+?)[.!? ]*$",
+        r"^(?:kan du )?(?:visa|hitta|oppna|öppna) (?:en |ett )?(?:video|klipp|liveframtradande|liveframträdande|intervju|guide|trailer) (?:om|med|for|för) (.+?)(?: pa| på)? youtube?[.!? ]*$",
     ]
     for pattern in patterns:
         match = re.match(pattern, lowered, flags=re.IGNORECASE)
@@ -48,6 +59,19 @@ def extract_youtube_query(text: str, context: str = "") -> str:
                 return _resolve_contextual_query(context)
             return query
     if any(cue in lowered for cue in ["open it on youtube", "search it on youtube", "play it on youtube", "play that on youtube"]):
+        return _resolve_contextual_query(context)
+    if any(
+        cue in lowered
+        for cue in (
+            "show me a video",
+            "show me the video",
+            "open the video",
+            "watch it on youtube",
+            "visa videon",
+            "öppna videon",
+            "oppna videon",
+        )
+    ):
         return _resolve_contextual_query(context)
     return ""
 
