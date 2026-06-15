@@ -146,7 +146,7 @@ class MoodAvatar(QWidget):
         self._render_portrait()
         self.presence_chip.setText(expression.replace("_", " ").title())
         if expression and expression != mood:
-            self.mood_label.setText(f"{mood.replace('_', ' ').title()} / {expression.replace('_', ' ').title()}")
+            self.mood_label.setText(f"{mood.replace('_', ' ').title()} · {expression.replace('_', ' ').title()}")
         else:
             self.mood_label.setText(mood.replace("_", " ").title())
         note = self._mood_note(mood, expression)

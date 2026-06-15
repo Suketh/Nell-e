@@ -3068,9 +3068,9 @@ class MainWindow(QMainWindow):
             }}
             #avatarMood {{
                 color: {title_color};
-                font-size: 15px;
+                font-size: 12px;
                 font-weight: 700;
-                letter-spacing: 0.06em;
+                letter-spacing: 0.05em;
             }}
             #avatarMood[moodState="happy"], #avatarMood[moodState="excited"] {{
                 color: {eyebrow_color};
