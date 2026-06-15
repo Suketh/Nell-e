@@ -69,7 +69,7 @@ class RecorderWidget(QWidget):
         self.transcribe_func = transcribe_func
         self.event_callback = event_callback
 
-        self.btn = QPushButton("Hold to Talk")
+        self.btn = QPushButton("● Hold to Talk")
         self.btn.setObjectName("talkButton")
         self.btn.pressed.connect(self.start)
         self.btn.released.connect(self.stop)
@@ -133,7 +133,7 @@ class RecorderWidget(QWidget):
                 channels=self._channels,
                 dtype=str(self._dtype),
             )
-            self.ui_state_changed.emit("Listening... release to send", True)
+            self.ui_state_changed.emit("◉ Listening…  release to send", True)
         except Exception as e:
             self._recording = False
             self._record_event("speech_capture_failed", error=str(e))
@@ -256,7 +256,7 @@ class RecorderWidget(QWidget):
         finally:
             self._busy = False
             if not keep_result_status:
-                self.ui_state_changed.emit("Hold to Talk", True)
+                self.ui_state_changed.emit("● Hold to Talk", True)
 
     def _trim_silence(self, data: np.ndarray, samplerate: int) -> np.ndarray:
         if data.size == 0:
@@ -289,5 +289,5 @@ class RecorderWidget(QWidget):
         self._muted = bool(muted)
         if self._muted and self._recording:
             self.stop()
-        self.btn.setText("Microphone muted" if self._muted else "Hold to Talk")
+        self.btn.setText("Microphone muted" if self._muted else "● Hold to Talk")
         self.btn.setEnabled(not self._muted and not self._busy)

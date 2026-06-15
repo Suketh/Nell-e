@@ -43,9 +43,9 @@ class ComposerCard(QFrame):
         self.text_input.setObjectName("messageInput")
         self.text_input.setPlaceholderText(placeholder)
 
-        self.send_btn = QPushButton("Send")
+        self.send_btn = QPushButton("↑  Send")
         self.send_btn.setObjectName("primaryButton")
-        self.send_btn.setMinimumWidth(82)
+        self.send_btn.setMinimumWidth(92)
 
         input_row = QWidget()
         input_layout = QHBoxLayout(input_row)
@@ -62,7 +62,7 @@ class ComposerCard(QFrame):
         actions_layout = QHBoxLayout(actions_row)
         actions_layout.setContentsMargins(0, 0, 0, 0)
         actions_layout.setSpacing(10)
-        self.image_btn.setText("Image")
+        self.image_btn.setText("+ Image")
         actions_layout.addWidget(self.image_btn)
         actions_layout.addWidget(recorder, 1)
         layout.addWidget(actions_row)

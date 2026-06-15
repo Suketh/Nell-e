@@ -3181,8 +3181,8 @@ class MainWindow(QMainWindow):
                 border: 1px solid rgba(255, 212, 71, 0.42);
             }}
             #bondProgressBar {{
-                min-height: 10px;
-                max-height: 10px;
+                min-height: 12px;
+                max-height: 12px;
                 border: 1px solid {badge_border};
                 border-radius: 999px;
                 background-color: {slider_groove};
@@ -3455,14 +3455,16 @@ class MainWindow(QMainWindow):
                 padding: 10px 16px;
                 font-size: 13px;
                 font-weight: 700;
+                letter-spacing: 0.03em;
             }}
             #primaryButton {{
                 background-color: {primary_bg};
                 color: {primary_fg};
-                border: none;
+                border: 1px solid transparent;
             }}
             #primaryButton:hover {{
                 background-color: {primary_hover};
+                border: 1px solid {accent};
             }}
             #secondaryButton {{
                 background-color: {secondary_bg};
@@ -3473,8 +3475,10 @@ class MainWindow(QMainWindow):
                 background-color: {badge_bg};
                 color: {badge_fg};
                 border: 1px solid {badge_border};
-                padding: 7px 13px;
-                font-size: 11px;
+                padding: 7px 15px;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.04em;
             }}
             #talkButton {{
                 background-color: {secondary_bg};

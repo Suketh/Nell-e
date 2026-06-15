@@ -39,8 +39,9 @@ class HeaderCard(QFrame):
 
         eyebrow = QLabel("Companion Interface")
         eyebrow.setObjectName("headerEyebrow")
-        self.settings_btn = QPushButton("Settings")
+        self.settings_btn = QPushButton("⚙  Settings")
         self.settings_btn.setObjectName("headerSettingsButton")
+        self.settings_btn.setMinimumWidth(108)
         self.settings_btn.clicked.connect(self.settings_clicked.emit)
 
         top_bar = QWidget()
