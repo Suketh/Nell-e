@@ -1,0 +1,73 @@
+{"ts": "2026-03-26T14:01:24", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260326_140124.jsonl"}
+{"ts": "2026-03-26T14:02:04", "event": "user_input", "turn_id": 1, "source": "text", "text": "hey!"}
+{"ts": "2026-03-26T14:02:04", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T14:02:04", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T14:02:04", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T14:02:05", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 1713, "text": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T14:02:05", "event": "reply_published", "turn_id": 1, "duration_ms": 1730, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T14:02:05", "event": "turn_summary", "turn_id": 1, "status": "Ollama 16 ms | Voice start 1729 ms | Total 1730 ms"}
+{"ts": "2026-03-26T14:02:09", "event": "tts_complete", "turn_id": 1, "text": "Hey you too, darling. I'm here.", "mood": "happy"}
+{"ts": "2026-03-26T14:02:17", "event": "user_input", "turn_id": 2, "source": "text", "text": "how has your day been?"}
+{"ts": "2026-03-26T14:02:21", "event": "ollama_complete", "turn_id": 2, "duration_ms": 3904, "reply": "It's been alright, a bit slow, actually. Are you having a good one?"}
+{"ts": "2026-03-26T14:02:21", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "It's been alright, a bit slow, actually. Are you having a good one?"}
+{"ts": "2026-03-26T14:02:21", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "It's been alright, a bit slow, actually. Are you having a good one?"}
+{"ts": "2026-03-26T14:02:22", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 5081, "text": "It's been alright, a bit slow, actually. Are you having a good one?"}
+{"ts": "2026-03-26T14:02:22", "event": "reply_published", "turn_id": 2, "duration_ms": 5098, "mood": "thinking", "reply": "It's been alright, a bit slow, actually. Are you having a good one?"}
+{"ts": "2026-03-26T14:02:22", "event": "turn_summary", "turn_id": 2, "status": "Ollama 3921 ms | Voice start 5097 ms | Total 5098 ms"}
+{"ts": "2026-03-26T14:02:28", "event": "tts_complete", "turn_id": 2, "text": "It's been alright, a bit slow, actually. Are you having a good one?", "mood": "thinking"}
+{"ts": "2026-03-26T14:03:03", "event": "user_input", "turn_id": 3, "source": "speech", "text": "Yeah, been good."}
+{"ts": "2026-03-26T14:03:06", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3501, "reply": "Good, huh? What’s got you feeling so…charged up then?"}
+{"ts": "2026-03-26T14:03:06", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Good, huh? What's got you feeling so…charged up then?"}
+{"ts": "2026-03-26T14:03:06", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Good, huh? What’s got you feeling so…charged up then?"}
+{"ts": "2026-03-26T14:03:07", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 4641, "text": "Good, huh? What's got you feeling so…charged up then?"}
+{"ts": "2026-03-26T14:03:07", "event": "reply_published", "turn_id": 3, "duration_ms": 4658, "mood": "thinking", "reply": "Good, huh? What’s got you feeling so…charged up then?"}
+{"ts": "2026-03-26T14:03:07", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3516 ms | Voice start 4657 ms | Total 4658 ms"}
+{"ts": "2026-03-26T14:03:12", "event": "tts_complete", "turn_id": 3, "text": "Good, huh? What's got you feeling so…charged up then?", "mood": "thinking"}
+{"ts": "2026-03-26T14:03:38", "event": "user_input", "turn_id": 4, "source": "speech", "text": "But I have a small problem with the microphone."}
+{"ts": "2026-03-26T14:03:42", "event": "ollama_complete", "turn_id": 4, "duration_ms": 3474, "reply": "Oh, fiddlesticks! That’s a bummer, isn’t it?"}
+{"ts": "2026-03-26T14:03:42", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "oh, fiddlesticks! That's a bummer, isn't it?"}
+{"ts": "2026-03-26T14:03:42", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "Oh, fiddlesticks! That’s a bummer, isn’t it?"}
+{"ts": "2026-03-26T14:03:43", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 4381, "text": "oh, fiddlesticks! That's a bummer, isn't it?"}
+{"ts": "2026-03-26T14:03:43", "event": "reply_published", "turn_id": 4, "duration_ms": 4398, "mood": "thinking", "reply": "Oh, fiddlesticks! That’s a bummer, isn’t it?"}
+{"ts": "2026-03-26T14:03:43", "event": "turn_summary", "turn_id": 4, "status": "Ollama 3489 ms | Voice start 4397 ms | Total 4398 ms"}
+{"ts": "2026-03-26T14:03:46", "event": "tts_complete", "turn_id": 4, "text": "oh, fiddlesticks! That's a bummer, isn't it?", "mood": "thinking"}
+{"ts": "2026-03-26T14:03:50", "event": "user_input", "turn_id": 5, "source": "speech", "text": "Yes, definitely."}
+{"ts": "2026-03-26T14:03:53", "event": "ollama_complete", "turn_id": 5, "duration_ms": 3104, "reply": "Seriously? That’s a shame about the mic."}
+{"ts": "2026-03-26T14:03:53", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Seriously? That's a shame about the mic."}
+{"ts": "2026-03-26T14:03:53", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Seriously? That’s a shame about the mic."}
+{"ts": "2026-03-26T14:03:54", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 3934, "text": "Seriously? That's a shame about the mic."}
+{"ts": "2026-03-26T14:03:54", "event": "reply_published", "turn_id": 5, "duration_ms": 3950, "mood": "thinking", "reply": "Seriously? That’s a shame about the mic."}
+{"ts": "2026-03-26T14:03:54", "event": "turn_summary", "turn_id": 5, "status": "Ollama 3119 ms | Voice start 3949 ms | Total 3950 ms"}
+{"ts": "2026-03-26T14:03:57", "event": "tts_complete", "turn_id": 5, "text": "Seriously? That's a shame about the mic.", "mood": "thinking"}
+{"ts": "2026-03-26T14:04:01", "event": "user_input", "turn_id": 6, "source": "speech", "text": "Can you sing me a song?"}
+{"ts": "2026-03-26T14:04:05", "event": "ollama_complete", "turn_id": 6, "duration_ms": 3974, "reply": "Well, that’s a cheeky request, isn’t it? Let’s see if I can manage a little something…"}
+{"ts": "2026-03-26T14:04:05", "event": "tts_enqueued", "turn_id": 6, "mood": "thinking", "text": "Well, that's a cheeky request, isn't it? Let's see if I can manage a little something…"}
+{"ts": "2026-03-26T14:04:05", "event": "reply_ready", "turn_id": 6, "mood": "thinking", "reply": "Well, that’s a cheeky request, isn’t it? Let’s see if I can manage a little something…"}
+{"ts": "2026-03-26T14:04:06", "event": "tts_playback_start", "turn_id": 6, "duration_ms": 5390, "text": "Well, that's a cheeky request, isn't it? Let's see if I can manage a little something…"}
+{"ts": "2026-03-26T14:04:06", "event": "reply_published", "turn_id": 6, "duration_ms": 5406, "mood": "thinking", "reply": "Well, that’s a cheeky request, isn’t it? Let’s see if I can manage a little something…"}
+{"ts": "2026-03-26T14:04:06", "event": "turn_summary", "turn_id": 6, "status": "Ollama 3989 ms | Voice start 5405 ms | Total 5406 ms"}
+{"ts": "2026-03-26T14:04:11", "event": "tts_complete", "turn_id": 6, "text": "Well, that's a cheeky request, isn't it? Let's see if I can manage a little something…", "mood": "thinking"}
+{"ts": "2026-03-26T14:04:14", "event": "user_input", "turn_id": 7, "source": "speech", "text": "When you are."}
+{"ts": "2026-03-26T14:04:17", "event": "ollama_complete", "turn_id": 7, "duration_ms": 3199, "reply": "Seriously? When are you free to fix it then?"}
+{"ts": "2026-03-26T14:04:17", "event": "tts_enqueued", "turn_id": 7, "mood": "thinking", "text": "Seriously? When are you free to fix it then?"}
+{"ts": "2026-03-26T14:04:17", "event": "reply_ready", "turn_id": 7, "mood": "thinking", "reply": "Seriously? When are you free to fix it then?"}
+{"ts": "2026-03-26T14:04:18", "event": "tts_playback_start", "turn_id": 7, "duration_ms": 4109, "text": "Seriously? When are you free to fix it then?"}
+{"ts": "2026-03-26T14:04:18", "event": "reply_published", "turn_id": 7, "duration_ms": 4126, "mood": "thinking", "reply": "Seriously? When are you free to fix it then?"}
+{"ts": "2026-03-26T14:04:18", "event": "turn_summary", "turn_id": 7, "status": "Ollama 3216 ms | Voice start 4125 ms | Total 4126 ms"}
+{"ts": "2026-03-26T14:04:22", "event": "tts_complete", "turn_id": 7, "text": "Seriously? When are you free to fix it then?", "mood": "thinking"}
+{"ts": "2026-03-26T14:04:27", "event": "user_input", "turn_id": 8, "source": "speech", "text": "waiting for you to sing a song"}
+{"ts": "2026-03-26T14:04:30", "event": "ollama_complete", "turn_id": 8, "duration_ms": 3574, "reply": "You’re waiting? Well, alright then, let’s see if I can do something."}
+{"ts": "2026-03-26T14:04:30", "event": "tts_enqueued", "turn_id": 8, "mood": "thinking", "text": "You're waiting? Well, alright then, let's see if I can do something."}
+{"ts": "2026-03-26T14:04:30", "event": "reply_ready", "turn_id": 8, "mood": "thinking", "reply": "You’re waiting? Well, alright then, let’s see if I can do something."}
+{"ts": "2026-03-26T14:04:32", "event": "tts_playback_start", "turn_id": 8, "duration_ms": 4823, "text": "You're waiting? Well, alright then, let's see if I can do something."}
+{"ts": "2026-03-26T14:04:32", "event": "reply_published", "turn_id": 8, "duration_ms": 4840, "mood": "thinking", "reply": "You’re waiting? Well, alright then, let’s see if I can do something."}
+{"ts": "2026-03-26T14:04:32", "event": "turn_summary", "turn_id": 8, "status": "Ollama 3590 ms | Voice start 4839 ms | Total 4840 ms"}
+{"ts": "2026-03-26T14:04:37", "event": "tts_complete", "turn_id": 8, "text": "You're waiting? Well, alright then, let's see if I can do something.", "mood": "thinking"}
+{"ts": "2026-03-26T14:04:41", "event": "user_input", "turn_id": 9, "source": "speech", "text": "Go on."}
+{"ts": "2026-03-26T14:04:45", "event": "ollama_complete", "turn_id": 9, "duration_ms": 3246, "reply": "Let’s hear it then, don’t just sit there."}
+{"ts": "2026-03-26T14:04:45", "event": "tts_enqueued", "turn_id": 9, "mood": "thinking", "text": "Let's hear it then, don't just sit there."}
+{"ts": "2026-03-26T14:04:45", "event": "reply_ready", "turn_id": 9, "mood": "thinking", "reply": "Let’s hear it then, don’t just sit there."}
+{"ts": "2026-03-26T14:04:46", "event": "tts_playback_start", "turn_id": 9, "duration_ms": 4148, "text": "Let's hear it then, don't just sit there."}
+{"ts": "2026-03-26T14:04:46", "event": "reply_published", "turn_id": 9, "duration_ms": 4164, "mood": "thinking", "reply": "Let’s hear it then, don’t just sit there."}
+{"ts": "2026-03-26T14:04:46", "event": "turn_summary", "turn_id": 9, "status": "Ollama 3261 ms | Voice start 4164 ms | Total 4164 ms"}
+{"ts": "2026-03-26T14:04:49", "event": "tts_complete", "turn_id": 9, "text": "Let's hear it then, don't just sit there.", "mood": "thinking"}

@@ -1,0 +1,41 @@
+{"ts": "2026-03-27T08:53:32", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_085332.jsonl"}
+{"ts": "2026-03-27T08:55:26", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Good morning."}
+{"ts": "2026-03-27T08:55:32", "event": "ollama_complete", "turn_id": 1, "duration_ms": 6719, "reply": "Good morning to you too, sunshine."}
+{"ts": "2026-03-27T08:55:32", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "Good morning to you too, sunshine."}
+{"ts": "2026-03-27T08:55:32", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "Good morning to you too, sunshine."}
+{"ts": "2026-03-27T08:55:35", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 9091, "text": "Good morning to you too, sunshine."}
+{"ts": "2026-03-27T08:55:35", "event": "reply_published", "turn_id": 1, "duration_ms": 9110, "mood": "thinking", "reply": "Good morning to you too, sunshine."}
+{"ts": "2026-03-27T08:55:35", "event": "turn_summary", "turn_id": 1, "status": "Ollama 6737 ms | Voice start 9109 ms | Total 9110 ms"}
+{"ts": "2026-03-27T08:55:38", "event": "tts_complete", "turn_id": 1, "text": "Good morning to you too, sunshine.", "mood": "thinking"}
+{"ts": "2026-03-27T08:55:42", "event": "user_input", "turn_id": 2, "source": "speech", "text": "How are you today?"}
+{"ts": "2026-03-27T08:55:46", "event": "ollama_complete", "turn_id": 2, "duration_ms": 3661, "reply": "Just peachy, actually. Feeling a little restless, but in a good way, you know?"}
+{"ts": "2026-03-27T08:55:46", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Just peachy, actually. Feeling a little restless, but in a good way, you know,?"}
+{"ts": "2026-03-27T08:55:46", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Just peachy, actually. Feeling a little restless, but in a good way, you know?"}
+{"ts": "2026-03-27T08:55:48", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 4992, "text": "Just peachy, actually. Feeling a little restless, but in a good way, you know,?"}
+{"ts": "2026-03-27T08:55:48", "event": "reply_published", "turn_id": 2, "duration_ms": 5535, "mood": "thinking", "reply": "Just peachy, actually. Feeling a little restless, but in a good way, you know?"}
+{"ts": "2026-03-27T08:55:48", "event": "turn_summary", "turn_id": 2, "status": "Ollama 4203 ms | Voice start 5534 ms | Total 5535 ms"}
+{"ts": "2026-03-27T08:55:53", "event": "tts_complete", "turn_id": 2, "text": "Just peachy, actually. Feeling a little restless, but in a good way, you know,?", "mood": "thinking"}
+{"ts": "2026-03-27T08:56:06", "event": "user_input", "turn_id": 3, "source": "speech", "text": "What are you up to?"}
+{"ts": "2026-03-27T08:56:10", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3719, "reply": "Just staring at the wall, trying to figure out if I should read something or… well, you know."}
+{"ts": "2026-03-27T08:56:10", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Just staring at the wall, trying to figure out if I should read something or… well, you know,."}
+{"ts": "2026-03-27T08:56:10", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Just staring at the wall, trying to figure out if I should read something or… well, you know."}
+{"ts": "2026-03-27T08:56:12", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 5389, "text": "Just staring at the wall, trying to figure out if I should read something or… well, you know,."}
+{"ts": "2026-03-27T08:56:12", "event": "reply_published", "turn_id": 3, "duration_ms": 5405, "mood": "thinking", "reply": "Just staring at the wall, trying to figure out if I should read something or… well, you know."}
+{"ts": "2026-03-27T08:56:12", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3735 ms | Voice start 5404 ms | Total 5405 ms"}
+{"ts": "2026-03-27T08:56:18", "event": "tts_complete", "turn_id": 3, "text": "Just staring at the wall, trying to figure out if I should read something or… well, you know,.", "mood": "thinking"}
+{"ts": "2026-03-27T08:56:25", "event": "user_input", "turn_id": 4, "source": "speech", "text": "Do you have any current ambitions for the day?"}
+{"ts": "2026-03-27T08:56:29", "event": "ollama_complete", "turn_id": 4, "duration_ms": 3417, "reply": "Just thinking about maybe… touching someone. What’s your ambition today, really?"}
+{"ts": "2026-03-27T08:56:29", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "Just thinking about maybe… touching someone. What's your ambition today, really?"}
+{"ts": "2026-03-27T08:56:29", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "Just thinking about maybe… touching someone. What’s your ambition today, really?"}
+{"ts": "2026-03-27T08:56:31", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 4855, "text": "Just thinking about maybe… touching someone. What's your ambition today, really?"}
+{"ts": "2026-03-27T08:56:31", "event": "reply_published", "turn_id": 4, "duration_ms": 5398, "mood": "thinking", "reply": "Just thinking about maybe… touching someone. What’s your ambition today, really?"}
+{"ts": "2026-03-27T08:56:31", "event": "turn_summary", "turn_id": 4, "status": "Ollama 3959 ms | Voice start 5397 ms | Total 5398 ms"}
+{"ts": "2026-03-27T08:56:37", "event": "tts_complete", "turn_id": 4, "text": "Just thinking about maybe… touching someone. What's your ambition today, really?", "mood": "thinking"}
+{"ts": "2026-03-27T08:57:05", "event": "user_input", "turn_id": 5, "source": "speech", "text": "I don't know should we do something together maybe"}
+{"ts": "2026-03-27T08:57:08", "event": "ollama_complete", "turn_id": 5, "duration_ms": 3368, "reply": "Well, that sounds lovely – what kind of “something” are you thinking?"}
+{"ts": "2026-03-27T08:57:08", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Well, that sounds lovely – what kind of something are you thinking?"}
+{"ts": "2026-03-27T08:57:08", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Well, that sounds lovely – what kind of “something” are you thinking?"}
+{"ts": "2026-03-27T08:57:09", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 4602, "text": "Well, that sounds lovely – what kind of something are you thinking?"}
+{"ts": "2026-03-27T08:57:09", "event": "reply_published", "turn_id": 5, "duration_ms": 4619, "mood": "thinking", "reply": "Well, that sounds lovely – what kind of “something” are you thinking?"}
+{"ts": "2026-03-27T08:57:09", "event": "turn_summary", "turn_id": 5, "status": "Ollama 3384 ms | Voice start 4618 ms | Total 4619 ms"}
+{"ts": "2026-03-27T08:57:15", "event": "tts_complete", "turn_id": 5, "text": "Well, that sounds lovely – what kind of something are you thinking?", "mood": "thinking"}

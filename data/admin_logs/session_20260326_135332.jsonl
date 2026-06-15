@@ -1,0 +1,17 @@
+{"ts": "2026-03-26T13:53:32", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260326_135332.jsonl"}
+{"ts": "2026-03-26T13:53:50", "event": "user_input", "turn_id": 1, "source": "text", "text": "hi"}
+{"ts": "2026-03-26T13:53:50", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T13:53:50", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T13:53:50", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T13:53:52", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 1837, "text": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T13:53:52", "event": "reply_published", "turn_id": 1, "duration_ms": 1843, "mood": "happy", "reply": "Hey you too, darling. I'm here."}
+{"ts": "2026-03-26T13:53:52", "event": "turn_summary", "turn_id": 1, "status": "Ollama 5 ms | Voice start 1841 ms | Total 1843 ms"}
+{"ts": "2026-03-26T13:53:55", "event": "tts_complete", "turn_id": 1, "text": "Hey you too, darling. I'm here.", "mood": "happy"}
+{"ts": "2026-03-26T13:54:15", "event": "user_input", "turn_id": 2, "source": "text", "text": "tell me something about the roman empire"}
+{"ts": "2026-03-26T13:54:22", "event": "ollama_complete", "turn_id": 2, "duration_ms": 7274, "reply": "Honestly, it was a *massive* deal – like, seriously obsessed with conquering everything."}
+{"ts": "2026-03-26T13:54:22", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Honestly, it was a massive deal – like, seriously obsessed with conquering everything."}
+{"ts": "2026-03-26T13:54:22", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Honestly, it was a *massive* deal – like, seriously obsessed with conquering everything."}
+{"ts": "2026-03-26T13:54:24", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 8577, "text": "Honestly, it was a massive deal – like, seriously obsessed with conquering everything."}
+{"ts": "2026-03-26T13:54:24", "event": "reply_published", "turn_id": 2, "duration_ms": 8597, "mood": "thinking", "reply": "Honestly, it was a *massive* deal – like, seriously obsessed with conquering everything."}
+{"ts": "2026-03-26T13:54:24", "event": "turn_summary", "turn_id": 2, "status": "Ollama 7292 ms | Voice start 8596 ms | Total 8597 ms"}
+{"ts": "2026-03-26T13:54:29", "event": "tts_complete", "turn_id": 2, "text": "Honestly, it was a massive deal – like, seriously obsessed with conquering everything.", "mood": "thinking"}

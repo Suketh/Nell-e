@@ -1,0 +1,11 @@
+{"ts": "2026-06-15T09:51:31", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260615_095126.jsonl"}
+{"ts": "2026-06-15T09:51:39", "event": "speech_capture_failed", "error": "No working audio input combination found for device [-1, 1]. Last error: Error querying device -1"}
+{"ts": "2026-06-15T09:52:01", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T09:52:03", "event": "speech_capture_complete", "duration_ms": 1430, "bytes": 137280, "overflow": false}
+{"ts": "2026-06-15T09:52:03", "event": "speech_transcription_empty", "status": "no_speech_detected"}
+{"ts": "2026-06-15T09:52:17", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T09:52:18", "event": "speech_capture_complete", "duration_ms": 1580, "bytes": 151680, "overflow": false}
+{"ts": "2026-06-15T09:52:18", "event": "speech_transcription_empty", "status": "no_speech_detected"}
+{"ts": "2026-06-15T09:52:48", "event": "speech_capture_started", "device": "5", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T09:52:50", "event": "speech_capture_complete", "duration_ms": 1460, "bytes": 140160, "overflow": false}
+{"ts": "2026-06-15T09:52:50", "event": "speech_transcription_empty", "status": "no_speech_detected"}

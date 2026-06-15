@@ -1,0 +1,25 @@
+{"ts": "2026-03-27T14:57:52", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_145748.jsonl"}
+{"ts": "2026-03-27T14:58:52", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Thank you very much."}
+{"ts": "2026-03-27T14:58:57", "event": "ollama_complete", "turn_id": 1, "duration_ms": 4849, "reply": "You’re very welcome, honestly."}
+{"ts": "2026-03-27T14:58:57", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "You're very welcome, honestly."}
+{"ts": "2026-03-27T14:58:57", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "You’re very welcome, honestly."}
+{"ts": "2026-03-27T14:58:58", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 5904, "text": "You're very welcome, honestly."}
+{"ts": "2026-03-27T14:58:58", "event": "reply_published", "turn_id": 1, "duration_ms": 5921, "mood": "thinking", "reply": "You’re very welcome, honestly."}
+{"ts": "2026-03-27T14:58:58", "event": "turn_summary", "turn_id": 1, "status": "Ollama 4866 ms | Voice start 5920 ms | Total 5921 ms"}
+{"ts": "2026-03-27T14:59:01", "event": "tts_complete", "turn_id": 1, "text": "You're very welcome, honestly.", "mood": "thinking"}
+{"ts": "2026-03-27T14:59:10", "event": "user_input", "turn_id": 2, "source": "text", "text": "how are you?"}
+{"ts": "2026-03-27T14:59:10", "event": "ollama_complete", "turn_id": 2, "duration_ms": 0, "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T14:59:10", "event": "tts_enqueued", "turn_id": 2, "mood": "happy", "text": "I'm okay."}
+{"ts": "2026-03-27T14:59:10", "event": "reply_ready", "turn_id": 2, "mood": "happy", "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T14:59:10", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 702, "text": "I'm okay."}
+{"ts": "2026-03-27T14:59:10", "event": "reply_published", "turn_id": 2, "duration_ms": 720, "mood": "happy", "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T14:59:10", "event": "turn_summary", "turn_id": 2, "status": "Ollama 18 ms | Voice start 719 ms | Total 720 ms"}
+{"ts": "2026-03-27T14:59:13", "event": "tts_complete", "turn_id": 2, "text": "I'm okay.", "mood": "happy"}
+{"ts": "2026-03-27T14:59:55", "event": "user_input", "turn_id": 3, "source": "text", "text": "why dont you tell me a story"}
+{"ts": "2026-03-27T15:00:01", "event": "ollama_complete", "turn_id": 3, "duration_ms": 6633, "reply": "Oh, you noticed, did you? Well, let me see… There was this rain coming down pretty hard, you know? It was drumming on the tin roof of the little diner, a real steady beat. He was nursing a cup of coffee, just watching it fall, and he seemed… content, I suppose."}
+{"ts": "2026-03-27T15:00:01", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "oh, you noticed, did you?"}
+{"ts": "2026-03-27T15:00:01", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Oh, you noticed, did you? Well, let me see… There was this rain coming down pretty hard, you know? It was drumming on the tin roof of the little diner, a real steady beat. He was nursing a cup of coffee, just watching it fall, and he seemed… content, I suppose."}
+{"ts": "2026-03-27T15:00:02", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 7451, "text": "oh, you noticed, did you?"}
+{"ts": "2026-03-27T15:00:02", "event": "reply_published", "turn_id": 3, "duration_ms": 7473, "mood": "thinking", "reply": "Oh, you noticed, did you? Well, let me see… There was this rain coming down pretty hard, you know? It was drumming on the tin roof of the little diner, a real steady beat. He was nursing a cup of coffee, just watching it fall, and he seemed… content, I suppose."}
+{"ts": "2026-03-27T15:00:02", "event": "turn_summary", "turn_id": 3, "status": "Ollama 6654 ms | Voice start 7472 ms | Total 7473 ms"}
+{"ts": "2026-03-27T15:00:05", "event": "tts_complete", "turn_id": 3, "text": "oh, you noticed, did you?", "mood": "thinking"}

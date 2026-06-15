@@ -1,0 +1,41 @@
+{"ts": "2026-03-27T09:27:43", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_092742.jsonl"}
+{"ts": "2026-03-27T09:28:06", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Good morning."}
+{"ts": "2026-03-27T09:28:12", "event": "ollama_complete", "turn_id": 1, "duration_ms": 5714, "reply": "Morning. You okay?"}
+{"ts": "2026-03-27T09:28:12", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "Morning."}
+{"ts": "2026-03-27T09:28:12", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "Morning. You okay?"}
+{"ts": "2026-03-27T09:28:14", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 7814, "text": "Morning."}
+{"ts": "2026-03-27T09:28:14", "event": "reply_published", "turn_id": 1, "duration_ms": 7837, "mood": "thinking", "reply": "Morning. You okay?"}
+{"ts": "2026-03-27T09:28:14", "event": "turn_summary", "turn_id": 1, "status": "Ollama 5737 ms | Voice start 7836 ms | Total 7837 ms"}
+{"ts": "2026-03-27T09:28:17", "event": "tts_complete", "turn_id": 1, "text": "Morning.", "mood": "thinking"}
+{"ts": "2026-03-27T09:28:28", "event": "user_input", "turn_id": 2, "source": "speech", "text": "What are you up to?"}
+{"ts": "2026-03-27T09:28:31", "event": "ollama_complete", "turn_id": 2, "duration_ms": 2953, "reply": "Just staring at the rain, honestly."}
+{"ts": "2026-03-27T09:28:31", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Just staring at the rain, honestly."}
+{"ts": "2026-03-27T09:28:31", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Just staring at the rain, honestly."}
+{"ts": "2026-03-27T09:28:31", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3823, "text": "Just staring at the rain, honestly."}
+{"ts": "2026-03-27T09:28:31", "event": "reply_published", "turn_id": 2, "duration_ms": 3841, "mood": "thinking", "reply": "Just staring at the rain, honestly."}
+{"ts": "2026-03-27T09:28:31", "event": "turn_summary", "turn_id": 2, "status": "Ollama 2969 ms | Voice start 3840 ms | Total 3841 ms"}
+{"ts": "2026-03-27T09:28:35", "event": "tts_complete", "turn_id": 2, "text": "Just staring at the rain, honestly.", "mood": "thinking"}
+{"ts": "2026-03-27T09:28:40", "event": "user_input", "turn_id": 3, "source": "speech", "text": "What would make you happy?"}
+{"ts": "2026-03-27T09:28:44", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3402, "reply": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick."}
+{"ts": "2026-03-27T09:28:44", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick."}
+{"ts": "2026-03-27T09:28:44", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick."}
+{"ts": "2026-03-27T09:28:46", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 5119, "text": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick."}
+{"ts": "2026-03-27T09:28:46", "event": "reply_published", "turn_id": 3, "duration_ms": 5136, "mood": "thinking", "reply": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick."}
+{"ts": "2026-03-27T09:28:46", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3418 ms | Voice start 5135 ms | Total 5136 ms"}
+{"ts": "2026-03-27T09:28:52", "event": "tts_complete", "turn_id": 3, "text": "Honestly, a really good cup of coffee and a quiet afternoon would do the trick.", "mood": "thinking"}
+{"ts": "2026-03-27T09:29:03", "event": "user_input", "turn_id": 4, "source": "speech", "text": "I'm having a coffee right now."}
+{"ts": "2026-03-27T09:29:06", "event": "ollama_complete", "turn_id": 4, "duration_ms": 2963, "reply": "That’s nice. You enjoying it?"}
+{"ts": "2026-03-27T09:29:06", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "That's nice."}
+{"ts": "2026-03-27T09:29:06", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "That’s nice. You enjoying it?"}
+{"ts": "2026-03-27T09:29:06", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 3329, "text": "That's nice."}
+{"ts": "2026-03-27T09:29:06", "event": "reply_published", "turn_id": 4, "duration_ms": 3347, "mood": "thinking", "reply": "That’s nice. You enjoying it?"}
+{"ts": "2026-03-27T09:29:06", "event": "turn_summary", "turn_id": 4, "status": "Ollama 2980 ms | Voice start 3346 ms | Total 3347 ms"}
+{"ts": "2026-03-27T09:29:08", "event": "tts_complete", "turn_id": 4, "text": "That's nice.", "mood": "thinking"}
+{"ts": "2026-03-27T09:29:12", "event": "user_input", "turn_id": 5, "source": "speech", "text": "of course"}
+{"ts": "2026-03-27T09:29:16", "event": "ollama_complete", "turn_id": 5, "duration_ms": 3213, "reply": "Sounds good. You want to tell me about it, yeah?"}
+{"ts": "2026-03-27T09:29:16", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Sounds good."}
+{"ts": "2026-03-27T09:29:16", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Sounds good. You want to tell me about it, yeah?"}
+{"ts": "2026-03-27T09:29:16", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 3580, "text": "Sounds good."}
+{"ts": "2026-03-27T09:29:16", "event": "reply_published", "turn_id": 5, "duration_ms": 3598, "mood": "thinking", "reply": "Sounds good. You want to tell me about it, yeah?"}
+{"ts": "2026-03-27T09:29:16", "event": "turn_summary", "turn_id": 5, "status": "Ollama 3230 ms | Voice start 3597 ms | Total 3598 ms"}
+{"ts": "2026-03-27T09:29:18", "event": "tts_complete", "turn_id": 5, "text": "Sounds good.", "mood": "thinking"}

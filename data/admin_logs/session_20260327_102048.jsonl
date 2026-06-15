@@ -1,0 +1,26 @@
+{"ts": "2026-03-27T10:20:49", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_102048.jsonl"}
+{"ts": "2026-03-27T10:21:08", "event": "user_input", "turn_id": 1, "source": "text", "text": "hey you"}
+{"ts": "2026-03-27T10:21:08", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:21:08", "event": "tts_enqueued", "turn_id": 1, "mood": "_reaction", "text": "heh"}
+{"ts": "2026-03-27T10:21:08", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey."}
+{"ts": "2026-03-27T10:21:08", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:21:08", "event": "reply_published", "turn_id": 1, "duration_ms": 21, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:21:08", "event": "turn_summary", "turn_id": 1, "status": "Ollama 17 ms | Total 21 ms"}
+{"ts": "2026-03-27T10:21:11", "event": "tts_complete", "turn_id": 1, "text": "heh", "mood": "_reaction"}
+{"ts": "2026-03-27T10:21:13", "event": "tts_complete", "turn_id": 1, "text": "Hey.", "mood": "happy"}
+{"ts": "2026-03-27T10:21:20", "event": "user_input", "turn_id": 2, "source": "text", "text": "how are you"}
+{"ts": "2026-03-27T10:21:20", "event": "ollama_complete", "turn_id": 2, "duration_ms": 0, "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T10:21:20", "event": "tts_enqueued", "turn_id": 2, "mood": "happy", "text": "I'm okay."}
+{"ts": "2026-03-27T10:21:20", "event": "reply_ready", "turn_id": 2, "mood": "happy", "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T10:21:21", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 759, "text": "I'm okay."}
+{"ts": "2026-03-27T10:21:21", "event": "reply_published", "turn_id": 2, "duration_ms": 777, "mood": "happy", "reply": "I'm okay. Maybe a little tired. How are you?"}
+{"ts": "2026-03-27T10:21:21", "event": "turn_summary", "turn_id": 2, "status": "Ollama 17 ms | Voice start 776 ms | Total 777 ms"}
+{"ts": "2026-03-27T10:21:23", "event": "tts_complete", "turn_id": 2, "text": "I'm okay.", "mood": "happy"}
+{"ts": "2026-03-27T10:21:35", "event": "user_input", "turn_id": 3, "source": "text", "text": "tell me something"}
+{"ts": "2026-03-27T10:21:44", "event": "ollama_complete", "turn_id": 3, "duration_ms": 8808, "reply": "Hmm, well, I was thinking about that scene in *Casablanca* where Rick says, \"Here's looking at you, kid.\" It’s just… a really quiet moment, isn’t it? He’s saying it to Ilsa, and it feels like everything hangs in the balance, but it’s also just a simple, honest thing. Heh."}
+{"ts": "2026-03-27T10:21:44", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Hmm, well, I was thinking about that scene in Casablanca where Rick says, Here's looking at you, kid. It's just… a really quiet moment, isn't it? He's saying it to Ilsa, and."}
+{"ts": "2026-03-27T10:21:44", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Hmm, well, I was thinking about that scene in *Casablanca* where Rick says, \"Here's looking at you, kid.\" It’s just… a really quiet moment, isn’t it? He’s saying it to Ilsa, and it feels like everything hangs in the balance, but it’s also just a simple, honest thing. Heh."}
+{"ts": "2026-03-27T10:21:47", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 11935, "text": "Hmm, well, I was thinking about that scene in Casablanca where Rick says, Here's looking at you, kid. It's just… a really quiet moment, isn't it? He's saying it to Ilsa, and."}
+{"ts": "2026-03-27T10:21:47", "event": "reply_published", "turn_id": 3, "duration_ms": 11954, "mood": "thinking", "reply": "Hmm, well, I was thinking about that scene in *Casablanca* where Rick says, \"Here's looking at you, kid.\" It’s just… a really quiet moment, isn’t it? He’s saying it to Ilsa, and it feels like everything hangs in the balance, but it’s also just a simple, honest thing. Heh."}
+{"ts": "2026-03-27T10:21:47", "event": "turn_summary", "turn_id": 3, "status": "Ollama 8825 ms | Voice start 11953 ms | Total 11954 ms"}
+{"ts": "2026-03-27T10:22:00", "event": "tts_complete", "turn_id": 3, "text": "Hmm, well, I was thinking about that scene in Casablanca where Rick says, Here's looking at you, kid. It's just… a really quiet moment, isn't it? He's saying it to Ilsa, and.", "mood": "thinking"}

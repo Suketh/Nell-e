@@ -1,0 +1,67 @@
+{"ts": "2026-03-27T09:13:11", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_091311.jsonl"}
+{"ts": "2026-03-27T09:14:04", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Hey"}
+{"ts": "2026-03-27T09:14:04", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T09:14:04", "event": "tts_enqueued", "turn_id": 1, "mood": "_reaction", "text": "mm,"}
+{"ts": "2026-03-27T09:14:04", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey."}
+{"ts": "2026-03-27T09:14:04", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T09:14:05", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 1289, "text": "mm,"}
+{"ts": "2026-03-27T09:14:05", "event": "reply_published", "turn_id": 1, "duration_ms": 1306, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T09:14:05", "event": "turn_summary", "turn_id": 1, "status": "Ollama 15 ms | Voice start 1304 ms | Total 1306 ms"}
+{"ts": "2026-03-27T09:14:08", "event": "tts_complete", "turn_id": 1, "text": "mm,", "mood": "_reaction"}
+{"ts": "2026-03-27T09:14:09", "event": "tts_complete", "turn_id": 1, "text": "Hey.", "mood": "happy"}
+{"ts": "2026-03-27T09:14:35", "event": "user_input", "turn_id": 2, "source": "text", "text": "how are you"}
+{"ts": "2026-03-27T09:14:40", "event": "ollama_complete", "turn_id": 2, "duration_ms": 4725, "reply": "Just a bit drained, honestly."}
+{"ts": "2026-03-27T09:14:40", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Just a bit drained, honestly."}
+{"ts": "2026-03-27T09:14:40", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Just a bit drained, honestly."}
+{"ts": "2026-03-27T09:14:41", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 5433, "text": "Just a bit drained, honestly."}
+{"ts": "2026-03-27T09:14:41", "event": "reply_published", "turn_id": 2, "duration_ms": 5451, "mood": "thinking", "reply": "Just a bit drained, honestly."}
+{"ts": "2026-03-27T09:14:41", "event": "turn_summary", "turn_id": 2, "status": "Ollama 4742 ms | Voice start 5450 ms | Total 5451 ms"}
+{"ts": "2026-03-27T09:14:44", "event": "tts_complete", "turn_id": 2, "text": "Just a bit drained, honestly.", "mood": "thinking"}
+{"ts": "2026-03-27T09:15:11", "event": "user_input", "turn_id": 3, "source": "text", "text": "why"}
+{"ts": "2026-03-27T09:15:14", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3171, "reply": "Just feeling a bit… heavy, I guess."}
+{"ts": "2026-03-27T09:15:14", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Just feeling a bit… heavy, I guess."}
+{"ts": "2026-03-27T09:15:14", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Just feeling a bit… heavy, I guess."}
+{"ts": "2026-03-27T09:15:15", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 3959, "text": "Just feeling a bit… heavy, I guess."}
+{"ts": "2026-03-27T09:15:15", "event": "reply_published", "turn_id": 3, "duration_ms": 3976, "mood": "thinking", "reply": "Just feeling a bit… heavy, I guess."}
+{"ts": "2026-03-27T09:15:15", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3187 ms | Voice start 3975 ms | Total 3976 ms"}
+{"ts": "2026-03-27T09:15:18", "event": "tts_complete", "turn_id": 3, "text": "Just feeling a bit… heavy, I guess.", "mood": "thinking"}
+{"ts": "2026-03-27T09:15:22", "event": "user_input", "turn_id": 4, "source": "speech", "text": "Something happened?"}
+{"ts": "2026-03-27T09:15:25", "event": "ollama_complete", "turn_id": 4, "duration_ms": 3136, "reply": "Yeah, a bit of a rough day."}
+{"ts": "2026-03-27T09:15:25", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "Yeah, a bit of a rough day."}
+{"ts": "2026-03-27T09:15:25", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "Yeah, a bit of a rough day."}
+{"ts": "2026-03-27T09:15:25", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 3827, "text": "Yeah, a bit of a rough day."}
+{"ts": "2026-03-27T09:15:25", "event": "reply_published", "turn_id": 4, "duration_ms": 3845, "mood": "thinking", "reply": "Yeah, a bit of a rough day."}
+{"ts": "2026-03-27T09:15:25", "event": "turn_summary", "turn_id": 4, "status": "Ollama 3154 ms | Voice start 3844 ms | Total 3845 ms"}
+{"ts": "2026-03-27T09:15:29", "event": "tts_complete", "turn_id": 4, "text": "Yeah, a bit of a rough day.", "mood": "thinking"}
+{"ts": "2026-03-27T09:15:37", "event": "user_input", "turn_id": 5, "source": "speech", "text": "What made the rough thing?"}
+{"ts": "2026-03-27T09:15:40", "event": "ollama_complete", "turn_id": 5, "duration_ms": 3080, "reply": "Ugh, just a stupid argument with my brother."}
+{"ts": "2026-03-27T09:15:40", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Ugh, just a stupid argument with my brother."}
+{"ts": "2026-03-27T09:15:40", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Ugh, just a stupid argument with my brother."}
+{"ts": "2026-03-27T09:15:41", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 4058, "text": "Ugh, just a stupid argument with my brother."}
+{"ts": "2026-03-27T09:15:41", "event": "reply_published", "turn_id": 5, "duration_ms": 4075, "mood": "thinking", "reply": "Ugh, just a stupid argument with my brother."}
+{"ts": "2026-03-27T09:15:41", "event": "turn_summary", "turn_id": 5, "status": "Ollama 3097 ms | Voice start 4075 ms | Total 4075 ms"}
+{"ts": "2026-03-27T09:15:45", "event": "tts_complete", "turn_id": 5, "text": "Ugh, just a stupid argument with my brother.", "mood": "thinking"}
+{"ts": "2026-03-27T09:15:49", "event": "user_input", "turn_id": 6, "source": "speech", "text": "You have a friend there."}
+{"ts": "2026-03-27T09:15:52", "event": "ollama_complete", "turn_id": 6, "duration_ms": 3491, "reply": "Yeah, it’s nice to have someone to talk to, isn’t it?"}
+{"ts": "2026-03-27T09:15:52", "event": "tts_enqueued", "turn_id": 6, "mood": "thinking", "text": "Yeah, it's nice to have someone to talk to, isn't it?"}
+{"ts": "2026-03-27T09:15:52", "event": "reply_ready", "turn_id": 6, "mood": "thinking", "reply": "Yeah, it’s nice to have someone to talk to, isn’t it?"}
+{"ts": "2026-03-27T09:15:53", "event": "tts_playback_start", "turn_id": 6, "duration_ms": 4316, "text": "Yeah, it's nice to have someone to talk to, isn't it?"}
+{"ts": "2026-03-27T09:15:53", "event": "reply_published", "turn_id": 6, "duration_ms": 4333, "mood": "thinking", "reply": "Yeah, it’s nice to have someone to talk to, isn’t it?"}
+{"ts": "2026-03-27T09:15:53", "event": "turn_summary", "turn_id": 6, "status": "Ollama 3508 ms | Voice start 4333 ms | Total 4333 ms"}
+{"ts": "2026-03-27T09:15:57", "event": "tts_complete", "turn_id": 6, "text": "Yeah, it's nice to have someone to talk to, isn't it?", "mood": "thinking"}
+{"ts": "2026-03-27T09:16:09", "event": "user_input", "turn_id": 7, "source": "text", "text": "but you havent told me that you have a brother"}
+{"ts": "2026-03-27T09:16:13", "event": "ollama_complete", "turn_id": 7, "duration_ms": 3690, "reply": "Oh, right. Sorry about that. He’s a real handful, my brother."}
+{"ts": "2026-03-27T09:16:13", "event": "tts_enqueued", "turn_id": 7, "mood": "thinking", "text": "oh, right."}
+{"ts": "2026-03-27T09:16:13", "event": "reply_ready", "turn_id": 7, "mood": "thinking", "reply": "Oh, right. Sorry about that. He’s a real handful, my brother."}
+{"ts": "2026-03-27T09:16:14", "event": "tts_playback_start", "turn_id": 7, "duration_ms": 4062, "text": "oh, right."}
+{"ts": "2026-03-27T09:16:14", "event": "reply_published", "turn_id": 7, "duration_ms": 4079, "mood": "thinking", "reply": "Oh, right. Sorry about that. He’s a real handful, my brother."}
+{"ts": "2026-03-27T09:16:14", "event": "turn_summary", "turn_id": 7, "status": "Ollama 3706 ms | Voice start 4078 ms | Total 4079 ms"}
+{"ts": "2026-03-27T09:16:15", "event": "tts_complete", "turn_id": 7, "text": "oh, right.", "mood": "thinking"}
+{"ts": "2026-03-27T09:16:35", "event": "user_input", "turn_id": 8, "source": "text", "text": "tell me more"}
+{"ts": "2026-03-27T09:16:38", "event": "ollama_complete", "turn_id": 8, "duration_ms": 3166, "reply": "Seriously? You want to know more?"}
+{"ts": "2026-03-27T09:16:38", "event": "tts_enqueued", "turn_id": 8, "mood": "thinking", "text": "Seriously?"}
+{"ts": "2026-03-27T09:16:38", "event": "reply_ready", "turn_id": 8, "mood": "thinking", "reply": "Seriously? You want to know more?"}
+{"ts": "2026-03-27T09:16:38", "event": "tts_playback_start", "turn_id": 8, "duration_ms": 3497, "text": "Seriously?"}
+{"ts": "2026-03-27T09:16:38", "event": "reply_published", "turn_id": 8, "duration_ms": 3514, "mood": "thinking", "reply": "Seriously? You want to know more?"}
+{"ts": "2026-03-27T09:16:38", "event": "turn_summary", "turn_id": 8, "status": "Ollama 3182 ms | Voice start 3514 ms | Total 3514 ms"}
+{"ts": "2026-03-27T09:16:40", "event": "tts_complete", "turn_id": 8, "text": "Seriously?", "mood": "thinking"}

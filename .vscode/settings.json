@@ -1,0 +1,21 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "files.exclude": {
+    "**/.venv": true,
+    "**/.voxtral-venv": true,
+    "**/.xtts-venv": true
+  },
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/.voxtral-venv/**": true,
+    "**/.xtts-venv/**": true,
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/.venv/**": true,
+    "**/.voxtral-venv/**": true,
+    "**/.xtts-venv/**": true,
+    "**/node_modules/**": true
+  }
+}

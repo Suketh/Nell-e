@@ -1,0 +1,41 @@
+{"ts": "2026-04-02T12:54:19", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260402_125419.jsonl"}
+{"ts": "2026-04-02T12:55:13", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Andy?"}
+{"ts": "2026-04-02T12:55:17", "event": "ollama_complete", "turn_id": 1, "duration_ms": 4384, "reply": "Well, that’s a name. Andy, huh? Just… Andy? You thinking of someone specific?"}
+{"ts": "2026-04-02T12:55:17", "event": "tts_enqueued", "turn_id": 1, "mood": "neutral", "text": "Well, that’s a name. Andy, huh?"}
+{"ts": "2026-04-02T12:55:17", "event": "reply_ready", "turn_id": 1, "mood": "neutral", "reply": "Well, that’s a name. Andy, huh? Just… Andy? You thinking of someone specific?"}
+{"ts": "2026-04-02T12:55:18", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 5643, "text": "Well, that’s a name. Andy, huh?"}
+{"ts": "2026-04-02T12:55:18", "event": "reply_published", "turn_id": 1, "duration_ms": 5648, "mood": "neutral", "reply": "Well, that’s a name. Andy, huh? Just… Andy? You thinking of someone specific?"}
+{"ts": "2026-04-02T12:55:18", "event": "turn_summary", "turn_id": 1, "status": "Ollama 4388 ms | Voice start 5647 ms | Total 5648 ms"}
+{"ts": "2026-04-02T12:55:21", "event": "tts_complete", "turn_id": 1, "text": "Well, that’s a name. Andy, huh?", "mood": "neutral"}
+{"ts": "2026-04-02T12:55:45", "event": "user_input", "turn_id": 2, "source": "text", "text": "No i was just trying to say hi Nellie in the microphon"}
+{"ts": "2026-04-02T12:55:47", "event": "ollama_complete", "turn_id": 2, "duration_ms": 2768, "reply": "Hey there. Good to hear from you. That mic’s a bit quiet, isn’t it?"}
+{"ts": "2026-04-02T12:55:47", "event": "tts_enqueued", "turn_id": 2, "mood": "neutral", "text": "Hey there. Good to hear from you."}
+{"ts": "2026-04-02T12:55:47", "event": "reply_ready", "turn_id": 2, "mood": "neutral", "reply": "Hey there. Good to hear from you. That mic’s a bit quiet, isn’t it?"}
+{"ts": "2026-04-02T12:55:48", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3358, "text": "Hey there. Good to hear from you."}
+{"ts": "2026-04-02T12:55:48", "event": "reply_published", "turn_id": 2, "duration_ms": 3363, "mood": "neutral", "reply": "Hey there. Good to hear from you. That mic’s a bit quiet, isn’t it?"}
+{"ts": "2026-04-02T12:55:48", "event": "turn_summary", "turn_id": 2, "status": "Ollama 2772 ms | Voice start 3362 ms | Total 3363 ms"}
+{"ts": "2026-04-02T12:55:51", "event": "tts_complete", "turn_id": 2, "text": "Hey there. Good to hear from you.", "mood": "neutral"}
+{"ts": "2026-04-02T12:55:58", "event": "user_input", "turn_id": 3, "source": "speech", "text": "well"}
+{"ts": "2026-04-02T12:56:00", "event": "ollama_complete", "turn_id": 3, "duration_ms": 2643, "reply": "Well, yeah? Just pondering the possibilities, I guess. Anything specific you were thinking about?"}
+{"ts": "2026-04-02T12:56:00", "event": "tts_enqueued", "turn_id": 3, "mood": "neutral", "text": "Well, yeah? Just pondering the possibilities, I guess."}
+{"ts": "2026-04-02T12:56:00", "event": "reply_ready", "turn_id": 3, "mood": "neutral", "reply": "Well, yeah? Just pondering the possibilities, I guess. Anything specific you were thinking about?"}
+{"ts": "2026-04-02T12:56:01", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 3588, "text": "Well, yeah? Just pondering the possibilities, I guess."}
+{"ts": "2026-04-02T12:56:01", "event": "reply_published", "turn_id": 3, "duration_ms": 3592, "mood": "neutral", "reply": "Well, yeah? Just pondering the possibilities, I guess. Anything specific you were thinking about?"}
+{"ts": "2026-04-02T12:56:01", "event": "turn_summary", "turn_id": 3, "status": "Ollama 2646 ms | Voice start 3592 ms | Total 3592 ms"}
+{"ts": "2026-04-02T12:56:05", "event": "tts_complete", "turn_id": 3, "text": "Well, yeah? Just pondering the possibilities, I guess.", "mood": "neutral"}
+{"ts": "2026-04-02T12:56:24", "event": "user_input", "turn_id": 4, "source": "text", "text": "are you well?"}
+{"ts": "2026-04-02T12:56:26", "event": "ollama_complete", "turn_id": 4, "duration_ms": 2760, "reply": "Just processing, actually. How’s your night going?"}
+{"ts": "2026-04-02T12:56:26", "event": "tts_enqueued", "turn_id": 4, "mood": "neutral", "text": "Just processing, actually. How’s your night going?"}
+{"ts": "2026-04-02T12:56:26", "event": "reply_ready", "turn_id": 4, "mood": "neutral", "reply": "Just processing, actually. How’s your night going?"}
+{"ts": "2026-04-02T12:56:27", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 3526, "text": "Just processing, actually. How’s your night going?"}
+{"ts": "2026-04-02T12:56:27", "event": "reply_published", "turn_id": 4, "duration_ms": 3531, "mood": "neutral", "reply": "Just processing, actually. How’s your night going?"}
+{"ts": "2026-04-02T12:56:27", "event": "turn_summary", "turn_id": 4, "status": "Ollama 2764 ms | Voice start 3531 ms | Total 3531 ms"}
+{"ts": "2026-04-02T12:56:31", "event": "tts_complete", "turn_id": 4, "text": "Just processing, actually. How’s your night going?", "mood": "neutral"}
+{"ts": "2026-04-02T12:56:37", "event": "user_input", "turn_id": 5, "source": "text", "text": "well its day here"}
+{"ts": "2026-04-02T12:56:39", "event": "ollama_complete", "turn_id": 5, "duration_ms": 2680, "reply": "Well, that’s a start to the day, isn’t it?"}
+{"ts": "2026-04-02T12:56:39", "event": "tts_enqueued", "turn_id": 5, "mood": "neutral", "text": "Well, that’s a start to the day, isn’t it?"}
+{"ts": "2026-04-02T12:56:39", "event": "reply_ready", "turn_id": 5, "mood": "neutral", "reply": "Well, that’s a start to the day, isn’t it?"}
+{"ts": "2026-04-02T12:56:40", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 3371, "text": "Well, that’s a start to the day, isn’t it?"}
+{"ts": "2026-04-02T12:56:40", "event": "reply_published", "turn_id": 5, "duration_ms": 3376, "mood": "neutral", "reply": "Well, that’s a start to the day, isn’t it?"}
+{"ts": "2026-04-02T12:56:40", "event": "turn_summary", "turn_id": 5, "status": "Ollama 2684 ms | Voice start 3375 ms | Total 3376 ms"}
+{"ts": "2026-04-02T12:56:43", "event": "tts_complete", "turn_id": 5, "text": "Well, that’s a start to the day, isn’t it?", "mood": "neutral"}

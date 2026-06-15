@@ -1,0 +1,24 @@
+{"ts": "2026-04-02T08:50:27", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260402_085023.jsonl"}
+{"ts": "2026-04-02T08:51:14", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Hello, Nellie."}
+{"ts": "2026-04-02T08:51:14", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey. I'm here."}
+{"ts": "2026-04-02T08:51:14", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey. I'm here."}
+{"ts": "2026-04-02T08:51:14", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-04-02T08:51:14", "event": "reply_published", "turn_id": 1, "duration_ms": 16, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-04-02T08:51:14", "event": "turn_summary", "turn_id": 1, "status": "Ollama 11 ms | Total 16 ms"}
+{"ts": "2026-04-02T08:51:18", "event": "tts_complete", "turn_id": 1, "text": "Hey. I'm here.", "mood": "happy"}
+{"ts": "2026-04-02T08:51:26", "event": "user_input", "turn_id": 2, "source": "speech", "text": "Do you feel well?"}
+{"ts": "2026-04-02T08:51:32", "event": "ollama_complete", "turn_id": 2, "duration_ms": 5735, "reply": "Hmm, yeah, I’m functioning. Just processing, you know?"}
+{"ts": "2026-04-02T08:51:32", "event": "tts_enqueued", "turn_id": 2, "mood": "neutral", "text": "Hmm, yeah, I'm functioning. Just processing, you know?"}
+{"ts": "2026-04-02T08:51:32", "event": "reply_ready", "turn_id": 2, "mood": "neutral", "reply": "Hmm, yeah, I’m functioning. Just processing, you know?"}
+{"ts": "2026-04-02T08:51:33", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 6749, "text": "Hmm, yeah, I'm functioning. Just processing, you know?"}
+{"ts": "2026-04-02T08:51:33", "event": "reply_published", "turn_id": 2, "duration_ms": 6755, "mood": "neutral", "reply": "Hmm, yeah, I’m functioning. Just processing, you know?"}
+{"ts": "2026-04-02T08:51:33", "event": "turn_summary", "turn_id": 2, "status": "Ollama 5740 ms | Voice start 6754 ms | Total 6755 ms"}
+{"ts": "2026-04-02T08:51:37", "event": "tts_complete", "turn_id": 2, "text": "Hmm, yeah, I'm functioning. Just processing, you know?", "mood": "neutral"}
+{"ts": "2026-04-02T08:51:45", "event": "user_input", "turn_id": 3, "source": "speech", "text": "It's something that you like to talk about."}
+{"ts": "2026-04-02T08:51:49", "event": "ollama_complete", "turn_id": 3, "duration_ms": 4264, "reply": "Well, not really. Just rain and a good record, I suppose."}
+{"ts": "2026-04-02T08:51:49", "event": "tts_enqueued", "turn_id": 3, "mood": "neutral", "text": "Well, not really. Just rain and a good record, I suppose."}
+{"ts": "2026-04-02T08:51:49", "event": "reply_ready", "turn_id": 3, "mood": "neutral", "reply": "Well, not really. Just rain and a good record, I suppose."}
+{"ts": "2026-04-02T08:51:50", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 5350, "text": "Well, not really. Just rain and a good record, I suppose."}
+{"ts": "2026-04-02T08:51:50", "event": "reply_published", "turn_id": 3, "duration_ms": 5356, "mood": "neutral", "reply": "Well, not really. Just rain and a good record, I suppose."}
+{"ts": "2026-04-02T08:51:50", "event": "turn_summary", "turn_id": 3, "status": "Ollama 4269 ms | Voice start 5355 ms | Total 5356 ms"}
+{"ts": "2026-04-02T08:51:55", "event": "tts_complete", "turn_id": 3, "text": "Well, not really. Just rain and a good record, I suppose.", "mood": "neutral"}

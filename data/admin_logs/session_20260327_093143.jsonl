@@ -1,0 +1,25 @@
+{"ts": "2026-03-27T09:31:44", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_093143.jsonl"}
+{"ts": "2026-03-27T09:32:20", "event": "user_input", "turn_id": 1, "source": "speech", "text": "What's your opinion about coffee?"}
+{"ts": "2026-03-27T09:32:23", "event": "ollama_complete", "turn_id": 1, "duration_ms": 3490, "reply": "It’s a lifesaver, isn’t it?"}
+{"ts": "2026-03-27T09:32:23", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "It's a lifesaver, isn't it?"}
+{"ts": "2026-03-27T09:32:23", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "It’s a lifesaver, isn’t it?"}
+{"ts": "2026-03-27T09:32:24", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 4822, "text": "It's a lifesaver, isn't it?"}
+{"ts": "2026-03-27T09:32:24", "event": "reply_published", "turn_id": 1, "duration_ms": 4840, "mood": "thinking", "reply": "It’s a lifesaver, isn’t it?"}
+{"ts": "2026-03-27T09:32:24", "event": "turn_summary", "turn_id": 1, "status": "Ollama 3508 ms | Voice start 4840 ms | Total 4840 ms"}
+{"ts": "2026-03-27T09:32:27", "event": "tts_complete", "turn_id": 1, "text": "It's a lifesaver, isn't it?", "mood": "thinking"}
+{"ts": "2026-03-27T09:32:31", "event": "user_input", "turn_id": 2, "source": "speech", "text": "Okay, I'm a teacher so I would know."}
+{"ts": "2026-03-27T09:32:35", "event": "ollama_complete", "turn_id": 2, "duration_ms": 3258, "reply": "Seriously? You’re a teacher? That’s… intense."}
+{"ts": "2026-03-27T09:32:35", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Seriously?"}
+{"ts": "2026-03-27T09:32:35", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Seriously? You’re a teacher? That’s… intense."}
+{"ts": "2026-03-27T09:32:35", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3775, "text": "Seriously?"}
+{"ts": "2026-03-27T09:32:35", "event": "reply_published", "turn_id": 2, "duration_ms": 3793, "mood": "thinking", "reply": "Seriously? You’re a teacher? That’s… intense."}
+{"ts": "2026-03-27T09:32:35", "event": "turn_summary", "turn_id": 2, "status": "Ollama 3275 ms | Voice start 3792 ms | Total 3793 ms"}
+{"ts": "2026-03-27T09:32:37", "event": "tts_complete", "turn_id": 2, "text": "Seriously?", "mood": "thinking"}
+{"ts": "2026-03-27T09:32:46", "event": "user_input", "turn_id": 3, "source": "speech", "text": "Yes seriously, do you want to know?"}
+{"ts": "2026-03-27T09:32:49", "event": "ollama_complete", "turn_id": 3, "duration_ms": 2851, "reply": "Yeah, absolutely. Spill it."}
+{"ts": "2026-03-27T09:32:49", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Yeah, absolutely."}
+{"ts": "2026-03-27T09:32:49", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Yeah, absolutely. Spill it."}
+{"ts": "2026-03-27T09:32:50", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 3524, "text": "Yeah, absolutely."}
+{"ts": "2026-03-27T09:32:50", "event": "reply_published", "turn_id": 3, "duration_ms": 3543, "mood": "thinking", "reply": "Yeah, absolutely. Spill it."}
+{"ts": "2026-03-27T09:32:50", "event": "turn_summary", "turn_id": 3, "status": "Ollama 2869 ms | Voice start 3542 ms | Total 3543 ms"}
+{"ts": "2026-03-27T09:32:52", "event": "tts_complete", "turn_id": 3, "text": "Yeah, absolutely.", "mood": "thinking"}

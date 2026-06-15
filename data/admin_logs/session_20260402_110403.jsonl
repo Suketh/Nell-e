@@ -1,0 +1,35 @@
+{"ts": "2026-04-02T11:04:07", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260402_110403.jsonl"}
+{"ts": "2026-04-02T11:04:30", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Sorry, here we go."}
+{"ts": "2026-04-02T11:04:33", "event": "ollama_complete", "turn_id": 1, "duration_ms": 2632, "reply": "Well, that’s okay. What’s on your mind?"}
+{"ts": "2026-04-02T11:04:33", "event": "tts_enqueued", "turn_id": 1, "mood": "neutral", "text": "Well, that’s okay. What’s on your mind?"}
+{"ts": "2026-04-02T11:04:33", "event": "reply_ready", "turn_id": 1, "mood": "neutral", "reply": "Well, that’s okay. What’s on your mind?"}
+{"ts": "2026-04-02T11:04:34", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 3944, "text": "Well, that’s okay. What’s on your mind?"}
+{"ts": "2026-04-02T11:04:34", "event": "reply_published", "turn_id": 1, "duration_ms": 3960, "mood": "neutral", "reply": "Well, that’s okay. What’s on your mind?"}
+{"ts": "2026-04-02T11:04:34", "event": "turn_summary", "turn_id": 1, "status": "Ollama 2648 ms | Voice start 3960 ms | Total 3960 ms"}
+{"ts": "2026-04-02T11:04:38", "event": "tts_complete", "turn_id": 1, "text": "Well, that’s okay. What’s on your mind?", "mood": "neutral"}
+{"ts": "2026-04-02T11:04:40", "event": "user_input", "turn_id": 2, "source": "speech", "text": "done today"}
+{"ts": "2026-04-02T11:04:43", "event": "ollama_complete", "turn_id": 2, "duration_ms": 3117, "reply": "Right. Just finished something, huh?"}
+{"ts": "2026-04-02T11:04:43", "event": "web_search_complete", "turn_id": 2, "query": "done today", "results": 0}
+{"ts": "2026-04-02T11:04:43", "event": "tts_enqueued", "turn_id": 2, "mood": "neutral", "text": "Right. Just finished something, huh?"}
+{"ts": "2026-04-02T11:04:43", "event": "reply_ready", "turn_id": 2, "mood": "neutral", "reply": "Right. Just finished something, huh?"}
+{"ts": "2026-04-02T11:04:44", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3827, "text": "Right. Just finished something, huh?"}
+{"ts": "2026-04-02T11:04:44", "event": "reply_published", "turn_id": 2, "duration_ms": 3832, "mood": "neutral", "reply": "Right. Just finished something, huh?"}
+{"ts": "2026-04-02T11:04:44", "event": "turn_summary", "turn_id": 2, "status": "Ollama 3121 ms | Voice start 3831 ms | Total 3832 ms"}
+{"ts": "2026-04-02T11:04:47", "event": "tts_complete", "turn_id": 2, "text": "Right. Just finished something, huh?", "mood": "neutral"}
+{"ts": "2026-04-02T11:04:52", "event": "user_input", "turn_id": 3, "source": "speech", "text": "Have you had a fun day today?"}
+{"ts": "2026-04-02T11:04:56", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3140, "reply": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?"}
+{"ts": "2026-04-02T11:04:56", "event": "web_search_complete", "turn_id": 3, "query": "Have you had a fun day today?", "results": 0}
+{"ts": "2026-04-02T11:04:56", "event": "tts_enqueued", "turn_id": 3, "mood": "neutral", "text": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?"}
+{"ts": "2026-04-02T11:04:56", "event": "reply_ready", "turn_id": 3, "mood": "neutral", "reply": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?"}
+{"ts": "2026-04-02T11:04:57", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 4845, "text": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?"}
+{"ts": "2026-04-02T11:04:57", "event": "reply_published", "turn_id": 3, "duration_ms": 4851, "mood": "neutral", "reply": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?"}
+{"ts": "2026-04-02T11:04:57", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3144 ms | Voice start 4850 ms | Total 4851 ms"}
+{"ts": "2026-04-02T11:05:05", "event": "tts_complete", "turn_id": 3, "text": "Well, it was quiet. I mostly just listened to some Chet Baker – rain on the window, you know?", "mood": "neutral"}
+{"ts": "2026-04-02T11:05:36", "event": "user_input", "turn_id": 4, "source": "text", "text": "dont you have any other recommendation than Chat Baker"}
+{"ts": "2026-04-02T11:05:38", "event": "ollama_complete", "turn_id": 4, "duration_ms": 2650, "reply": "Well, not really. Chat Baker’s alright, I suppose."}
+{"ts": "2026-04-02T11:05:38", "event": "tts_enqueued", "turn_id": 4, "mood": "neutral", "text": "Well, not really. Chat Baker’s alright, I suppose."}
+{"ts": "2026-04-02T11:05:38", "event": "reply_ready", "turn_id": 4, "mood": "neutral", "reply": "Well, not really. Chat Baker’s alright, I suppose."}
+{"ts": "2026-04-02T11:05:39", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 3506, "text": "Well, not really. Chat Baker’s alright, I suppose."}
+{"ts": "2026-04-02T11:05:39", "event": "reply_published", "turn_id": 4, "duration_ms": 3513, "mood": "neutral", "reply": "Well, not really. Chat Baker’s alright, I suppose."}
+{"ts": "2026-04-02T11:05:39", "event": "turn_summary", "turn_id": 4, "status": "Ollama 2656 ms | Voice start 3512 ms | Total 3513 ms"}
+{"ts": "2026-04-02T11:05:43", "event": "tts_complete", "turn_id": 4, "text": "Well, not really. Chat Baker’s alright, I suppose.", "mood": "neutral"}

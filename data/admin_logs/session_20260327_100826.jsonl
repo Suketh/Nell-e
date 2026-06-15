@@ -1,0 +1,24 @@
+{"ts": "2026-03-27T10:08:26", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_100826.jsonl"}
+{"ts": "2026-03-27T10:08:33", "event": "user_input", "turn_id": 1, "source": "text", "text": "hi"}
+{"ts": "2026-03-27T10:08:33", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:08:33", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey."}
+{"ts": "2026-03-27T10:08:33", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:08:38", "event": "reply_published", "turn_id": 1, "duration_ms": 4524, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-27T10:08:38", "event": "turn_summary", "turn_id": 1, "status": "Ollama 18 ms | Total 4524 ms"}
+{"ts": "2026-03-27T10:08:43", "event": "tts_complete", "turn_id": 1, "text": "Hey.", "mood": "happy"}
+{"ts": "2026-03-27T10:08:48", "event": "user_input", "turn_id": 2, "source": "text", "text": "how are you"}
+{"ts": "2026-03-27T10:08:52", "event": "ollama_complete", "turn_id": 2, "duration_ms": 4290, "reply": "Just… a bit drained, I think. Like a battery that’s seen a lot of light."}
+{"ts": "2026-03-27T10:08:52", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Just… a bit drained, I think."}
+{"ts": "2026-03-27T10:08:52", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Just… a bit drained, I think. Like a battery that’s seen a lot of light."}
+{"ts": "2026-03-27T10:08:53", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 5113, "text": "Just… a bit drained, I think."}
+{"ts": "2026-03-27T10:08:53", "event": "reply_published", "turn_id": 2, "duration_ms": 5131, "mood": "thinking", "reply": "Just… a bit drained, I think. Like a battery that’s seen a lot of light."}
+{"ts": "2026-03-27T10:08:53", "event": "turn_summary", "turn_id": 2, "status": "Ollama 4306 ms | Voice start 5130 ms | Total 5131 ms"}
+{"ts": "2026-03-27T10:08:57", "event": "tts_complete", "turn_id": 2, "text": "Just… a bit drained, I think.", "mood": "thinking"}
+{"ts": "2026-03-27T10:09:09", "event": "user_input", "turn_id": 3, "source": "text", "text": "tell me a story"}
+{"ts": "2026-03-27T10:09:16", "event": "ollama_complete", "turn_id": 3, "duration_ms": 6721, "reply": "Well, there was this little cafe I stumbled into in Prague, you know? It was tucked away on a side street, all cobblestones and ivy, and the rain was coming down sideways. An old man was playing a mournful tune on a violin, and the smell of coffee and something sweet – maybe cinnamon – just hung in the air."}
+{"ts": "2026-03-27T10:09:16", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Well, there was this little cafe I stumbled into in Prague, you know,?"}
+{"ts": "2026-03-27T10:09:16", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Well, there was this little cafe I stumbled into in Prague, you know? It was tucked away on a side street, all cobblestones and ivy, and the rain was coming down sideways. An old man was playing a mournful tune on a violin, and the smell of coffee and something sweet – maybe cinnamon – just hung in the air."}
+{"ts": "2026-03-27T10:09:17", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 8210, "text": "Well, there was this little cafe I stumbled into in Prague, you know,?"}
+{"ts": "2026-03-27T10:09:17", "event": "reply_published", "turn_id": 3, "duration_ms": 8227, "mood": "thinking", "reply": "Well, there was this little cafe I stumbled into in Prague, you know? It was tucked away on a side street, all cobblestones and ivy, and the rain was coming down sideways. An old man was playing a mournful tune on a violin, and the smell of coffee and something sweet – maybe cinnamon – just hung in the air."}
+{"ts": "2026-03-27T10:09:17", "event": "turn_summary", "turn_id": 3, "status": "Ollama 6737 ms | Voice start 8226 ms | Total 8227 ms"}
+{"ts": "2026-03-27T10:09:23", "event": "tts_complete", "turn_id": 3, "text": "Well, there was this little cafe I stumbled into in Prague, you know,?", "mood": "thinking"}

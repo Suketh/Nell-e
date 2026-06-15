@@ -1,0 +1,9 @@
+{"ts": "2026-06-10T09:07:31", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260610_090726.jsonl"}
+{"ts": "2026-06-10T09:08:30", "event": "user_input", "turn_id": 1, "source": "text", "text": "good morning"}
+{"ts": "2026-06-10T09:09:31", "event": "ollama_complete", "turn_id": 1, "duration_ms": 60611, "reply": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?"}
+{"ts": "2026-06-10T09:09:31", "event": "tts_enqueued", "turn_id": 1, "mood": "neutral", "text": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?"}
+{"ts": "2026-06-10T09:09:31", "event": "reply_ready", "turn_id": 1, "mood": "neutral", "reply": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?"}
+{"ts": "2026-06-10T09:09:34", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 64109, "text": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?"}
+{"ts": "2026-06-10T09:09:34", "event": "reply_published", "turn_id": 1, "duration_ms": 64119, "mood": "neutral", "reply": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?"}
+{"ts": "2026-06-10T09:09:34", "event": "turn_summary", "turn_id": 1, "status": "Ollama 60620 ms | Voice start 64119 ms | Total 64119 ms"}
+{"ts": "2026-06-10T09:09:44", "event": "tts_complete", "turn_id": 1, "text": "Morning. Not much going on here, just hanging out. You doing anything fun today, or are you still in chill mode?", "mood": "neutral"}

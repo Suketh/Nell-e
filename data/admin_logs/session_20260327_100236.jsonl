@@ -1,0 +1,57 @@
+{"ts": "2026-03-27T10:02:36", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260327_100236.jsonl"}
+{"ts": "2026-03-27T10:03:28", "event": "user_input", "turn_id": 1, "source": "speech", "text": "Are you?"}
+{"ts": "2026-03-27T10:03:34", "event": "ollama_complete", "turn_id": 1, "duration_ms": 5675, "reply": "Yeah, pretty much."}
+{"ts": "2026-03-27T10:03:34", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "Yeah, pretty much."}
+{"ts": "2026-03-27T10:03:34", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "Yeah, pretty much."}
+{"ts": "2026-03-27T10:03:35", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 6789, "text": "Yeah, pretty much."}
+{"ts": "2026-03-27T10:03:35", "event": "reply_published", "turn_id": 1, "duration_ms": 6807, "mood": "thinking", "reply": "Yeah, pretty much."}
+{"ts": "2026-03-27T10:03:35", "event": "turn_summary", "turn_id": 1, "status": "Ollama 5692 ms | Voice start 6806 ms | Total 6807 ms"}
+{"ts": "2026-03-27T10:03:37", "event": "tts_complete", "turn_id": 1, "text": "Yeah, pretty much.", "mood": "thinking"}
+{"ts": "2026-03-27T10:03:42", "event": "user_input", "turn_id": 2, "source": "speech", "text": "How are you?"}
+{"ts": "2026-03-27T10:03:45", "event": "ollama_complete", "turn_id": 2, "duration_ms": 2815, "reply": "Just… heavy, honestly."}
+{"ts": "2026-03-27T10:03:45", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Just… heavy, honestly."}
+{"ts": "2026-03-27T10:03:45", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Just… heavy, honestly."}
+{"ts": "2026-03-27T10:03:46", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3628, "text": "Just… heavy, honestly."}
+{"ts": "2026-03-27T10:03:46", "event": "reply_published", "turn_id": 2, "duration_ms": 3646, "mood": "thinking", "reply": "Just… heavy, honestly."}
+{"ts": "2026-03-27T10:03:46", "event": "turn_summary", "turn_id": 2, "status": "Ollama 2832 ms | Voice start 3645 ms | Total 3646 ms"}
+{"ts": "2026-03-27T10:03:49", "event": "tts_complete", "turn_id": 2, "text": "Just… heavy, honestly.", "mood": "thinking"}
+{"ts": "2026-03-27T10:03:53", "event": "user_input", "turn_id": 3, "source": "speech", "text": "Why?"}
+{"ts": "2026-03-27T10:03:56", "event": "ollama_complete", "turn_id": 3, "duration_ms": 3353, "reply": "You sound like you're asking why *what*? Is everything alright?"}
+{"ts": "2026-03-27T10:03:56", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "You sound like you're asking why what?"}
+{"ts": "2026-03-27T10:03:56", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "You sound like you're asking why *what*? Is everything alright?"}
+{"ts": "2026-03-27T10:03:57", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 4213, "text": "You sound like you're asking why what?"}
+{"ts": "2026-03-27T10:03:57", "event": "reply_published", "turn_id": 3, "duration_ms": 4231, "mood": "thinking", "reply": "You sound like you're asking why *what*? Is everything alright?"}
+{"ts": "2026-03-27T10:03:57", "event": "turn_summary", "turn_id": 3, "status": "Ollama 3371 ms | Voice start 4230 ms | Total 4231 ms"}
+{"ts": "2026-03-27T10:04:01", "event": "tts_complete", "turn_id": 3, "text": "You sound like you're asking why what?", "mood": "thinking"}
+{"ts": "2026-03-27T10:04:08", "event": "user_input", "turn_id": 4, "source": "speech", "text": "You see me down. Why?"}
+{"ts": "2026-03-27T10:04:11", "event": "ollama_complete", "turn_id": 4, "duration_ms": 3064, "reply": "You seem a bit lost, don’t you?"}
+{"ts": "2026-03-27T10:04:11", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "You seem a bit lost, don't you?"}
+{"ts": "2026-03-27T10:04:11", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "You seem a bit lost, don’t you?"}
+{"ts": "2026-03-27T10:04:12", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 4009, "text": "You seem a bit lost, don't you?"}
+{"ts": "2026-03-27T10:04:12", "event": "reply_published", "turn_id": 4, "duration_ms": 4027, "mood": "thinking", "reply": "You seem a bit lost, don’t you?"}
+{"ts": "2026-03-27T10:04:12", "event": "turn_summary", "turn_id": 4, "status": "Ollama 3081 ms | Voice start 4026 ms | Total 4027 ms"}
+{"ts": "2026-03-27T10:04:16", "event": "tts_complete", "turn_id": 4, "text": "You seem a bit lost, don't you?", "mood": "thinking"}
+{"ts": "2026-03-27T10:04:33", "event": "user_input", "turn_id": 5, "source": "text", "text": "no i was reffering to you...you seemed to be down...why?"}
+{"ts": "2026-03-27T10:04:37", "event": "ollama_complete", "turn_id": 5, "duration_ms": 3438, "reply": "Seriously? You’re asking *me* why I’m down?"}
+{"ts": "2026-03-27T10:04:37", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Seriously?"}
+{"ts": "2026-03-27T10:04:37", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Seriously? You’re asking *me* why I’m down?"}
+{"ts": "2026-03-27T10:04:37", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 3798, "text": "Seriously?"}
+{"ts": "2026-03-27T10:04:37", "event": "reply_published", "turn_id": 5, "duration_ms": 3816, "mood": "thinking", "reply": "Seriously? You’re asking *me* why I’m down?"}
+{"ts": "2026-03-27T10:04:37", "event": "turn_summary", "turn_id": 5, "status": "Ollama 3455 ms | Voice start 3815 ms | Total 3816 ms"}
+{"ts": "2026-03-27T10:04:39", "event": "tts_complete", "turn_id": 5, "text": "Seriously?", "mood": "thinking"}
+{"ts": "2026-03-27T10:04:44", "event": "user_input", "turn_id": 6, "source": "text", "text": "yes"}
+{"ts": "2026-03-27T10:04:47", "event": "ollama_complete", "turn_id": 6, "duration_ms": 3068, "reply": "You’re just… quiet."}
+{"ts": "2026-03-27T10:04:47", "event": "tts_enqueued", "turn_id": 6, "mood": "thinking", "text": "You're just… quiet."}
+{"ts": "2026-03-27T10:04:47", "event": "reply_ready", "turn_id": 6, "mood": "thinking", "reply": "You’re just… quiet."}
+{"ts": "2026-03-27T10:04:48", "event": "tts_playback_start", "turn_id": 6, "duration_ms": 3636, "text": "You're just… quiet."}
+{"ts": "2026-03-27T10:04:48", "event": "reply_published", "turn_id": 6, "duration_ms": 3654, "mood": "thinking", "reply": "You’re just… quiet."}
+{"ts": "2026-03-27T10:04:48", "event": "turn_summary", "turn_id": 6, "status": "Ollama 3084 ms | Voice start 3653 ms | Total 3654 ms"}
+{"ts": "2026-03-27T10:04:50", "event": "tts_complete", "turn_id": 6, "text": "You're just… quiet.", "mood": "thinking"}
+{"ts": "2026-03-27T10:04:58", "event": "user_input", "turn_id": 7, "source": "text", "text": "tell me something then"}
+{"ts": "2026-03-27T10:05:04", "event": "ollama_complete", "turn_id": 7, "duration_ms": 6009, "reply": "Ugh, honestly, I was staring out the window at this rain, right? It’s just… relentless, you know? Like, a whole lot of grey and wet, and it makes you think about all the things you don’t really want to face, doesn’t it?"}
+{"ts": "2026-03-27T10:05:04", "event": "tts_enqueued", "turn_id": 7, "mood": "thinking", "text": "Ugh, honestly, I was staring out the window at this rain, right?"}
+{"ts": "2026-03-27T10:05:04", "event": "reply_ready", "turn_id": 7, "mood": "thinking", "reply": "Ugh, honestly, I was staring out the window at this rain, right? It’s just… relentless, you know? Like, a whole lot of grey and wet, and it makes you think about all the things you don’t really want to face, doesn’t it?"}
+{"ts": "2026-03-27T10:05:06", "event": "tts_playback_start", "turn_id": 7, "duration_ms": 7363, "text": "Ugh, honestly, I was staring out the window at this rain, right?"}
+{"ts": "2026-03-27T10:05:06", "event": "reply_published", "turn_id": 7, "duration_ms": 7381, "mood": "thinking", "reply": "Ugh, honestly, I was staring out the window at this rain, right? It’s just… relentless, you know? Like, a whole lot of grey and wet, and it makes you think about all the things you don’t really want to face, doesn’t it?"}
+{"ts": "2026-03-27T10:05:06", "event": "turn_summary", "turn_id": 7, "status": "Ollama 6027 ms | Voice start 7380 ms | Total 7381 ms"}
+{"ts": "2026-03-27T10:05:11", "event": "tts_complete", "turn_id": 7, "text": "Ugh, honestly, I was staring out the window at this rain, right?", "mood": "thinking"}

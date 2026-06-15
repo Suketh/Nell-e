@@ -1,0 +1,16 @@
+{"ts": "2026-06-15T10:12:42", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260615_101237.jsonl"}
+{"ts": "2026-06-15T10:15:01", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T10:15:04", "event": "speech_capture_complete", "duration_ms": 2790, "bytes": 267840, "overflow": false}
+{"ts": "2026-06-15T10:15:04", "event": "speech_input_too_quiet", "device": "6", "peak": 47, "minimum_peak": 80}
+{"ts": "2026-06-15T10:15:12", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T10:15:14", "event": "speech_capture_complete", "duration_ms": 1720, "bytes": 165120, "overflow": false}
+{"ts": "2026-06-15T10:15:14", "event": "speech_input_too_quiet", "device": "6", "peak": 4, "minimum_peak": 80}
+{"ts": "2026-06-15T10:15:19", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T10:15:20", "event": "speech_capture_complete", "duration_ms": 1240, "bytes": 119040, "overflow": false}
+{"ts": "2026-06-15T10:15:20", "event": "speech_input_too_quiet", "device": "6", "peak": 4, "minimum_peak": 80}
+{"ts": "2026-06-15T10:16:51", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T10:16:52", "event": "speech_capture_complete", "duration_ms": 1120, "bytes": 107520, "overflow": false}
+{"ts": "2026-06-15T10:16:52", "event": "speech_input_too_quiet", "device": "6", "peak": 36, "minimum_peak": 80}
+{"ts": "2026-06-15T10:17:57", "event": "speech_capture_started", "device": "6", "sample_rate": 48000, "channels": 1, "dtype": "int16"}
+{"ts": "2026-06-15T10:17:59", "event": "speech_capture_complete", "duration_ms": 1960, "bytes": 188160, "overflow": false}
+{"ts": "2026-06-15T10:17:59", "event": "speech_input_too_quiet", "device": "6", "peak": 47, "minimum_peak": 80}

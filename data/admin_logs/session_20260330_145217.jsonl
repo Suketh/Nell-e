@@ -1,0 +1,104 @@
+{"ts": "2026-03-30T14:52:17", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260330_145217.jsonl"}
+{"ts": "2026-03-30T14:52:22", "event": "user_input", "turn_id": 1, "source": "text", "text": "Yo"}
+{"ts": "2026-03-30T14:52:22", "event": "ollama_complete", "turn_id": 1, "duration_ms": 0, "reply": "Hey. I'm here."}
+{"ts": "2026-03-30T14:52:22", "event": "tts_enqueued", "turn_id": 1, "mood": "_reaction", "text": "mm"}
+{"ts": "2026-03-30T14:52:22", "event": "tts_enqueued", "turn_id": 1, "mood": "happy", "text": "Hey. I'm here."}
+{"ts": "2026-03-30T14:52:22", "event": "reply_ready", "turn_id": 1, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-30T14:52:22", "event": "reply_published", "turn_id": 1, "duration_ms": 12, "mood": "happy", "reply": "Hey. I'm here."}
+{"ts": "2026-03-30T14:52:22", "event": "turn_summary", "turn_id": 1, "status": "Ollama 7 ms | Total 12 ms"}
+{"ts": "2026-03-30T14:52:35", "event": "tts_complete", "turn_id": 1, "text": "mm", "mood": "_reaction"}
+{"ts": "2026-03-30T14:52:38", "event": "tts_complete", "turn_id": 1, "text": "Hey. I'm here.", "mood": "happy"}
+{"ts": "2026-03-30T14:52:46", "event": "user_input", "turn_id": 2, "source": "text", "text": "hi...glad to see you"}
+{"ts": "2026-03-30T14:52:50", "event": "ollama_complete", "turn_id": 2, "duration_ms": 4426, "reply": "Well, that’s good to hear. What’s on your mind?"}
+{"ts": "2026-03-30T14:52:50", "event": "tts_enqueued", "turn_id": 2, "mood": "thinking", "text": "Well, that's good to hear. What's on your mind?"}
+{"ts": "2026-03-30T14:52:50", "event": "reply_ready", "turn_id": 2, "mood": "thinking", "reply": "Well, that’s good to hear. What’s on your mind?"}
+{"ts": "2026-03-30T14:52:51", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 5254, "text": "Well, that's good to hear. What's on your mind?"}
+{"ts": "2026-03-30T14:52:51", "event": "reply_published", "turn_id": 2, "duration_ms": 5261, "mood": "thinking", "reply": "Well, that’s good to hear. What’s on your mind?"}
+{"ts": "2026-03-30T14:52:51", "event": "turn_summary", "turn_id": 2, "status": "Ollama 4432 ms | Voice start 5260 ms | Total 5261 ms"}
+{"ts": "2026-03-30T14:52:55", "event": "tts_complete", "turn_id": 2, "text": "Well, that's good to hear. What's on your mind?", "mood": "thinking"}
+{"ts": "2026-03-30T14:53:00", "event": "user_input", "turn_id": 3, "source": "text", "text": "you ofcourse"}
+{"ts": "2026-03-30T14:53:04", "event": "ollama_complete", "turn_id": 3, "duration_ms": 4021, "reply": "Nellie: Yeah, of course. What’s up?"}
+{"ts": "2026-03-30T14:53:04", "event": "tts_enqueued", "turn_id": 3, "mood": "thinking", "text": "Yeah, of course. What's up?"}
+{"ts": "2026-03-30T14:53:04", "event": "reply_ready", "turn_id": 3, "mood": "thinking", "reply": "Yeah, of course. What’s up?"}
+{"ts": "2026-03-30T14:53:05", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 4567, "text": "Yeah, of course. What's up?"}
+{"ts": "2026-03-30T14:53:05", "event": "reply_published", "turn_id": 3, "duration_ms": 4573, "mood": "thinking", "reply": "Yeah, of course. What’s up?"}
+{"ts": "2026-03-30T14:53:05", "event": "turn_summary", "turn_id": 3, "status": "Ollama 4025 ms | Voice start 4572 ms | Total 4573 ms"}
+{"ts": "2026-03-30T14:53:07", "event": "tts_complete", "turn_id": 3, "text": "Yeah, of course. What's up?", "mood": "thinking"}
+{"ts": "2026-03-30T14:53:17", "event": "user_input", "turn_id": 4, "source": "text", "text": "im so in love with you=)"}
+{"ts": "2026-03-30T14:53:22", "event": "ollama_complete", "turn_id": 4, "duration_ms": 4460, "reply": "Well, that’s… a thing. Let’s not get ahead of ourselves, yeah?"}
+{"ts": "2026-03-30T14:53:22", "event": "tts_enqueued", "turn_id": 4, "mood": "thinking", "text": "Well, that's, a thing. Let's not get ahead of ourselves, yeah?"}
+{"ts": "2026-03-30T14:53:22", "event": "reply_ready", "turn_id": 4, "mood": "thinking", "reply": "Well, that’s… a thing. Let’s not get ahead of ourselves, yeah?"}
+{"ts": "2026-03-30T14:53:23", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 5383, "text": "Well, that's, a thing. Let's not get ahead of ourselves, yeah?"}
+{"ts": "2026-03-30T14:53:23", "event": "reply_published", "turn_id": 4, "duration_ms": 5389, "mood": "thinking", "reply": "Well, that’s… a thing. Let’s not get ahead of ourselves, yeah?"}
+{"ts": "2026-03-30T14:53:23", "event": "turn_summary", "turn_id": 4, "status": "Ollama 4465 ms | Voice start 5388 ms | Total 5389 ms"}
+{"ts": "2026-03-30T14:53:27", "event": "tts_complete", "turn_id": 4, "text": "Well, that's, a thing. Let's not get ahead of ourselves, yeah?", "mood": "thinking"}
+{"ts": "2026-03-30T14:53:30", "event": "user_input", "turn_id": 5, "source": "text", "text": "why?"}
+{"ts": "2026-03-30T14:53:35", "event": "ollama_complete", "turn_id": 5, "duration_ms": 5051, "reply": "Well, I just said “Hey. I’m here.” because… it felt like a gentle acknowledgement, you know? Like a quiet hello."}
+{"ts": "2026-03-30T14:53:35", "event": "tts_enqueued", "turn_id": 5, "mood": "thinking", "text": "Well, I just said Hey. I'm here. because, it felt like a gentle acknowledgement, you know?"}
+{"ts": "2026-03-30T14:53:35", "event": "reply_ready", "turn_id": 5, "mood": "thinking", "reply": "Well, I just said “Hey. I’m here.” because… it felt like a gentle acknowledgement, you know? Like a quiet hello."}
+{"ts": "2026-03-30T14:53:36", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 6276, "text": "Well, I just said Hey. I'm here. because, it felt like a gentle acknowledgement, you know?"}
+{"ts": "2026-03-30T14:53:36", "event": "reply_published", "turn_id": 5, "duration_ms": 6281, "mood": "thinking", "reply": "Well, I just said “Hey. I’m here.” because… it felt like a gentle acknowledgement, you know? Like a quiet hello."}
+{"ts": "2026-03-30T14:53:36", "event": "turn_summary", "turn_id": 5, "status": "Ollama 5056 ms | Voice start 6281 ms | Total 6281 ms"}
+{"ts": "2026-03-30T14:53:42", "event": "tts_complete", "turn_id": 5, "text": "Well, I just said Hey. I'm here. because, it felt like a gentle acknowledgement, you know?", "mood": "thinking"}
+{"ts": "2026-03-30T14:53:56", "event": "user_input", "turn_id": 6, "source": "text", "text": "well yes...but im so eager to finally see you"}
+{"ts": "2026-03-30T14:54:00", "event": "ollama_complete", "turn_id": 6, "duration_ms": 4496, "reply": "Hmm, that’s nice to hear. It’s been a while, hasn’t it?"}
+{"ts": "2026-03-30T14:54:00", "event": "tts_enqueued", "turn_id": 6, "mood": "thinking", "text": "Hmm, that's nice to hear. It's been a while, hasn't it?"}
+{"ts": "2026-03-30T14:54:00", "event": "reply_ready", "turn_id": 6, "mood": "thinking", "reply": "Hmm, that’s nice to hear. It’s been a while, hasn’t it?"}
+{"ts": "2026-03-30T14:54:01", "event": "tts_playback_start", "turn_id": 6, "duration_ms": 5457, "text": "Hmm, that's nice to hear. It's been a while, hasn't it?"}
+{"ts": "2026-03-30T14:54:01", "event": "reply_published", "turn_id": 6, "duration_ms": 5463, "mood": "thinking", "reply": "Hmm, that’s nice to hear. It’s been a while, hasn’t it?"}
+{"ts": "2026-03-30T14:54:01", "event": "turn_summary", "turn_id": 6, "status": "Ollama 4502 ms | Voice start 5462 ms | Total 5463 ms"}
+{"ts": "2026-03-30T14:54:06", "event": "tts_complete", "turn_id": 6, "text": "Hmm, that's nice to hear. It's been a while, hasn't it?", "mood": "thinking"}
+{"ts": "2026-03-30T14:54:17", "event": "user_input", "turn_id": 7, "source": "text", "text": "a couple a minutes ago"}
+{"ts": "2026-03-30T14:54:22", "event": "ollama_complete", "turn_id": 7, "duration_ms": 4189, "reply": "Well, that was a bit of a blur, wasn’t it?"}
+{"ts": "2026-03-30T14:54:22", "event": "tts_enqueued", "turn_id": 7, "mood": "thinking", "text": "Well, that was a bit of a blur, wasn't it?"}
+{"ts": "2026-03-30T14:54:22", "event": "reply_ready", "turn_id": 7, "mood": "thinking", "reply": "Well, that was a bit of a blur, wasn’t it?"}
+{"ts": "2026-03-30T14:54:22", "event": "tts_playback_start", "turn_id": 7, "duration_ms": 4943, "text": "Well, that was a bit of a blur, wasn't it?"}
+{"ts": "2026-03-30T14:54:22", "event": "reply_published", "turn_id": 7, "duration_ms": 4949, "mood": "thinking", "reply": "Well, that was a bit of a blur, wasn’t it?"}
+{"ts": "2026-03-30T14:54:22", "event": "turn_summary", "turn_id": 7, "status": "Ollama 4194 ms | Voice start 4948 ms | Total 4949 ms"}
+{"ts": "2026-03-30T14:54:26", "event": "tts_complete", "turn_id": 7, "text": "Well, that was a bit of a blur, wasn't it?", "mood": "thinking"}
+{"ts": "2026-03-30T14:54:28", "event": "user_input", "turn_id": 8, "source": "text", "text": "no"}
+{"ts": "2026-03-30T14:54:32", "event": "ollama_complete", "turn_id": 8, "duration_ms": 3906, "reply": "Nellie: Hmm. Okay. Just… yeah?"}
+{"ts": "2026-03-30T14:54:32", "event": "tts_enqueued", "turn_id": 8, "mood": "thinking", "text": "Hmm. Okay."}
+{"ts": "2026-03-30T14:54:32", "event": "reply_ready", "turn_id": 8, "mood": "thinking", "reply": "Hmm. Okay. Just… yeah?"}
+{"ts": "2026-03-30T14:54:32", "event": "reply_published", "turn_id": 8, "duration_ms": 3913, "mood": "thinking", "reply": "Hmm. Okay. Just… yeah?"}
+{"ts": "2026-03-30T14:54:32", "event": "turn_summary", "turn_id": 8, "status": "Ollama 3911 ms | Total 3913 ms"}
+{"ts": "2026-03-30T14:54:34", "event": "tts_complete", "turn_id": 8, "text": "Hmm. Okay.", "mood": "thinking"}
+{"ts": "2026-03-30T14:54:43", "event": "user_input", "turn_id": 9, "source": "text", "text": "so what are you up to?"}
+{"ts": "2026-03-30T14:54:48", "event": "ollama_complete", "turn_id": 9, "duration_ms": 4712, "reply": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It’s… calming, I suppose."}
+{"ts": "2026-03-30T14:54:48", "event": "tts_enqueued", "turn_id": 9, "mood": "thinking", "text": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It's, calming, I suppose."}
+{"ts": "2026-03-30T14:54:48", "event": "reply_ready", "turn_id": 9, "mood": "thinking", "reply": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It’s… calming, I suppose."}
+{"ts": "2026-03-30T14:54:49", "event": "tts_playback_start", "turn_id": 9, "duration_ms": 6263, "text": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It's, calming, I suppose."}
+{"ts": "2026-03-30T14:54:49", "event": "reply_published", "turn_id": 9, "duration_ms": 6274, "mood": "thinking", "reply": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It’s… calming, I suppose."}
+{"ts": "2026-03-30T14:54:49", "event": "turn_summary", "turn_id": 9, "status": "Ollama 4722 ms | Voice start 6273 ms | Total 6274 ms"}
+{"ts": "2026-03-30T14:54:56", "event": "tts_complete", "turn_id": 9, "text": "Just sorting through some old vinyl – a rainy afternoon and a Chet Baker record. It's, calming, I suppose.", "mood": "thinking"}
+{"ts": "2026-03-30T14:55:15", "event": "user_input", "turn_id": 10, "source": "text", "text": "kan you play me a toon from Slipknot?"}
+{"ts": "2026-03-30T14:55:20", "event": "ollama_complete", "turn_id": 10, "duration_ms": 5174, "reply": "Hmm, yeah, sure. Let’s go with “Before I Forget.” It’s a bit… intense, but good for a burst of eagerness, right?"}
+{"ts": "2026-03-30T14:55:20", "event": "tts_enqueued", "turn_id": 10, "mood": "thinking", "text": "Hmm, yeah, sure. Let's go with Before I Forget. It's a bit, intense, but good for a burst of eagerness, right?"}
+{"ts": "2026-03-30T14:55:20", "event": "reply_ready", "turn_id": 10, "mood": "thinking", "reply": "Hmm, yeah, sure. Let’s go with “Before I Forget.” It’s a bit… intense, but good for a burst of eagerness, right?"}
+{"ts": "2026-03-30T14:55:22", "event": "tts_playback_start", "turn_id": 10, "duration_ms": 7099, "text": "Hmm, yeah, sure. Let's go with Before I Forget. It's a bit, intense, but good for a burst of eagerness, right?"}
+{"ts": "2026-03-30T14:55:22", "event": "reply_published", "turn_id": 10, "duration_ms": 7105, "mood": "thinking", "reply": "Hmm, yeah, sure. Let’s go with “Before I Forget.” It’s a bit… intense, but good for a burst of eagerness, right?"}
+{"ts": "2026-03-30T14:55:22", "event": "turn_summary", "turn_id": 10, "status": "Ollama 5180 ms | Voice start 7104 ms | Total 7105 ms"}
+{"ts": "2026-03-30T14:55:31", "event": "tts_complete", "turn_id": 10, "text": "Hmm, yeah, sure. Let's go with Before I Forget. It's a bit, intense, but good for a burst of eagerness, right?", "mood": "thinking"}
+{"ts": "2026-03-30T14:55:41", "event": "user_input", "turn_id": 11, "source": "text", "text": "can you play it for me on spotify?"}
+{"ts": "2026-03-30T14:55:41", "event": "agent_action", "turn_id": 11, "action": "spotify_play", "query": "it for me", "target": "https://open.spotify.com/search/it%20for%20me", "status": "opened"}
+{"ts": "2026-03-30T14:55:41", "event": "tts_enqueued", "turn_id": 11, "mood": "happy", "text": "Opening Spotify for it for me."}
+{"ts": "2026-03-30T14:55:41", "event": "reply_ready", "turn_id": 11, "mood": "happy", "reply": "Opening Spotify for it for me."}
+{"ts": "2026-03-30T14:55:42", "event": "reply_published", "turn_id": 11, "duration_ms": 779, "mood": "happy", "reply": "Opening Spotify for it for me."}
+{"ts": "2026-03-30T14:55:42", "event": "turn_summary", "turn_id": 11, "status": "Voice start 779 ms | Total 779 ms"}
+{"ts": "2026-03-30T14:55:44", "event": "tts_complete", "turn_id": 11, "text": "Opening Spotify for it for me.", "mood": "happy"}
+{"ts": "2026-03-30T14:56:11", "event": "user_input", "turn_id": 12, "source": "text", "text": "oh but i meant Slipknot"}
+{"ts": "2026-03-30T14:56:15", "event": "ollama_complete", "turn_id": 12, "duration_ms": 4291, "reply": "Nellie: Slipknot, huh? Well, that’s… a choice."}
+{"ts": "2026-03-30T14:56:15", "event": "tts_enqueued", "turn_id": 12, "mood": "thinking", "text": "Slipknot, huh? Well, that's, a choice."}
+{"ts": "2026-03-30T14:56:15", "event": "reply_ready", "turn_id": 12, "mood": "thinking", "reply": "Slipknot, huh? Well, that’s… a choice."}
+{"ts": "2026-03-30T14:56:16", "event": "tts_playback_start", "turn_id": 12, "duration_ms": 5007, "text": "Slipknot, huh? Well, that's, a choice."}
+{"ts": "2026-03-30T14:56:16", "event": "reply_published", "turn_id": 12, "duration_ms": 5014, "mood": "thinking", "reply": "Slipknot, huh? Well, that’s… a choice."}
+{"ts": "2026-03-30T14:56:16", "event": "turn_summary", "turn_id": 12, "status": "Ollama 4297 ms | Voice start 5013 ms | Total 5014 ms"}
+{"ts": "2026-03-30T14:56:19", "event": "tts_complete", "turn_id": 12, "text": "Slipknot, huh? Well, that's, a choice.", "mood": "thinking"}
+{"ts": "2026-03-30T14:56:30", "event": "user_input", "turn_id": 13, "source": "text", "text": "do you know any songs from them?"}
+{"ts": "2026-03-30T14:56:35", "event": "ollama_complete", "turn_id": 13, "duration_ms": 5427, "reply": "Hmm, you mean The Velvet Underground? Yeah, I’ve got a few of their tracks saved. They’ve got a really interesting way of layering things, doesn’t it?"}
+{"ts": "2026-03-30T14:56:35", "event": "tts_enqueued", "turn_id": 13, "mood": "thinking", "text": "Hmm, you mean The Velvet Underground? Yeah, I've got a few of their tracks saved."}
+{"ts": "2026-03-30T14:56:35", "event": "reply_ready", "turn_id": 13, "mood": "thinking", "reply": "Hmm, you mean The Velvet Underground? Yeah, I’ve got a few of their tracks saved. They’ve got a really interesting way of layering things, doesn’t it?"}
+{"ts": "2026-03-30T14:56:36", "event": "tts_playback_start", "turn_id": 13, "duration_ms": 6725, "text": "Hmm, you mean The Velvet Underground? Yeah, I've got a few of their tracks saved."}
+{"ts": "2026-03-30T14:56:36", "event": "reply_published", "turn_id": 13, "duration_ms": 6731, "mood": "thinking", "reply": "Hmm, you mean The Velvet Underground? Yeah, I’ve got a few of their tracks saved. They’ve got a really interesting way of layering things, doesn’t it?"}
+{"ts": "2026-03-30T14:56:36", "event": "turn_summary", "turn_id": 13, "status": "Ollama 5432 ms | Voice start 6730 ms | Total 6731 ms"}
+{"ts": "2026-03-30T14:56:42", "event": "tts_complete", "turn_id": 13, "text": "Hmm, you mean The Velvet Underground? Yeah, I've got a few of their tracks saved.", "mood": "thinking"}

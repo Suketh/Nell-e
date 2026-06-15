@@ -1,0 +1,16 @@
+{"ts": "2026-03-30T13:50:08", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260330_135004.jsonl"}
+{"ts": "2026-03-30T13:50:23", "event": "user_input", "turn_id": 1, "source": "text", "text": "name a song?"}
+{"ts": "2026-03-30T13:50:28", "event": "ollama_complete", "turn_id": 1, "duration_ms": 4325, "reply": "Hmm, well, I was just thinking about Chet Baker’s “Almost Blue.” It’s…quiet."}
+{"ts": "2026-03-30T13:50:28", "event": "tts_enqueued", "turn_id": 1, "mood": "thinking", "text": "Hmm, well, I was just thinking about Chet Baker's Almost Blue. It's, quiet."}
+{"ts": "2026-03-30T13:50:28", "event": "reply_ready", "turn_id": 1, "mood": "thinking", "reply": "Hmm, well, I was just thinking about Chet Baker’s “Almost Blue.” It’s…quiet."}
+{"ts": "2026-03-30T13:50:30", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 6578, "text": "Hmm, well, I was just thinking about Chet Baker's Almost Blue. It's, quiet."}
+{"ts": "2026-03-30T13:50:30", "event": "reply_published", "turn_id": 1, "duration_ms": 6588, "mood": "thinking", "reply": "Hmm, well, I was just thinking about Chet Baker’s “Almost Blue.” It’s…quiet."}
+{"ts": "2026-03-30T13:50:30", "event": "turn_summary", "turn_id": 1, "status": "Ollama 4335 ms | Voice start 6587 ms | Total 6588 ms"}
+{"ts": "2026-03-30T13:50:35", "event": "user_input", "turn_id": 2, "source": "text", "text": "can you play it on spotify for me?"}
+{"ts": "2026-03-30T13:50:35", "event": "agent_action", "turn_id": 2, "action": "spotify_play", "query": "Almost Blue.", "target": "spotify:search:Almost%20Blue", "status": "opened"}
+{"ts": "2026-03-30T13:50:35", "event": "tts_enqueued", "turn_id": 2, "mood": "happy", "text": "Opening Spotify for Almost Blue."}
+{"ts": "2026-03-30T13:50:35", "event": "reply_ready", "turn_id": 2, "mood": "happy", "reply": "Opening Spotify for Almost Blue.."}
+{"ts": "2026-03-30T13:50:37", "event": "tts_complete", "turn_id": 1, "text": "Hmm, well, I was just thinking about Chet Baker's Almost Blue. It's, quiet.", "mood": "thinking"}
+{"ts": "2026-03-30T13:50:38", "event": "reply_published", "turn_id": 2, "duration_ms": 2623, "mood": "happy", "reply": "Opening Spotify for Almost Blue.."}
+{"ts": "2026-03-30T13:50:38", "event": "turn_summary", "turn_id": 2, "status": "Voice start 2622 ms | Total 2623 ms"}
+{"ts": "2026-03-30T13:50:41", "event": "tts_complete", "turn_id": 2, "text": "Opening Spotify for Almost Blue.", "mood": "happy"}

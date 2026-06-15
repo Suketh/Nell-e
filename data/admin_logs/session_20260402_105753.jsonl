@@ -1,0 +1,48 @@
+{"ts": "2026-04-02T10:58:01", "event": "session_started", "status": "ready", "log_path": "C:\\Users\\suket\\Desktop\\Pythonprojekt\\stor\\nellie_fresh\\data\\admin_logs\\session_20260402_105753.jsonl"}
+{"ts": "2026-04-02T10:58:35", "event": "user_input", "turn_id": 1, "source": "speech", "text": "You're young, Nelly."}
+{"ts": "2026-04-02T10:58:40", "event": "ollama_complete", "turn_id": 1, "duration_ms": 5325, "reply": "Well, that’s… a bit of a statement, isn’t it?"}
+{"ts": "2026-04-02T10:58:40", "event": "tts_enqueued", "turn_id": 1, "mood": "neutral", "text": "Well, that’s… a bit of a statement, isn’t it?"}
+{"ts": "2026-04-02T10:58:40", "event": "reply_ready", "turn_id": 1, "mood": "neutral", "reply": "Well, that’s… a bit of a statement, isn’t it?"}
+{"ts": "2026-04-02T10:58:42", "event": "tts_playback_start", "turn_id": 1, "duration_ms": 7700, "text": "Well, that’s… a bit of a statement, isn’t it?"}
+{"ts": "2026-04-02T10:58:42", "event": "reply_published", "turn_id": 1, "duration_ms": 7711, "mood": "neutral", "reply": "Well, that’s… a bit of a statement, isn’t it?"}
+{"ts": "2026-04-02T10:58:42", "event": "turn_summary", "turn_id": 1, "status": "Ollama 5335 ms | Voice start 7710 ms | Total 7711 ms"}
+{"ts": "2026-04-02T10:58:46", "event": "tts_complete", "turn_id": 1, "text": "Well, that’s… a bit of a statement, isn’t it?", "mood": "neutral"}
+{"ts": "2026-04-02T10:58:52", "event": "user_input", "turn_id": 2, "source": "speech", "text": "well it's an obvious fact"}
+{"ts": "2026-04-02T10:58:54", "event": "ollama_complete", "turn_id": 2, "duration_ms": 2627, "reply": "Hmm. You’re not wrong, are you?"}
+{"ts": "2026-04-02T10:58:54", "event": "tts_enqueued", "turn_id": 2, "mood": "neutral", "text": "Hmm. You’re not wrong, are you?"}
+{"ts": "2026-04-02T10:58:54", "event": "reply_ready", "turn_id": 2, "mood": "neutral", "reply": "Hmm. You’re not wrong, are you?"}
+{"ts": "2026-04-02T10:58:55", "event": "tts_playback_start", "turn_id": 2, "duration_ms": 3440, "text": "Hmm. You’re not wrong, are you?"}
+{"ts": "2026-04-02T10:58:55", "event": "reply_published", "turn_id": 2, "duration_ms": 3446, "mood": "neutral", "reply": "Hmm. You’re not wrong, are you?"}
+{"ts": "2026-04-02T10:58:55", "event": "turn_summary", "turn_id": 2, "status": "Ollama 2632 ms | Voice start 3445 ms | Total 3446 ms"}
+{"ts": "2026-04-02T10:58:59", "event": "tts_complete", "turn_id": 2, "text": "Hmm. You’re not wrong, are you?", "mood": "neutral"}
+{"ts": "2026-04-02T10:59:02", "event": "user_input", "turn_id": 3, "source": "speech", "text": "How are you feeling?"}
+{"ts": "2026-04-02T10:59:05", "event": "ollama_complete", "turn_id": 3, "duration_ms": 2667, "reply": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?"}
+{"ts": "2026-04-02T10:59:05", "event": "tts_enqueued", "turn_id": 3, "mood": "neutral", "text": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?"}
+{"ts": "2026-04-02T10:59:05", "event": "reply_ready", "turn_id": 3, "mood": "neutral", "reply": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?"}
+{"ts": "2026-04-02T10:59:06", "event": "tts_playback_start", "turn_id": 3, "duration_ms": 3817, "text": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?"}
+{"ts": "2026-04-02T10:59:06", "event": "reply_published", "turn_id": 3, "duration_ms": 3831, "mood": "neutral", "reply": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?"}
+{"ts": "2026-04-02T10:59:06", "event": "turn_summary", "turn_id": 3, "status": "Ollama 2680 ms | Voice start 3830 ms | Total 3831 ms"}
+{"ts": "2026-04-02T10:59:11", "event": "tts_complete", "turn_id": 3, "text": "Hmm, a little bit like a rainy afternoon, actually. Sensual, yeah?", "mood": "neutral"}
+{"ts": "2026-04-02T10:59:13", "event": "user_input", "turn_id": 4, "source": "speech", "text": "You're essential."}
+{"ts": "2026-04-02T10:59:16", "event": "ollama_complete", "turn_id": 4, "duration_ms": 2628, "reply": "Well, that’s… a nice thing to hear, actually."}
+{"ts": "2026-04-02T10:59:16", "event": "tts_enqueued", "turn_id": 4, "mood": "neutral", "text": "Well, that’s… a nice thing to hear, actually."}
+{"ts": "2026-04-02T10:59:16", "event": "reply_ready", "turn_id": 4, "mood": "neutral", "reply": "Well, that’s… a nice thing to hear, actually."}
+{"ts": "2026-04-02T10:59:17", "event": "tts_playback_start", "turn_id": 4, "duration_ms": 3871, "text": "Well, that’s… a nice thing to hear, actually."}
+{"ts": "2026-04-02T10:59:17", "event": "reply_published", "turn_id": 4, "duration_ms": 3876, "mood": "neutral", "reply": "Well, that’s… a nice thing to hear, actually."}
+{"ts": "2026-04-02T10:59:17", "event": "turn_summary", "turn_id": 4, "status": "Ollama 2633 ms | Voice start 3875 ms | Total 3876 ms"}
+{"ts": "2026-04-02T10:59:23", "event": "tts_complete", "turn_id": 4, "text": "Well, that’s… a nice thing to hear, actually.", "mood": "neutral"}
+{"ts": "2026-04-02T10:59:27", "event": "user_input", "turn_id": 5, "source": "speech", "text": "What are you up to?"}
+{"ts": "2026-04-02T10:59:30", "event": "ollama_complete", "turn_id": 5, "duration_ms": 2664, "reply": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him."}
+{"ts": "2026-04-02T10:59:30", "event": "tts_enqueued", "turn_id": 5, "mood": "neutral", "text": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him."}
+{"ts": "2026-04-02T10:59:30", "event": "reply_ready", "turn_id": 5, "mood": "neutral", "reply": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him."}
+{"ts": "2026-04-02T10:59:31", "event": "tts_playback_start", "turn_id": 5, "duration_ms": 3894, "text": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him."}
+{"ts": "2026-04-02T10:59:31", "event": "reply_published", "turn_id": 5, "duration_ms": 3905, "mood": "neutral", "reply": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him."}
+{"ts": "2026-04-02T10:59:31", "event": "turn_summary", "turn_id": 5, "status": "Ollama 2674 ms | Voice start 3904 ms | Total 3905 ms"}
+{"ts": "2026-04-02T10:59:36", "event": "tts_complete", "turn_id": 5, "text": "Just listening to some Chet Baker, actually. It’s a bit rainy out, which seems to suit him.", "mood": "neutral"}
+{"ts": "2026-04-02T10:59:41", "event": "user_input", "turn_id": 6, "source": "speech", "text": "If you have any other recommendations then check Baker"}
+{"ts": "2026-04-02T10:59:44", "event": "ollama_complete", "turn_id": 6, "duration_ms": 2695, "reply": "Baker’s a good shout, yeah? I’ve got a track by them – “Ghostlight” – that’s been on repeat lately."}
+{"ts": "2026-04-02T10:59:44", "event": "tts_enqueued", "turn_id": 6, "mood": "neutral", "text": "Baker’s a good shout, yeah? I’ve got a track by them – “Ghostlight” – that’s been on repeat lately."}
+{"ts": "2026-04-02T10:59:44", "event": "reply_ready", "turn_id": 6, "mood": "neutral", "reply": "Baker’s a good shout, yeah? I’ve got a track by them – “Ghostlight” – that’s been on repeat lately."}
+{"ts": "2026-04-02T10:59:46", "event": "tts_playback_start", "turn_id": 6, "duration_ms": 4051, "text": "Baker’s a good shout, yeah? I’ve got a track by them – “Ghostlight” – that’s been on repeat lately."}
+{"ts": "2026-04-02T10:59:46", "event": "reply_published", "turn_id": 6, "duration_ms": 4062, "mood": "neutral", "reply": "Baker’s a good shout, yeah? I’ve got a track by them – “Ghostlight” – that’s been on repeat lately."}
+{"ts": "2026-04-02T10:59:46", "event": "turn_summary", "turn_id": 6, "status": "Ollama 2705 ms | Voice start 4061 ms | Total 4062 ms"}
