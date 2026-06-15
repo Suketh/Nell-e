@@ -994,9 +994,9 @@ class MainWindow(QMainWindow):
         language_label = self.language_options.get(self.current_language, {}).get("label", self.current_language.upper())
         memory_label = "Memory on" if self.remember_chat_enabled else "Memory off"
         speech_label = self._speech_badge_text()
-        mood_label = f"Mood: {self.current_mood.title()}"
+        mood_label = self.current_mood.title()
         if self.current_expression and self.current_expression != self.current_mood:
-            mood_label = f"{mood_label} / {self.current_expression.replace('_', ' ').title()}"
+            mood_label = f"{mood_label} · {self.current_expression.replace('_', ' ').title()}"
         self.header_card.set_badges(engine_label, language_label, memory_label, speech_label, mood_label)
 
     def _sync_avatar_state(
@@ -2875,7 +2875,7 @@ class MainWindow(QMainWindow):
             }}
             #headerTitle, #settingsTitle {{
                 color: {title_color};
-                font-size: 32px;
+                font-size: 26px;
                 font-weight: 700;
             }}
             #sectionTitle {{

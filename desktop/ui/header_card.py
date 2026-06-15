@@ -34,8 +34,8 @@ class HeaderCard(QFrame):
         self.setGraphicsEffect(shadow)
 
         self.card_layout = QVBoxLayout(self)
-        self.card_layout.setContentsMargins(24, 20, 22, 20)
-        self.card_layout.setSpacing(11)
+        self.card_layout.setContentsMargins(22, 14, 22, 14)
+        self.card_layout.setSpacing(7)
 
         eyebrow = QLabel("Companion Interface")
         eyebrow.setObjectName("headerEyebrow")
@@ -64,8 +64,8 @@ class HeaderCard(QFrame):
 
         self.avatar = MoodAvatar(moods_dir)
         self.avatar.setObjectName("headerPortrait")
-        self.avatar.setMinimumWidth(164)
-        self.avatar.setMaximumWidth(248)
+        self.avatar.setMinimumWidth(120)
+        self.avatar.setMaximumWidth(196)
 
         intro = QWidget()
         self.intro_layout = QHBoxLayout(intro)
@@ -75,7 +75,7 @@ class HeaderCard(QFrame):
         copy = QWidget()
         copy_layout = QVBoxLayout(copy)
         copy_layout.setContentsMargins(0, 0, 0, 0)
-        copy_layout.setSpacing(3)
+        copy_layout.setSpacing(2)
         copy_layout.addWidget(title)
         copy_layout.addWidget(subtitle)
         copy_layout.addWidget(self.status_label)
@@ -212,11 +212,11 @@ class HeaderCard(QFrame):
             self.meta_row_top_layout.setSpacing(4 if stacked else 6)
             self.meta_row_bottom_layout.setSpacing(4 if stacked else 6)
             margin = 14 if stacked else 22
-            self.card_layout.setContentsMargins(margin, 16 if stacked else 20, margin, 16 if stacked else 20)
+            self.card_layout.setContentsMargins(margin, 10 if stacked else 14, margin, 10 if stacked else 14)
             self._stacked_layout = stacked
 
-        portrait_size = max(112, min(224, int(width * (0.42 if stacked else 0.34))))
-        avatar_width = max(144, min(248, portrait_size + 28))
+        portrait_size = max(88, min(148, int(width * (0.32 if stacked else 0.25))))
+        avatar_width = max(112, min(176, portrait_size + 24))
 
         self.avatar.setFixedWidth(avatar_width)
         self.avatar.set_portrait_size(portrait_size)
