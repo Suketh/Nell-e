@@ -18,13 +18,14 @@ class DesktopSettingsController:
 
     def build_theme_switcher(self):
         row = QHBoxLayout()
-        row.setContentsMargins(0, 6, 0, 0)
-        row.setSpacing(8)
+        row.setContentsMargins(0, 8, 0, 0)
+        row.setSpacing(10)
         for theme_name, label in [("light", "Light"), ("red", "Red"), ("dark", "Dark")]:
             btn = QPushButton(label)
             btn.setObjectName("themeButton")
             btn.setCheckable(True)
             btn.setAutoExclusive(True)
+            btn.setMinimumWidth(70)
             btn.clicked.connect(lambda checked, name=theme_name: self.window._set_theme(name))
             self.window.theme_buttons[theme_name] = btn
             row.addWidget(btn, 0)
@@ -34,7 +35,7 @@ class DesktopSettingsController:
     def build_viewport_switcher(self):
         row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(8)
+        row.setSpacing(10)
         row.addWidget(self.window.mobile_mode_btn, 0)
         row.addWidget(self.window.max_mode_btn, 0)
         row.addStretch(1)
@@ -42,12 +43,12 @@ class DesktopSettingsController:
 
     def build_control_row(self):
         stack = QVBoxLayout()
-        stack.setContentsMargins(0, 2, 0, 0)
-        stack.setSpacing(8)
+        stack.setContentsMargins(0, 4, 0, 0)
+        stack.setSpacing(10)
 
         utility_row = QHBoxLayout()
         utility_row.setContentsMargins(0, 0, 0, 0)
-        utility_row.setSpacing(8)
+        utility_row.setSpacing(10)
         utility_row.addWidget(self.window.clear_memory_btn, 0)
         utility_row.addWidget(self.window.view_log_btn, 0)
         utility_row.addWidget(self.window.gallery_btn, 0)
@@ -55,21 +56,21 @@ class DesktopSettingsController:
 
         mode_row = QHBoxLayout()
         mode_row.setContentsMargins(0, 0, 0, 0)
-        mode_row.setSpacing(8)
+        mode_row.setSpacing(10)
         mode_row.addWidget(self.window.language_combo, 0)
         mode_row.addWidget(self.window.model_combo, 0)
         mode_row.addStretch(1)
 
         voice_row = QHBoxLayout()
         voice_row.setContentsMargins(0, 0, 0, 0)
-        voice_row.setSpacing(8)
+        voice_row.setSpacing(10)
         voice_row.addWidget(self.window.voice_combo, 0)
         voice_row.addWidget(self.window.voice_demo_btn, 0)
         voice_row.addStretch(1)
 
         toggles_row = QHBoxLayout()
         toggles_row.setContentsMargins(0, 0, 0, 0)
-        toggles_row.setSpacing(8)
+        toggles_row.setSpacing(10)
         toggles_row.addWidget(self.window.ssml_lite_btn, 0)
         toggles_row.addWidget(self.window.agent_debug_btn, 0)
         toggles_row.addStretch(1)
@@ -83,11 +84,13 @@ class DesktopSettingsController:
     def open_settings_dialog(self):
         dialog = QDialog(self.window)
         dialog.setWindowTitle("Nellie settings")
-        dialog.resize(540, 620)
+        dialog.setMinimumWidth(600)
+        dialog.setMinimumHeight(750)
+        dialog.resize(700, 850)
 
         layout = QVBoxLayout(dialog)
-        layout.setContentsMargins(14, 14, 14, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
 
         intro = QLabel("Theme, viewport, voice and debug controls live here so the main window stays clean.")
         intro.setObjectName("galleryCardCaption")

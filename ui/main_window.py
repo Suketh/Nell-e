@@ -56,29 +56,38 @@ class SettingsDialog(QDialog):
         self.setWindowTitle("Settings")
         self.setModal(True)
         self.setObjectName("settingsDialog")
-        self.setMinimumWidth(380)
-        self.setMinimumHeight(520)
+        self.setMinimumWidth(580)
+        self.setMinimumHeight(700)
+        self.resize(650, 800)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(18, 18, 18, 18)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(14)
 
         scroll = QScrollArea()
         scroll.setObjectName("settingsScroll")
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setStyleSheet(
+            "QScrollArea { background: transparent; }"
+            "QScrollBar:vertical { background: transparent; width: 10px; }"
+            "QScrollBar::handle:vertical { background: rgba(255,255,255,0.2); border-radius: 5px; }"
+            "QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.35); }"
+        )
 
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(10)
+        content_layout.setSpacing(14)
 
-        title = QLabel("Voice, speech, and safety")
+        title = QLabel("Nellie Settings")
         title.setObjectName("settingsTitle")
-        subtitle = QLabel("Adjust Nellie's voice, speech input, conversation style, and system behavior.")
+        subtitle = QLabel("Customize voice, speech input, conversation style, tools, safety, and system behavior.")
         subtitle.setObjectName("settingsSubtitle")
         subtitle.setWordWrap(True)
+        title.setStyleSheet("font-size: 18px; font-weight: 600; margin-bottom: 4px;")
+        subtitle.setStyleSheet("font-size: 12px; opacity: 0.8; line-height: 1.4;")
         content_layout.addWidget(title)
         content_layout.addWidget(subtitle)
 
@@ -307,8 +316,8 @@ class SettingsDialog(QDialog):
         actions_section, actions_section_layout = self._section_card("System")
         actions = QWidget()
         actions_layout = QVBoxLayout(actions)
-        actions_layout.setContentsMargins(0, 4, 0, 0)
-        actions_layout.setSpacing(8)
+        actions_layout.setContentsMargins(0, 6, 0, 0)
+        actions_layout.setSpacing(10)
 
         self.clear_memory_btn = QPushButton("Clear Memory")
         self.clear_memory_btn.setObjectName("secondaryButton")
@@ -335,10 +344,11 @@ class SettingsDialog(QDialog):
 
         footer = QWidget()
         footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(0, 8, 0, 0)
+        footer_layout.setContentsMargins(0, 12, 0, 0)
         footer_layout.addStretch(1)
         close_btn = QPushButton("Close")
         close_btn.setObjectName("primaryButton")
+        close_btn.setMinimumWidth(100)
         close_btn.clicked.connect(self.accept)
         footer_layout.addWidget(close_btn)
         content_layout.addWidget(footer)
@@ -353,8 +363,8 @@ class SettingsDialog(QDialog):
         card = QFrame()
         card.setObjectName("settingsSection")
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(14, 14, 14, 14)
-        card_layout.setSpacing(10)
+        card_layout.setContentsMargins(16, 16, 16, 16)
+        card_layout.setSpacing(11)
         title = QLabel(title_text)
         title.setObjectName("sectionTitle")
         card_layout.addWidget(title)
